@@ -1,2 +1,2 @@
 # rosta
-A application for managing the museum rosta of volunteers and employees.
+Application for managing the museum's rosta of volunteers and employees.
