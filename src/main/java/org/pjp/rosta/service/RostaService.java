@@ -108,6 +108,8 @@ public class RostaService {
                 RostaDay rostaDay = rosta.getRostaDay(volunteerDay.getDate().getDayOfWeek());
                 rostaDay.addUserUuid(volunteerDay, userUuid);
             });
+
+            // TODO incorporate holidays into the rosta
         });
 
         return rosta;

@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.repository.Query;
 
 public interface VolunteerDayRepository extends MongoRepository<VolunteerDay, String> {
 
-    @Query(value = "{'date':{ $gte: ?1, $lte: ?2}}")
+    @Query(value = "{'userUuid':{ $eq: ?0}, 'date':{ $gte: ?1, $lte: ?2}}")
     List<VolunteerDay> findAllByUserUuidAndDateBetween(String userUuid, LocalDate dateStart, LocalDate dateEnd);
 
 }
