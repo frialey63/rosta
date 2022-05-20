@@ -1,20 +1,23 @@
 package org.pjp.rosta.model;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
-import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.Document;
 
-// TODO implement me Holiday
-public class Holiday {
+@Document
+public class Holiday extends AbstractDay {
 
-    @Id
-    private UUID id;
+    public Holiday(String uuid, LocalDate date, boolean morning, boolean afternoon, String userUuid) {
+        super(uuid, date, morning, afternoon, userUuid);
+    }
 
-    private LocalDate from;
-
-    private LocalDate to;
-
-    private String userUuid;
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("Holiday [toString()=");
+        builder.append(super.toString());
+        builder.append("]");
+        return builder.toString();
+    }
 
 }

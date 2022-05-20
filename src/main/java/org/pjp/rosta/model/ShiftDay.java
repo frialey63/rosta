@@ -2,9 +2,9 @@ package org.pjp.rosta.model;
 
 import java.time.DayOfWeek;
 
-public class ShiftDay {
+public class ShiftDay implements PartOfDay {
 
-    private DayOfWeek dayofWeek;
+    private DayOfWeek dayOfWeek;
 
     private boolean morning;
 
@@ -14,23 +14,24 @@ public class ShiftDay {
         super();
     }
 
-    public ShiftDay(DayOfWeek dayofWeek) {
+    public ShiftDay(DayOfWeek dayOfWeek) {
         super();
-        this.dayofWeek = dayofWeek;
+        this.dayOfWeek = dayOfWeek;
     }
 
-    public ShiftDay(DayOfWeek dayofWeek, boolean morning, boolean afternoon) {
+    public ShiftDay(DayOfWeek dayOfWeek, boolean morning, boolean afternoon) {
         super();
-        this.dayofWeek = dayofWeek;
+        this.dayOfWeek = dayOfWeek;
         this.morning = morning;
         this.afternoon = afternoon;
     }
 
-    public ShiftDay(DayOfWeek dayofWeek, boolean allDay) {
-        this(dayofWeek, allDay, allDay);
+    public ShiftDay(DayOfWeek dayOfWeek, boolean allDay) {
+        this(dayOfWeek, allDay, allDay);
     }
 
-    public boolean isMorning() {
+    @Override
+	public boolean isMorning() {
         return morning;
     }
 
@@ -38,7 +39,8 @@ public class ShiftDay {
         this.morning = morning;
     }
 
-    public boolean isAfternoon() {
+    @Override
+	public boolean isAfternoon() {
         return afternoon;
     }
 
@@ -46,8 +48,8 @@ public class ShiftDay {
         this.afternoon = afternoon;
     }
 
-    public DayOfWeek getDayofWeek() {
-        return dayofWeek;
+    public DayOfWeek getDayOfWeek() {
+        return dayOfWeek;
     }
 
     @Override
