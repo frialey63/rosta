@@ -19,21 +19,23 @@ public class RostaDay {
         this.dayofWeek = dayofWeek;
     }
 
-    public void addMorningUserUuid(String userUuid) {
-        morningUserUuids.add(userUuid);
-    }
-
-    public void addAfternoonUserUuid(String userUuid) {
-        afternoonUserUuids.add(userUuid);
-    }
-
     public void addUserUuid(PartOfDay partOfDay, String userUuid) {
         if (partOfDay.isMorning()) {
-            addMorningUserUuid(userUuid);
+            morningUserUuids.add(userUuid);
         }
 
         if (partOfDay.isAfternoon()) {
-            addAfternoonUserUuid(userUuid);
+            afternoonUserUuids.add(userUuid);
+        }
+    }
+
+    public void removeUserUuid(PartOfDay partOfDay, String userUuid) {
+        if (partOfDay.isMorning()) {
+            morningUserUuids.remove(userUuid);
+        }
+
+        if (partOfDay.isAfternoon()) {
+            afternoonUserUuids.remove(userUuid);
         }
     }
 

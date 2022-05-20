@@ -7,9 +7,11 @@ import java.util.UUID;
 
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.VolunteerDay;
+import org.pjp.rosta.repository.HolidayRepository;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.repository.VolunteerDayRepository;
@@ -27,6 +29,9 @@ public class RostaService {
 
     @Autowired
     private VolunteerDayRepository volunteerDayRepository;
+
+    @Autowired
+    private HolidayRepository holidayRepository;
 
     public void initData() {
         userRepo.deleteAll();
@@ -50,6 +55,9 @@ public class RostaService {
 
             shift = new Shift(UUID.randomUUID().toString(), day.plusWeeks(1), id);
             shiftRepo.save(shift);
+
+            Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
+            holidayRepository.save(holiday);
         }
 
         {
@@ -66,6 +74,9 @@ public class RostaService {
 
             shift = new Shift(UUID.randomUUID().toString(), day.plusWeeks(1), id);
             shiftRepo.save(shift);
+
+            Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
+            holidayRepository.save(holiday);
         }
 
         {
@@ -109,7 +120,13 @@ public class RostaService {
                 rostaDay.addUserUuid(volunteerDay, userUuid);
             });
 
-            // TODO incorporate holidays into the rosta
+
+            holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
+                System.out.println(holiday);
+
+                RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
+                rostaDay.removeUserUuid(holiday, userUuid);
+            });
         });
 
         return rosta;
