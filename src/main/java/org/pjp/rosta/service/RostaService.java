@@ -15,11 +15,15 @@ import org.pjp.rosta.repository.HolidayRepository;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.repository.VolunteerDayRepository;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
 public class RostaService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
     @Autowired
     private UserRepository userRepo;
@@ -39,7 +43,6 @@ public class RostaService {
         volunteerDayRepository.deleteAll();
 
         LocalDate day = LocalDate.of(2022, 5, 16);
-        System.out.println("day = " + day);
 
         {
             String id = UUID.randomUUID().toString();
@@ -93,19 +96,18 @@ public class RostaService {
         LocalDate rostaStartDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
         LocalDate rostaEndDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
-        System.out.println("rostaStartDate = " + rostaStartDate);
-        System.out.println("rostaEndDate = " + rostaEndDate);
+        LOGGER.debug("rostaStartDate = {}", rostaStartDate);
+        LOGGER.debug("rostaEndDate = {}", rostaEndDate);
 
         Rosta rosta = new Rosta(rostaEndDate);
 
         userRepo.findAll().forEach(user -> {
-            System.out.println("-------------");
-            System.out.println(user);
+            LOGGER.debug("user: {}", user);
 
             String userUuid = user.getUuid();
 
             shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(user.getUuid(), rostaEndDate).ifPresent(shift -> {
-                System.out.println(shift);
+                LOGGER.debug("shift: {}", shift);
 
                 shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
                     RostaDay rostaDay = rosta.getRostaDay(shiftDay.getDayOfWeek());
@@ -114,7 +116,7 @@ public class RostaService {
             });
 
             volunteerDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(volunteerDay -> {
-                System.out.println(volunteerDay);
+                LOGGER.debug("volunteerDay: {}", volunteerDay);
 
                 RostaDay rostaDay = rosta.getRostaDay(volunteerDay.getDate().getDayOfWeek());
                 rostaDay.addUserUuid(volunteerDay, userUuid);
@@ -122,7 +124,7 @@ public class RostaService {
 
 
             holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
-                System.out.println(holiday);
+                LOGGER.debug("holiday: {}", holiday);
 
                 RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
                 rostaDay.removeUserUuid(holiday, userUuid);

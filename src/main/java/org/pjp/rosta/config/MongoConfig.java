@@ -30,7 +30,7 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
     }
 
     @Override
-    public Collection getMappingBasePackages() {
+    public Collection<String> getMappingBasePackages() {
         return Collections.singleton("org.pjp.model");
     }
 }
