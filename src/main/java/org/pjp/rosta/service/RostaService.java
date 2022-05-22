@@ -1,10 +1,21 @@
 package org.pjp.rosta.service;
 
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
 import java.util.UUID;
 
+import org.apache.poi.xwpf.usermodel.XWPFDocument;
+import org.apache.poi.xwpf.usermodel.XWPFParagraph;
+import org.apache.poi.xwpf.usermodel.XWPFRun;
+import org.apache.poi.xwpf.usermodel.XWPFTable;
+import org.apache.poi.xwpf.usermodel.XWPFTableCell;
+import org.apache.poi.xwpf.usermodel.XWPFTableRow;
+import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.Holiday;
@@ -24,6 +35,8 @@ import org.springframework.stereotype.Service;
 public class RostaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
+
+    private static final String TEMPLATE_DOCX = "data/simple-weekly-schedule-template.docx";
 
     @Autowired
     private UserRepository userRepo;
@@ -132,5 +145,49 @@ public class RostaService {
         });
 
         return rosta;
+    }
+
+    public void writeRosta(Rosta rosta, String outputFilename) throws FileNotFoundException, IOException {
+        String nowStr = LocalDate.now().toString();
+
+        try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFilename)) {
+            for (XWPFParagraph para : document.getParagraphs()) {
+                findAndReplace(para, "zStartDate", nowStr);
+                insertAtBookmark(para, "endDate", nowStr);
+            }
+
+            for (XWPFTable tbl : document.getTables()) {
+                for (XWPFTableRow row : tbl.getRows()) {
+                    for (XWPFTableCell cell : row.getTableCells()) {
+                        for (XWPFParagraph para : cell.getParagraphs()) {
+                            findAndReplace(para, "zStartDate", nowStr);
+                            insertAtBookmark(para, "endDate", nowStr);
+                        }
+                    }
+                }
+            }
+
+            document.write(out);
+        }
+    }
+
+    private void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
+        for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
+            if (bookmarkName.equals(bookmark.getName())) {
+                XWPFRun newRun = para.insertNewRun(0);
+                newRun.setText(LocalDate.now().toString());
+            }
+        }
+    }
+
+    private void findAndReplace(XWPFParagraph para, String search, String replacement) {
+        for (XWPFRun run : para.getRuns()) {
+            String text = run.getText(0);
+
+            if ((text != null) && text.contains(search)) {
+                text = text.replace(search, replacement);
+                run.setText(text, 0);
+            }
+        }
     }
 }

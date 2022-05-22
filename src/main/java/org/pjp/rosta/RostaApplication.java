@@ -33,6 +33,8 @@ public class RostaApplication implements ApplicationRunner {
         Rosta rosta = service.buildRosta(LocalDate.of(2022, 5, 18));
 
         LOGGER.info("rosta: {}", rosta);
+
+        service.writeRosta(rosta, "data/rosta.docx");
     }
 
 }
