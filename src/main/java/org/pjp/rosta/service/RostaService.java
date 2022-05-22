@@ -175,7 +175,7 @@ public class RostaService {
         for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
             if (bookmarkName.equals(bookmark.getName())) {
                 XWPFRun newRun = para.insertNewRun(0);
-                newRun.setText(LocalDate.now().toString());
+                newRun.setText(insertion);
             }
         }
     }
