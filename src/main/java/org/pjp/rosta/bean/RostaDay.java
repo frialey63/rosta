@@ -48,8 +48,8 @@ public class RostaDay {
         }
     }
 
-    public String[] getUserUuids(PartOfDay partOfDay) {
-        return map.get(partOfDay).toArray(new String[0]);
+    public Set<String> getUserUuids(PartOfDay partOfDay) {
+        return Collections.unmodifiableSet(map.get(partOfDay));
     }
 
     @Override

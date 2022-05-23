@@ -8,6 +8,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Optional;
 import java.util.UUID;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -101,7 +102,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "Anne", "anne@gmail.com", true);
+            User user = new User(id, "Anne", "anne@gmail.com", false);
             userRepo.save(user);
 
             VolunteerDay VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
@@ -182,14 +183,12 @@ public class RostaService {
             RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
 
             for (PartOfDay partOfDay : PartOfDay.values()) {
-                String[] userUuids = rostaDay.getUserUuids(partOfDay);
-                for (int i = 0; i < userUuids.length; i++) {
+                User[] users = rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
+
+                for (int i = 0; i < users.length; i++) {
                     String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
 
-                    // TODO sort order for names, styling of names
-                    userRepo.findById(userUuids[i]).ifPresent(user -> {
-                        insertAtBookmark(para, bookmark, user.getName());
-                    });
+                    insertAtBookmark(para, bookmark, users[i].getName());
                 }
             }
         }
