@@ -59,21 +59,21 @@ public class RostaService {
         shiftRepo.deleteAll();
         volunteerDayRepository.deleteAll();
 
-        LocalDate day = LocalDate.of(2022, 5, 16);
+        LocalDate date = LocalDate.of(2022, 5, 16);
 
         {
             String id = UUID.randomUUID().toString();
             User user = new User(id, "Fred", "fred@gmail.com", true);
             userRepo.save(user);
 
-            Shift shift = new Shift(UUID.randomUUID().toString(), day, id);
+            Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setMorning(false);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), day.minusWeeks(1), id);
+            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), day.plusWeeks(1), id);
+            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
             Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
@@ -85,14 +85,14 @@ public class RostaService {
             User user = new User(id, "Bill", "bill@gmail.com", true);
             userRepo.save(user);
 
-            Shift shift = new Shift(UUID.randomUUID().toString(), day, id);
+            Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), day.minusWeeks(1), id);
+            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), day.plusWeeks(1), id);
+            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
             Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
@@ -104,7 +104,7 @@ public class RostaService {
             User user = new User(id, "Anne", "anne@gmail.com", true);
             userRepo.save(user);
 
-            VolunteerDay VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), day, true, true, id);
+            VolunteerDay VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
     }
@@ -116,7 +116,7 @@ public class RostaService {
         LOGGER.debug("rostaStartDate = {}", rostaStartDate);
         LOGGER.debug("rostaEndDate = {}", rostaEndDate);
 
-        Rosta rosta = new Rosta(rostaEndDate);
+        Rosta rosta = new Rosta(rostaStartDate);
 
         userRepo.findAll().forEach(user -> {
             LOGGER.debug("user: {}", user);
