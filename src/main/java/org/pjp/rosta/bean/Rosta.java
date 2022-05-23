@@ -2,8 +2,8 @@ package org.pjp.rosta.bean;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.util.HashMap;
 import java.util.Map;
-import java.util.TreeMap;
 
 public class Rosta {
 
@@ -23,7 +23,7 @@ public class Rosta {
 
     private final RostaDay sunday = new RostaDay(DayOfWeek.SUNDAY);
 
-    private Map<DayOfWeek, RostaDay> map = new TreeMap<>();
+    private Map<DayOfWeek, RostaDay> map = new HashMap<>();
 
     {
         map.put(DayOfWeek.MONDAY, monday);

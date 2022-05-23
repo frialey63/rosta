@@ -1,10 +1,11 @@
 package org.pjp.rosta.bean;
 
 import java.time.DayOfWeek;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
-
-import org.pjp.rosta.model.PartOfDay;
 
 public class RostaDay {
 
@@ -14,12 +15,20 @@ public class RostaDay {
 
     private final Set<String> afternoonUserUuids = new HashSet<>();
 
+    private Map<PartOfDay, Set<String>> map = new HashMap<>();
+
+    {
+        map.put(PartOfDay.MORNING, morningUserUuids);
+        map.put(PartOfDay.AFTERNOON, afternoonUserUuids);
+        map.put(PartOfDay.EVENING, Collections.emptySet());
+    }
+
     public RostaDay(DayOfWeek dayofWeek) {
         super();
         this.dayofWeek = dayofWeek;
     }
 
-    public void addUserUuid(PartOfDay partOfDay, String userUuid) {
+    public void addUserUuid(org.pjp.rosta.model.PartOfDay partOfDay, String userUuid) {
         if (partOfDay.isMorning()) {
             morningUserUuids.add(userUuid);
         }
@@ -29,7 +38,7 @@ public class RostaDay {
         }
     }
 
-    public void removeUserUuid(PartOfDay partOfDay, String userUuid) {
+    public void removeUserUuid(org.pjp.rosta.model.PartOfDay partOfDay, String userUuid) {
         if (partOfDay.isMorning()) {
             morningUserUuids.remove(userUuid);
         }
@@ -39,15 +48,8 @@ public class RostaDay {
         }
     }
 
-    public String[] getUserUuids(org.pjp.rosta.bean.PartOfDay partOfDay) {
-        switch (partOfDay) {
-        case MORNING:
-            return morningUserUuids.toArray(new String[0]);
-        case AFTERNOON:
-            return afternoonUserUuids.toArray(new String[0]);
-        default:
-            return new String[0];
-        }
+    public String[] getUserUuids(PartOfDay partOfDay) {
+        return map.get(partOfDay).toArray(new String[0]);
     }
 
     @Override

@@ -186,6 +186,7 @@ public class RostaService {
                 for (int i = 0; i < userUuids.length; i++) {
                     String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
 
+                    // TODO sort order for names, styling of names
                     userRepo.findById(userUuids[i]).ifPresent(user -> {
                         insertAtBookmark(para, bookmark, user.getName());
                     });
