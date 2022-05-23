@@ -39,6 +39,17 @@ public class RostaDay {
         }
     }
 
+    public String[] getUserUuids(org.pjp.rosta.bean.PartOfDay partOfDay) {
+        switch (partOfDay) {
+        case MORNING:
+            return morningUserUuids.toArray(new String[0]);
+        case AFTERNOON:
+            return afternoonUserUuids.toArray(new String[0]);
+        default:
+            return new String[0];
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

@@ -6,6 +6,7 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.UUID;
 
@@ -16,6 +17,7 @@ import org.apache.poi.xwpf.usermodel.XWPFTable;
 import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
+import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.Holiday;
@@ -36,7 +38,9 @@ public class RostaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
-    private static final String TEMPLATE_DOCX = "data/simple-weekly-schedule-template.docx";
+    private static final String TEMPLATE_DOCX = "data/rosta-template.docx";
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
     @Autowired
     private UserRepository userRepo;
@@ -148,26 +152,45 @@ public class RostaService {
     }
 
     public void writeRosta(Rosta rosta, String outputFilename) throws FileNotFoundException, IOException {
-        String nowStr = LocalDate.now().toString();
-
         try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFilename)) {
             for (XWPFParagraph para : document.getParagraphs()) {
-                findAndReplace(para, "zStartDate", nowStr);
-                insertAtBookmark(para, "endDate", nowStr);
+                performParagraphInsertions(rosta, para);
             }
 
             for (XWPFTable tbl : document.getTables()) {
                 for (XWPFTableRow row : tbl.getRows()) {
                     for (XWPFTableCell cell : row.getTableCells()) {
                         for (XWPFParagraph para : cell.getParagraphs()) {
-                            findAndReplace(para, "zStartDate", nowStr);
-                            insertAtBookmark(para, "endDate", nowStr);
+                            performParagraphInsertions(rosta, para);
                         }
                     }
                 }
             }
 
             document.write(out);
+        }
+    }
+
+    private void performParagraphInsertions(Rosta rosta, XWPFParagraph para) {
+        String startDate = rosta.getRostaDate().format(FORMATTER);
+        String endDate = rosta.getRostaDate().with(TemporalAdjusters.next(DayOfWeek.SUNDAY)).format(FORMATTER);
+
+        insertAtBookmark(para, "startDate", startDate);
+        insertAtBookmark(para, "endDate", endDate);
+
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+
+            for (PartOfDay partOfDay : PartOfDay.values()) {
+                String[] userUuids = rostaDay.getUserUuids(partOfDay);
+                for (int i = 0; i < userUuids.length; i++) {
+                    String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
+
+                    userRepo.findById(userUuids[i]).ifPresent(user -> {
+                        insertAtBookmark(para, bookmark, user.getName());
+                    });
+                }
+            }
         }
     }
 
@@ -180,6 +203,7 @@ public class RostaService {
         }
     }
 
+    @SuppressWarnings("unused")
     private void findAndReplace(XWPFParagraph para, String search, String replacement) {
         for (XWPFRun run : para.getRuns()) {
             String text = run.getText(0);
