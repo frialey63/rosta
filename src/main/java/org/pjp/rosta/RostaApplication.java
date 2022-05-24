@@ -11,11 +11,22 @@ import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+
+import com.vaadin.flow.component.dependency.NpmPackage;
+import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.server.PWA;
+import com.vaadin.flow.theme.Theme;
 
 @EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
 @SpringBootApplication
-public class RostaApplication implements ApplicationRunner {
+@Theme(value = "ocimport")
+@PWA(name = "RAF Manston History Museum Rosta", shortName = "Rosta", offlineResources = {})
+@NpmPackage(value = "line-awesome", version = "1.3.0")
+public class RostaApplication extends SpringBootServletInitializer implements AppShellConfigurator, ApplicationRunner {
+
+    private static final long serialVersionUID = 4107623244717405998L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaApplication.class);
 
