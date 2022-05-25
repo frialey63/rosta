@@ -94,7 +94,7 @@ public class RostaView extends VerticalLayout {
         Grid<GridBean> grid = new Grid<>(GridBean.class, false);
         grid.setColumnReorderingAllowed(false);
         grid.setAllRowsVisible(true);
-        grid.setWidth("95%");
+        grid.setWidth("98%");
 
         grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
