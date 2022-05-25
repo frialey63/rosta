@@ -2,7 +2,6 @@ package org.pjp.rosta.views;
 
 
 import org.pjp.rosta.views.about.AboutView;
-import org.pjp.rosta.views.rosta.Rosta2View;
 import org.pjp.rosta.views.rosta.RostaView;
 
 import com.vaadin.flow.component.Component;
@@ -118,8 +117,6 @@ public class MainLayout extends AppLayout {
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("The Rosta", "la la-globe", RostaView.class), //
-
-                new MenuItemInfo("The Rosta2", "la la-globe", Rosta2View.class), //
 
                 new MenuItemInfo("About", "la la-file", AboutView.class), //
         };

@@ -1,18 +1,29 @@
 package org.pjp.rosta.views.rosta;
 
 import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.format.TextStyle;
-import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
+import org.pjp.rosta.bean.PartOfDay;
+import org.pjp.rosta.bean.Rosta;
+import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.model.User;
+import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.views.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -20,7 +31,7 @@ import com.vaadin.flow.router.RouteAlias;
 @PageTitle("The Rosta")
 @Route(value = "rosta", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class RostaView extends VerticalLayout {
+public class RostaView extends VerticalLayout implements AfterNavigationObserver {
 
     private static final long serialVersionUID = 3386437553156944523L;
 
@@ -31,11 +42,22 @@ public class RostaView extends VerticalLayout {
         private String morning;
         private String afternoon;
 
+        public GridBean() {
+            super();
+        }
+
         public GridBean(String morning, String afternoon) {
             super();
-            this.day = null;
             this.morning = morning;
             this.afternoon = afternoon;
+        }
+
+        public void set(PartOfDay partOfDay, String str) {
+            if (partOfDay == PartOfDay.MORNING) {
+                setMorning(str);
+            } else {
+                setAfternoon(str);
+            }
         }
 
         public String getDay() {
@@ -64,15 +86,16 @@ public class RostaView extends VerticalLayout {
 
     }
 
-    private List<GridBean> gridBeans = new ArrayList<>();
+    @Autowired
+    private RostaService service;
 
-    {
-        gridBeans.add(new GridBean("Fred", "Bill"));
-        gridBeans.add(new GridBean("Fred", "Bill"));
-        gridBeans.add(new GridBean("Fred", "Bill"));
-        gridBeans.add(new GridBean("Fred", "Bill"));
-    }
+    private Map<DayOfWeek, Grid<GridBean>> dayGrids = new HashMap<>();
 
+    private Map<DayOfWeek, Grid<GridBean>> grids = new HashMap<>();
+
+    private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
+
+    @SuppressWarnings("unchecked")
     public RostaView() {
         Label label = new Label("Hello World");
 
@@ -80,42 +103,105 @@ public class RostaView extends VerticalLayout {
         add(label);
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            Grid<GridBean> grid = createGrid(dayOfWeek);
-            grid.setItems(gridBeans);
+            HorizontalLayout layout = createGrid(dayOfWeek);
 
-            setHorizontalComponentAlignment(Alignment.START, grid);
-            add(grid);
+            dayGrids.put(dayOfWeek, (Grid<GridBean>) layout.getComponentAt(0));
+            grids.put(dayOfWeek, (Grid<GridBean>) layout.getComponentAt(1));
+
+            setHorizontalComponentAlignment(Alignment.START, layout);
+            add(layout);
         }
 
         setMargin(true);
     }
 
-    private Grid<GridBean> createGrid(DayOfWeek dayOfWeek) {
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        Rosta rosta = service.buildRosta(LocalDate.of(2022, 5, 18));
+
+        LOGGER.info("rosta: {}", rosta);
+
+        mapGridBeans(rosta);
+
+        populateGrids();
+
+    }
+
+    private void populateGrids() {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            List<GridBean> temp = allGridBeans.get(dayOfWeek);
+
+            dayGrids.get(dayOfWeek).setItems(temp);
+            grids.get(dayOfWeek).setItems(temp);
+        }
+    }
+
+    private void mapGridBeans(Rosta rosta) {
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+
+            List<GridBean> gridBeans = List.of(new GridBean(), new GridBean(), new GridBean(), new GridBean());
+
+            for (PartOfDay partOfDay : PartOfDay.values()) {
+                User[] users = service.getUsers(rostaDay, partOfDay);
+
+                for (int i = 0; i < Math.min(4, users.length); i++) {
+                    gridBeans.get(i).set(partOfDay, users[i].getName());
+                }
+            }
+
+            allGridBeans.put(dayOfWeek, gridBeans);
+        }
+    }
+
+    private HorizontalLayout createGrid(DayOfWeek dayOfWeek) {
+        HorizontalLayout hl = new HorizontalLayout();
+        hl.setPadding(false);
+        hl.setMargin(false);
+        hl.setSpacing(false);
+        hl.setWidth("98%");
+
+        Grid<GridBean> dayGrid = new Grid<>(GridBean.class, false);
+        dayGrid.setColumnReorderingAllowed(false);
+        dayGrid.setAllRowsVisible(true);
+        dayGrid.setWidth("20%");
+
+        dayGrid.addThemeVariants(GridVariant.LUMO_NO_ROW_BORDERS);
+        dayGrid.addThemeVariants(GridVariant.LUMO_COMPACT);
+
+        dayGrid.addColumn(GridBean::getDay).setHeader(dayOfWeek.getDisplayName(TextStyle.FULL, getLocale())).setWidth("100%").setFlexGrow(0);
+
+        dayGrid.getColumns().forEach(c -> c.setSortable(false));
+
         Grid<GridBean> grid = new Grid<>(GridBean.class, false);
         grid.setColumnReorderingAllowed(false);
         grid.setAllRowsVisible(true);
-        grid.setWidth("98%");
+        grid.setWidth("80%");
 
         grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
 
-        grid.addColumn(GridBean::getDay).setHeader(dayOfWeek.getDisplayName(TextStyle.FULL, getLocale())).setWidth("20%").setFlexGrow(0);
-        grid.addColumn(GridBean::getMorning).setHeader(getCentredLabel("Morning")) .setWidth("40%").setFlexGrow(0);
-        grid.addColumn(GridBean::getAfternoon).setHeader(getCentredLabel("Afternoon")).setWidth("40%").setFlexGrow(0);
+        grid.addColumn(GridBean::getMorning).setHeader(getCentredLabel("Morning")).setWidth("50%").setFlexGrow(0);
+        grid.addColumn(GridBean::getAfternoon).setHeader(getCentredLabel("Afternoon")).setWidth("50%").setFlexGrow(0);
 
         grid.getColumns().forEach(c -> c.setSortable(false));
 
-        return grid;
+        hl.setVerticalComponentAlignment(Alignment.STRETCH, dayGrid, grid);
+        hl.add(dayGrid, grid);
+
+        return hl;
     }
 
-    private VerticalLayout getCentredLabel(String text) {
+    private static VerticalLayout getCentredLabel(String text) {
         VerticalLayout vl = new VerticalLayout();
         vl.setPadding(false);
         vl.setMargin(false);
+
         Label label = new Label(text);
         vl.setHorizontalComponentAlignment(Alignment.CENTER, label);
         vl.add(label);
+
         return vl;
     }
 

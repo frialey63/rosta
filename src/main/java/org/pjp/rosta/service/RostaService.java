@@ -183,7 +183,7 @@ public class RostaService {
             RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
 
             for (PartOfDay partOfDay : PartOfDay.values()) {
-                User[] users = rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
+                User[] users = getUsers(rostaDay, partOfDay);
 
                 for (int i = 0; i < users.length; i++) {
                     String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
@@ -214,4 +214,9 @@ public class RostaService {
             }
         }
     }
+
+    public User[] getUsers(RostaDay rostaDay, PartOfDay partOfDay) {
+        return rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
+    }
+
 }
