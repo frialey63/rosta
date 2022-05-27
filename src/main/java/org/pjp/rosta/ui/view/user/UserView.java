@@ -2,8 +2,11 @@ package org.pjp.rosta.ui.view.user;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.UserService;
+import org.pjp.rosta.service.UserService.ExistingUser;
+import org.pjp.rosta.service.UserService.UserInUsage;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.vaadin.crudui.crud.CrudOperation;
+import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
@@ -25,6 +28,7 @@ public class UserView extends VerticalLayout {
         // grid configuration
         crud.getGrid().setColumns("name", "email", "employee");
         crud.getGrid().setColumnReorderingAllowed(true);
+        crud.addUpdateButtonColumn();
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
@@ -39,10 +43,34 @@ public class UserView extends VerticalLayout {
         // logic configuration
         crud.setOperations(
                 () -> userService.findAll(),
-                user -> userService.save(user),
-                user -> userService.save(user),
-                user -> userService.delete(user)
+                user -> addUser(userService, user),
+                user -> updateUser(userService, user),
+                user -> deleteUser(userService, user)
         );
+    }
+
+    private void deleteUser(UserService userService, User user) {
+        try {
+            userService.delete(user);
+        } catch (UserInUsage e) {
+            throw new CrudOperationException("This user has rosta(s) defined");
+        }
+    }
+
+    private User updateUser(UserService userService, User user) {
+        try {
+            return userService.save(user);
+        } catch (ExistingUser e) {
+            throw new CrudOperationException("A user with this name already exists");
+        }
+    }
+
+    private User addUser(UserService userService, User user) {
+        try {
+            return userService.save(user);
+        } catch (ExistingUser e) {
+            throw new CrudOperationException("A user with this name already exists");
+        }
     }
 
 }

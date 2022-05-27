@@ -13,5 +13,7 @@ public interface ShiftRepository extends MongoRepository<Shift, String> {
 
     List<Shift> findAllByUserUuid(String userUuid);
 
+    int countAllByUserUuid(String userUuid);
+
     Optional<Shift> findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(String userUuid, LocalDate fromDate);
 }
