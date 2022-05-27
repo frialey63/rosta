@@ -1,6 +1,6 @@
-package org.pjp.rosta.views.about;
+package org.pjp.rosta.ui.view.about;
 
-import org.pjp.rosta.views.MainLayout;
+import org.pjp.rosta.ui.view.MainLayout;
 
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Image;
@@ -12,6 +12,8 @@ import com.vaadin.flow.router.Route;
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout {
+
+    private static final long serialVersionUID = -2468462280700402027L;
 
     public AboutView() {
         setSpacing(false);

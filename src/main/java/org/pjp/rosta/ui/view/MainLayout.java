@@ -1,8 +1,9 @@
-package org.pjp.rosta.views;
+package org.pjp.rosta.ui.view;
 
 
-import org.pjp.rosta.views.about.AboutView;
-import org.pjp.rosta.views.rosta.RostaView;
+import org.pjp.rosta.ui.view.about.AboutView;
+import org.pjp.rosta.ui.view.rosta.RostaView;
+import org.pjp.rosta.ui.view.user.UserView;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.applayout.AppLayout;
@@ -25,10 +26,13 @@ import com.vaadin.flow.router.RouterLink;
  */
 public class MainLayout extends AppLayout {
 
+    private static final long serialVersionUID = -4592599326178454171L;
+
     /**
      * A simple navigation item component, based on ListItem element.
      */
     public static class MenuItemInfo extends ListItem {
+        private static final long serialVersionUID = 1369566228598215516L;
 
         private final Class<? extends Component> view;
 
@@ -55,6 +59,8 @@ public class MainLayout extends AppLayout {
          */
         @NpmPackage(value = "line-awesome", version = "1.3.0")
         public static class LineAwesomeIcon extends Span {
+            private static final long serialVersionUID = 7952058726342246260L;
+
             public LineAwesomeIcon(String lineawesomeClassnames) {
                 addClassNames("menu-item-icon");
                 if (!lineawesomeClassnames.isEmpty()) {
@@ -117,6 +123,8 @@ public class MainLayout extends AppLayout {
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
                 new MenuItemInfo("The Rosta", "la la-globe", RostaView.class), //
+
+                new MenuItemInfo("User", "la la-globe", UserView.class), //
 
                 new MenuItemInfo("About", "la la-file", AboutView.class), //
         };

@@ -1,4 +1,4 @@
-package org.pjp.rosta.views.rosta;
+package org.pjp.rosta.ui.view.rosta;
 
 import java.time.DayOfWeek;
 import java.time.LocalDate;
@@ -12,11 +12,14 @@ import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.views.MainLayout;
+import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
+import com.vaadin.flow.component.HasValue.ValueChangeEvent;
+import com.vaadin.flow.component.HasValue.ValueChangeListener;
+import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Label;
@@ -31,11 +34,7 @@ import com.vaadin.flow.router.RouteAlias;
 @PageTitle("The Rosta")
 @Route(value = "rosta", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class RostaView extends VerticalLayout implements AfterNavigationObserver {
-
-    private static final long serialVersionUID = 3386437553156944523L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(RostaView.class);
+public class RostaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
     public static class GridBean {
         private String day;
@@ -83,11 +82,28 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         public void setAfternoon(String afternoon) {
             this.afternoon = afternoon;
         }
+    }
 
+    private static final long serialVersionUID = 3386437553156944523L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(RostaView.class);
+
+    private static VerticalLayout getCentredLabel(String text) {
+        VerticalLayout vl = new VerticalLayout();
+        vl.setPadding(false);
+        vl.setMargin(false);
+
+        Label label = new Label(text);
+        vl.setHorizontalComponentAlignment(Alignment.CENTER, label);
+        vl.add(label);
+
+        return vl;
     }
 
     @Autowired
     private RostaService service;
+
+    DatePicker datePicker = new DatePicker("Cover date");
 
     private Map<DayOfWeek, Grid<GridBean>> dayGrids = new HashMap<>();
 
@@ -97,10 +113,12 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     @SuppressWarnings("unchecked")
     public RostaView() {
-        Label label = new Label("Hello World");
+        datePicker.setValue(LocalDate.now());
 
-        setHorizontalComponentAlignment(Alignment.START, label);
-        add(label);
+        add(datePicker);
+
+        setHorizontalComponentAlignment(Alignment.START, datePicker);
+        add(datePicker);
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             HorizontalLayout layout = createGrid(dayOfWeek);
@@ -117,14 +135,22 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        Rosta rosta = service.buildRosta(LocalDate.of(2022, 5, 18));
-
+        Rosta rosta = service.buildRosta(datePicker.getValue());
         LOGGER.info("rosta: {}", rosta);
 
         mapGridBeans(rosta);
-
         populateGrids();
 
+        datePicker.addValueChangeListener(this);
+    }
+
+    @Override
+    public void valueChanged(ValueChangeEvent<LocalDate> event) {
+        Rosta rosta = service.buildRosta(event.getValue());
+        LOGGER.info("rosta: {}", rosta);
+
+        mapGridBeans(rosta);
+        populateGrids();
     }
 
     private void populateGrids() {
@@ -191,18 +217,6 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         hl.add(dayGrid, grid);
 
         return hl;
-    }
-
-    private static VerticalLayout getCentredLabel(String text) {
-        VerticalLayout vl = new VerticalLayout();
-        vl.setPadding(false);
-        vl.setMargin(false);
-
-        Label label = new Label(text);
-        vl.setHorizontalComponentAlignment(Alignment.CENTER, label);
-        vl.add(label);
-
-        return vl;
     }
 
 }

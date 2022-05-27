@@ -1,5 +1,7 @@
 package org.pjp.rosta.model;
 
+import javax.validation.constraints.NotNull;
+
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -9,8 +11,10 @@ public class User implements Comparable<User> {
     @Id
     private String uuid;
 
+    @NotNull
     private String name;
 
+    @NotNull
     private String email;
 
     private boolean employee;
@@ -19,7 +23,7 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, String name, String email, boolean employee) {
+    public User(String uuid, @NotNull String name, @NotNull String email, boolean employee) {
         super();
         this.uuid = uuid;
         this.name = name;
