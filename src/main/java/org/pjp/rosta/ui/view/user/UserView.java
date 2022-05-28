@@ -5,40 +5,43 @@ import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@PageTitle("User")
+@PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
-public class UserView extends VerticalLayout {
+public class UserView extends VerticalLayout implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -8981630272855085797L;
 
-    // @see https://vaadin.com/directory/component/crud-ui-add-on
+    private final GridCrud<User> crud = new GridCrud<>(User.class);
 
-    public UserView(UserService userService) {
-        // crud instance
-        GridCrud<User> crud = new GridCrud<>(User.class);
+    @Autowired
+    private UserService userService;
+
+    public UserView() {
+
+        // TODO crudui remove margins/padding from Grid and place buttons into a Menubar
 
         // grid configuration
         crud.getGrid().setColumns("name", "email", "employee");
         crud.getGrid().setColumnReorderingAllowed(true);
+        crud.setFindAllOperationVisible(false);
         crud.addUpdateButtonColumn();
+        crud.setWidth("98%");
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("name", "email", "employee");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "email", "employee");
-
-        // layout configuration
-        setSizeFull();
-        add(crud);
-        crud.setFindAllOperationVisible(false);
 
         // logic configuration
         crud.setOperations(
@@ -47,6 +50,19 @@ public class UserView extends VerticalLayout {
                 user -> updateUser(userService, user),
                 user -> deleteUser(userService, user)
         );
+
+        // layout configuration
+        setMargin(true);
+        setPadding(false);
+        setSizeFull();
+
+        setHorizontalComponentAlignment(Alignment.START, crud);
+        add(crud);
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        crud.refreshGrid();
     }
 
     private void deleteUser(UserService userService, User user) {

@@ -1,6 +1,7 @@
 package org.pjp.rosta.service;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.ShiftRepository;
@@ -43,6 +44,10 @@ public class UserService {
 
     public List<User> findByNameContainingIgnoreCase(String name) {
         return userRepository.findByNameContainingIgnoreCase(name);
+    }
+
+    public Optional<User> findByName(String name) {
+        return userRepository.findByName(name);
     }
 
     public User save(User user) {

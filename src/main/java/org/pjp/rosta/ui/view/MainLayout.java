@@ -2,6 +2,7 @@ package org.pjp.rosta.ui.view;
 
 
 import org.pjp.rosta.ui.view.about.AboutView;
+import org.pjp.rosta.ui.view.calendar.CalendarView;
 import org.pjp.rosta.ui.view.rosta.RostaView;
 import org.pjp.rosta.ui.view.user.UserView;
 
@@ -94,7 +95,7 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawerContent() {
-        H2 appName = new H2("OpenCart Product Importer");
+        H2 appName = new H2("Museum Rosta");
         appName.addClassNames("app-name");
 
         com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
@@ -122,9 +123,11 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("The Rosta", "la la-globe", RostaView.class), //
+                new MenuItemInfo("Rosta", "la la-globe", RostaView.class), //
 
-                new MenuItemInfo("User", "la la-globe", UserView.class), //
+                new MenuItemInfo("Calendar", "la la-globe", CalendarView.class), //
+
+                new MenuItemInfo("User Mgmt", "la la-globe", UserView.class), //
 
                 new MenuItemInfo("About", "la la-file", AboutView.class), //
         };

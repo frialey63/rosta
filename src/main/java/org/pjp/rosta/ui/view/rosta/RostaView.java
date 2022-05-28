@@ -100,10 +100,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         return vl;
     }
 
-    @Autowired
-    private RostaService service;
-
-    DatePicker datePicker = new DatePicker("Cover date");
+    DatePicker datePicker = new DatePicker();
 
     private Map<DayOfWeek, Grid<GridBean>> dayGrids = new HashMap<>();
 
@@ -111,11 +108,12 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
 
+    @Autowired
+    private RostaService rostaService;
+
     @SuppressWarnings("unchecked")
     public RostaView() {
-        datePicker.setValue(LocalDate.now());
-
-        add(datePicker);
+        datePicker.addValueChangeListener(this);
 
         setHorizontalComponentAlignment(Alignment.START, datePicker);
         add(datePicker);
@@ -131,22 +129,18 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         }
 
         setMargin(true);
+        setPadding(false);
+        setSizeFull();
     }
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        Rosta rosta = service.buildRosta(datePicker.getValue());
-        LOGGER.info("rosta: {}", rosta);
-
-        mapGridBeans(rosta);
-        populateGrids();
-
-        datePicker.addValueChangeListener(this);
+        datePicker.setValue(LocalDate.now());
     }
 
     @Override
     public void valueChanged(ValueChangeEvent<LocalDate> event) {
-        Rosta rosta = service.buildRosta(event.getValue());
+        Rosta rosta = rostaService.buildRosta(event.getValue());
         LOGGER.info("rosta: {}", rosta);
 
         mapGridBeans(rosta);
@@ -169,7 +163,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
             List<GridBean> gridBeans = List.of(new GridBean(), new GridBean(), new GridBean(), new GridBean());
 
             for (PartOfDay partOfDay : PartOfDay.values()) {
-                User[] users = service.getUsers(rostaDay, partOfDay);
+                User[] users = rostaService.getUsers(rostaDay, partOfDay);
 
                 for (int i = 0; i < Math.min(4, users.length); i++) {
                     gridBeans.get(i).set(partOfDay, users[i].getName());

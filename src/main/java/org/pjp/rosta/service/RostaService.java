@@ -8,6 +8,8 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -21,6 +23,7 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
@@ -219,4 +222,12 @@ public class RostaService {
         return rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
     }
 
+    public List<AbstractDay> getDays(User user, LocalDate dateStart, LocalDate dateEnd) {
+        List<AbstractDay> result = new ArrayList<>();
+
+        result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        result.addAll(holidayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+
+        return result;
+    }
 }

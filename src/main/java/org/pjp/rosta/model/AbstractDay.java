@@ -44,6 +44,10 @@ public abstract class AbstractDay implements PartOfDay {
         return afternoon;
     }
 
+    public boolean isAllDay() {
+        return morning && afternoon;
+    }
+
     public String getUserUuid() {
         return userUuid;
     }
