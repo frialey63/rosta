@@ -43,14 +43,19 @@
             <artifactId>vaadin-spring-boot-starter</artifactId>
         </dependency>
         <dependency>
+            <groupId>com.vaadin.componentfactory</groupId>
+            <artifactId>enhanced-dialog</artifactId>
+            <version>22.0.0</version>
+        </dependency>
+        <dependency>
             <groupId>org.vaadin.crudui</groupId>
             <artifactId>crudui</artifactId>
             <version>6.0.0</version>
         </dependency>
         <dependency>
-           <groupId>org.vaadin.stefan</groupId>
-           <artifactId>fullcalendar2</artifactId>
-           <version>4.1.2</version>
+            <groupId>org.vaadin.stefan</groupId>
+            <artifactId>fullcalendar2</artifactId>
+            <version>4.1.2</version>
         </dependency>
         <dependency>
             <groupId>org.apache.poi</groupId>

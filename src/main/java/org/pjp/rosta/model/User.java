@@ -19,16 +19,19 @@ public class User implements Comparable<User> {
 
     private boolean employee;
 
+    private boolean admin;
+
     public User() {
         super();
     }
 
-    public User(String uuid, @NotNull String name, @NotNull String email, boolean employee) {
+    public User(String uuid, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
         super();
         this.uuid = uuid;
         this.name = name;
         this.email = email;
         this.employee = employee;
+        this.admin = admin;
     }
 
     public String getUuid() {
@@ -63,6 +66,14 @@ public class User implements Comparable<User> {
         this.employee = employee;
     }
 
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -74,6 +85,8 @@ public class User implements Comparable<User> {
         builder.append(email);
         builder.append(", employee=");
         builder.append(employee);
+        builder.append(", admin=");
+        builder.append(admin);
         builder.append("]");
         return builder.toString();
     }

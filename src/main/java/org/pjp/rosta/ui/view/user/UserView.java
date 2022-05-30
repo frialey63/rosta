@@ -32,7 +32,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
         // TODO crudui remove margins/padding from Grid and place buttons into a Menubar
 
         // grid configuration
-        crud.getGrid().setColumns("name", "email", "employee");
+        crud.getGrid().setColumns("name", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.addUpdateButtonColumn();
@@ -40,8 +40,8 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("name", "email", "employee");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "email", "employee");
+        crud.getCrudFormFactory().setVisibleProperties("name", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "email", "employee", "admin");
 
         // logic configuration
         crud.setOperations(
