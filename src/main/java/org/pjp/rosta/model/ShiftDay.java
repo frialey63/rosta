@@ -31,7 +31,7 @@ public class ShiftDay implements PartOfDay {
     }
 
     @Override
-	public boolean isMorning() {
+    public boolean isMorning() {
         return morning;
     }
 
@@ -40,12 +40,16 @@ public class ShiftDay implements PartOfDay {
     }
 
     @Override
-	public boolean isAfternoon() {
+    public boolean isAfternoon() {
         return afternoon;
     }
 
     public void setAfternoon(boolean afternoon) {
         this.afternoon = afternoon;
+    }
+
+    public boolean isAllDay() {
+        return morning && afternoon;
     }
 
     public DayOfWeek getDayOfWeek() {

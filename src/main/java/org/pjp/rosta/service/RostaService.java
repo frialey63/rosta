@@ -230,4 +230,17 @@ public class RostaService {
 
         return result;
     }
+
+    public void saveDay(AbstractDay day) {
+        if (day instanceof Holiday) {
+            holidayRepository.save((Holiday) day);
+        } else {
+            volunteerDayRepository.save((VolunteerDay) day);
+        }
+    }
+
+    public void removeDay(String uuid) {
+        volunteerDayRepository.deleteById(uuid);
+        holidayRepository.deleteById(uuid);
+    }
 }

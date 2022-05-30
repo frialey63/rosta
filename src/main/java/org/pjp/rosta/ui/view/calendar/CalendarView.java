@@ -4,13 +4,17 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
+import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
+import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.CompactVerticalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.stefan.fullcalendar.DatesRenderedEvent;
 import org.vaadin.stefan.fullcalendar.Entry;
@@ -33,7 +37,6 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -59,21 +62,24 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         }
     }
 
-    private static class CreateDialog extends EnhancedDialog {
+    private static class CreateDialog extends EnhancedDialog implements PartOfDay {
         private static final long serialVersionUID = -6123213676333349968L;
 
         private final boolean holiday;
 
         private final LocalDate date;
 
+        private final String userUuid;
+
         private final Checkbox morning = new Checkbox("Morning", true);
 
         private final Checkbox afternoon = new Checkbox("Afternoon", true);
 
-        public CreateDialog(boolean holiday, LocalDate date) {
+        public CreateDialog(boolean holiday, LocalDate date, String userUuid) {
             super();
             this.holiday = holiday;
             this.date = date;
+            this.userUuid = userUuid;
 
             morning.addValueChangeListener(l -> {
                 if (!l.getValue() && !afternoon.getValue()) {
@@ -106,10 +112,6 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
             return date;
         }
 
-        public boolean isAllDay() {
-            return morning.getValue() && afternoon.getValue();
-        }
-
         public boolean isMorning() {
             return morning.getValue();
         }
@@ -117,15 +119,35 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         public boolean isAfternoon() {
             return afternoon.getValue();
         }
+
+        public String getUserUuid() {
+            return userUuid;
+        }
     }
 
     private static final long serialVersionUID = -4423320972580039035L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(CalendarView.class);
 
     private static final String HOLIDAY_COLOUR = "#ff3333";
 
     private static final String VOLUNTEER_DAY_COLOUR = "#33ff33";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
+
+    private static final String KEY_UUID = "uuid";
+
+    private static String getTitle(PartOfDay partOfDay) {
+        if (partOfDay.isMorning() && partOfDay.isAfternoon()) {
+            return "All Day";
+        } else if (partOfDay.isMorning()) {
+            return "Morning";
+        } else if (partOfDay.isAfternoon()) {
+            return "Afternoon";
+        }
+
+        throw new IllegalStateException();
+    }
 
     private final FullCalendar calendar = FullCalendarBuilder.create().build();
 
@@ -157,8 +179,8 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         add(menuBar, calendar);
     }
 
-    private void updateMonthReadout(HasText label, LocalDate intervalStart) {
-        String text = intervalStart.format(FORMATTER.withLocale(calendar.getLocale()));
+    private void updateMonthReadout(HasText label, LocalDate date) {
+        String text = date.format(FORMATTER.withLocale(calendar.getLocale()));
         label.setText(text);
     }
 
@@ -189,30 +211,25 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
 
     @Override
     public void onComponentEvent(DatesRenderedEvent event) {
-        LocalDate intervalStart = event.getIntervalStart();
-        LocalDate intervalEnd = event.getIntervalEnd();
+        LocalDate start = event.getStart();
+        LocalDate end = event.getEnd();
+
+        LOGGER.info("start = {}, end = {}", start, end);
 
         String username = Session.getUsername();
 
-        updateMonthReadout(buttonDatePicker, intervalStart);
+        updateMonthReadout(buttonDatePicker, start);
 
         calendar.removeAllEntries();
 
         userService.findByName(username).ifPresent(user -> {
-            rostaService.getDays(user, intervalStart, intervalEnd).forEach(day -> {
+            rostaService.getDays(user, start, end).forEach(day -> {
                 Entry entry = new Entry();
+                entry.setCustomProperty(KEY_UUID, day.getUuid());
                 entry.setStart(day.getDate());
                 entry.setColor((day instanceof Holiday) ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
                 entry.setAllDay(true);
-
-                // TODO centre align the text in the entry on the calendar
-                if (day.isAllDay()) {
-                    entry.setTitle("All Day");
-                } else if (day.isMorning()) {
-                    entry.setTitle("Morning");
-                } else if (day.isAfternoon()) {
-                    entry.setTitle("Afternoon");
-                }
+                entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
 
                 calendar.addEntry(entry);
             });
@@ -236,7 +253,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         userService.findByName(username).ifPresent(user -> {
             String header = String.format("Add %s", (user.isEmployee() ? "Holiday" : "Volunteer Day"));
 
-            dialog = new CreateDialog(user.isEmployee(), event.getStartDate());
+            dialog = new CreateDialog(user.isEmployee(), event.getStartDate(), user.getUuid());
             dialog.setHeader(header);
             dialog.setFooter(new HorizontalLayout(new Button("Save", this::onCreate), new Button("Cancel", this::onCancel)));
             dialog.open();
@@ -246,31 +263,34 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
     private void onCreate(ClickEvent<Button> event) {
         CreateDialog createDialog = (CreateDialog) dialog;
 
+        LocalDate date = createDialog.getDate();
+        boolean holiday = createDialog.isHoliday();
+
         Entry entry = new Entry();
-        entry.setStart(createDialog.getDate());
-        entry.setColor(createDialog.isHoliday() ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
+        entry.setStart(date);
+        entry.setColor(holiday ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
         entry.setAllDay(true);
+        entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
 
-        // TODO centre align the text in the entry on the calendar
-        if (createDialog.isAllDay()) {
-            entry.setTitle("All Day");
-        } else if (createDialog.isMorning()) {
-            entry.setTitle("Morning");
-        } else if (createDialog.isAfternoon()) {
-            entry.setTitle("Afternoon");
+        AbstractDay day = AbstractDay.createDay(holiday, date, createDialog, createDialog.getUserUuid());
+
+        try {
+            rostaService.saveDay(day);
+            calendar.addEntry(entry);
+        } finally {
+            dialog.close();
         }
-
-        calendar.addEntry(entry);
-
-        dialog.close();
     }
 
     private void onDelete(ClickEvent<Button> event) {
         Entry entry = ((DeleteDialog) dialog).getEntry();
 
-        calendar.removeEntry(entry);
-
-        dialog.close();
+        try {
+            rostaService.removeDay(entry.getCustomProperty(KEY_UUID));
+            calendar.removeEntry(entry);
+        } finally {
+            dialog.close();
+        }
     }
 
     private void onCancel(ClickEvent<Button> event) {

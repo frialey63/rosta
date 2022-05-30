@@ -6,6 +6,14 @@ import org.springframework.data.annotation.Id;
 
 public abstract class AbstractDay implements PartOfDay {
 
+    public static AbstractDay createDay(boolean holiday, LocalDate date, PartOfDay partOfDay, String userUuid) {
+        if (holiday) {
+            return new Holiday(date, partOfDay, userUuid);
+        }
+
+        return new VolunteerDay(date, partOfDay, userUuid);
+    }
+
     @Id
     private String uuid;
 
@@ -16,6 +24,10 @@ public abstract class AbstractDay implements PartOfDay {
     private boolean afternoon;
 
     private String userUuid;
+
+    public AbstractDay() {
+        super();
+    }
 
     public AbstractDay(String uuid, LocalDate date, boolean morning, boolean afternoon, String userUuid) {
         super();
