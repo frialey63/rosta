@@ -11,7 +11,6 @@ import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
-import org.pjp.rosta.ui.view.CompactVerticalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,195 +22,26 @@ import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.TimeslotsSelectedEvent;
+import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ClickEvent;
-import com.vaadin.flow.component.Component;
 //.import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
-import com.vaadin.flow.component.grid.Grid;
-import com.vaadin.flow.component.grid.GridVariant;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @PageTitle("Calendar of Volunteer Days & Holidays")
 @Route(value = "calendar", layout = MainLayout.class)
 public class CalendarView extends VerticalLayout implements ComponentEventListener<DatesRenderedEvent> {
-
-    private static class DeleteDialog extends EnhancedDialog {
-        private static final long serialVersionUID = 5109473128007800278L;
-
-        private final Entry entry;
-
-        public DeleteDialog(boolean holiday, Entry entry) {
-            super();
-            this.entry = entry;
-
-            String question = String.format("Do you want to delete this %s?", (holiday ? "Holiday" : "Volunteer Day"));
-            setContent(getContent(question));
-        }
-
-        private Component getContent(String question) {
-            return new Span(question);
-        }
-
-        public Entry getEntry() {
-            return entry;
-        }
-    }
-
-    private static class CreateDialog extends EnhancedDialog implements PartOfDay {
-        private static final long serialVersionUID = -6123213676333349968L;
-
-        private final boolean holiday;
-
-        private final LocalDate date;
-
-        private final String userUuid;
-
-        private final Checkbox morning = new Checkbox("Morning", true);
-
-        private final Checkbox afternoon = new Checkbox("Afternoon", true);
-
-        public CreateDialog(boolean holiday, LocalDate date, String userUuid) {
-            super();
-            this.holiday = holiday;
-            this.date = date;
-            this.userUuid = userUuid;
-
-            morning.addValueChangeListener(l -> {
-                if (!l.getValue() && !afternoon.getValue()) {
-                    afternoon.setValue(true);
-                }
-            });
-
-            afternoon.addValueChangeListener(l -> {
-                if (!l.getValue() && !morning.getValue()) {
-                    morning.setValue(true);
-                }
-            });
-
-            setContent(getContent());
-        }
-
-        public Component getContent() {
-            VerticalLayout panel = new CompactVerticalLayout(morning, afternoon);
-            panel.setHorizontalComponentAlignment(Alignment.START, morning, afternoon);
-            panel.setHeightFull();
-
-            return panel;
-        }
-
-        public boolean isHoliday() {
-            return holiday;
-        }
-
-        public LocalDate getDate() {
-            return date;
-        }
-
-        public boolean isMorning() {
-            return morning.getValue();
-        }
-
-        public boolean isAfternoon() {
-            return afternoon.getValue();
-        }
-
-        public String getUserUuid() {
-            return userUuid;
-        }
-    }
-
-    private static class RostaDialog extends EnhancedDialog {
-
-        public static class RostaEntry {
-            private String day;
-
-            private boolean morning;
-
-            private boolean afternoon;
-
-            public RostaEntry(String day, boolean morning, boolean afternoon) {
-                super();
-                this.day = day;
-                this.morning = morning;
-                this.afternoon = afternoon;
-            }
-
-            public String getDay() {
-                return day;
-            }
-
-            public void setDay(String day) {
-                this.day = day;
-            }
-
-            public boolean isMorning() {
-                return morning;
-            }
-
-            public void setMorning(boolean morning) {
-                this.morning = morning;
-            }
-
-            public boolean isAfternoon() {
-                return afternoon;
-            }
-
-            public void setAfternoon(boolean afternoon) {
-                this.afternoon = afternoon;
-            }
-        }
-
-        private static final long serialVersionUID = -4941020550845994051L;
-
-        public RostaDialog() {
-            super();
-
-            setContent(getContent());
-        }
-
-        private Component getContent() {
-            RostaEntry entry1 = new RostaEntry("Monday", true, true);
-            RostaEntry entry2 = new RostaEntry("Tuesday", true, true);
-            RostaEntry entry3 = new RostaEntry("Wednesday", true, true);
-            RostaEntry entry4 = new RostaEntry("Thursday", true, true);
-            RostaEntry entry5 = new RostaEntry("Friday", true, true);
-
-            Grid<RostaEntry> grid = new Grid<>(RostaEntry.class, false);
-            grid.setColumnReorderingAllowed(false);
-            grid.setAllRowsVisible(true);
-            grid.setWidth("30em");
-
-            grid.addColumn(RostaEntry::getDay).setHeader("Day");
-            grid.addColumn(new ComponentRenderer<>(rostaEntry -> {
-                return new Checkbox(rostaEntry.isMorning());
-
-            })).setHeader("Morning");
-            grid.addColumn(new ComponentRenderer<>(rostaEntry -> {
-                return new Checkbox(rostaEntry.isAfternoon());
-
-            })).setHeader("Afternoon");
-
-            grid.addThemeVariants(GridVariant.LUMO_COMPACT);
-
-            grid.setItems(entry1, entry2, entry3, entry4, entry5);
-
-            return grid;
-        }
-    }
 
     private static final long serialVersionUID = -4423320972580039035L;
 
@@ -256,6 +86,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.addTimeslotsSelectedListener(this::onTimeslotsSelectedEvent);
         calendar.addEntryClickedListener(this::onEntryClickedEvent);
+        calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
         calendar.addDatesRenderedListener(this);
 
         setSizeFull();
@@ -323,23 +154,37 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
                 calendar.addEntry(entry);
             });
         });
+
+        // TODO display my rosta using background entries
+    }
+
+    public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
+        String username = Session.getUsername();
+
+        userService.findByName(username).ifPresent(user -> {
+            LocalDate date = event.getDate();
+
+            dialog = new ShiftDialog(date);
+            dialog.setHeader("Create New Shift");
+            dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
+
+                // TODO persist as new shift instance
+                ((ShiftDialog) dialog).getEntries().forEach(entry -> System.out.println(entry));
+
+            }), new Button("Cancel", this::onCancel)));
+            dialog.open();
+        });
     }
 
     public void onEntryClickedEvent(EntryClickedEvent event) {
         String username = Session.getUsername();
 
-// TODO for testing
-        dialog = new RostaDialog();
-        dialog.setHeader("My Rosta");
-        dialog.setFooter(new CompactHorizontalLayout(new Button("Cancel", this::onCancel)));
-        dialog.open();
-
-//        userService.findByName(username).ifPresent(user -> {
-//            dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
-//            dialog.setHeader("Delete");
-//            dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
-//            dialog.open();
-//        });
+        userService.findByName(username).ifPresent(user -> {
+            dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
+            dialog.setHeader("Delete");
+            dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
+            dialog.open();
+        });
     }
 
     public void onTimeslotsSelectedEvent(TimeslotsSelectedEvent event) {
