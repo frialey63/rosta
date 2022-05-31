@@ -18,6 +18,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.stefan.fullcalendar.DatesRenderedEvent;
 import org.vaadin.stefan.fullcalendar.Entry;
+import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
@@ -25,6 +26,7 @@ import org.vaadin.stefan.fullcalendar.TimeslotsSelectedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ClickEvent;
+import com.vaadin.flow.component.Component;
 //.import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasText;
@@ -32,11 +34,14 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.grid.Grid;
+import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.data.renderer.ComponentRenderer;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -54,7 +59,11 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
             this.entry = entry;
 
             String question = String.format("Do you want to delete this %s?", (holiday ? "Holiday" : "Volunteer Day"));
-            setContent(new Span(question));
+            setContent(getContent(question));
+        }
+
+        private Component getContent(String question) {
+            return new Span(question);
         }
 
         public Entry getEntry() {
@@ -96,7 +105,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
             setContent(getContent());
         }
 
-        public VerticalLayout getContent() {
+        public Component getContent() {
             VerticalLayout panel = new CompactVerticalLayout(morning, afternoon);
             panel.setHorizontalComponentAlignment(Alignment.START, morning, afternoon);
             panel.setHeightFull();
@@ -122,6 +131,85 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
 
         public String getUserUuid() {
             return userUuid;
+        }
+    }
+
+    private static class RostaDialog extends EnhancedDialog {
+
+        public static class RostaEntry {
+            private String day;
+
+            private boolean morning;
+
+            private boolean afternoon;
+
+            public RostaEntry(String day, boolean morning, boolean afternoon) {
+                super();
+                this.day = day;
+                this.morning = morning;
+                this.afternoon = afternoon;
+            }
+
+            public String getDay() {
+                return day;
+            }
+
+            public void setDay(String day) {
+                this.day = day;
+            }
+
+            public boolean isMorning() {
+                return morning;
+            }
+
+            public void setMorning(boolean morning) {
+                this.morning = morning;
+            }
+
+            public boolean isAfternoon() {
+                return afternoon;
+            }
+
+            public void setAfternoon(boolean afternoon) {
+                this.afternoon = afternoon;
+            }
+        }
+
+        private static final long serialVersionUID = -4941020550845994051L;
+
+        public RostaDialog() {
+            super();
+
+            setContent(getContent());
+        }
+
+        private Component getContent() {
+            RostaEntry entry1 = new RostaEntry("Monday", true, true);
+            RostaEntry entry2 = new RostaEntry("Tuesday", true, true);
+            RostaEntry entry3 = new RostaEntry("Wednesday", true, true);
+            RostaEntry entry4 = new RostaEntry("Thursday", true, true);
+            RostaEntry entry5 = new RostaEntry("Friday", true, true);
+
+            Grid<RostaEntry> grid = new Grid<>(RostaEntry.class, false);
+            grid.setColumnReorderingAllowed(false);
+            grid.setAllRowsVisible(true);
+            grid.setWidth("30em");
+
+            grid.addColumn(RostaEntry::getDay).setHeader("Day");
+            grid.addColumn(new ComponentRenderer<>(rostaEntry -> {
+                return new Checkbox(rostaEntry.isMorning());
+
+            })).setHeader("Morning");
+            grid.addColumn(new ComponentRenderer<>(rostaEntry -> {
+                return new Checkbox(rostaEntry.isAfternoon());
+
+            })).setHeader("Afternoon");
+
+            grid.addThemeVariants(GridVariant.LUMO_COMPACT);
+
+            grid.setItems(entry1, entry2, entry3, entry4, entry5);
+
+            return grid;
         }
     }
 
@@ -230,6 +318,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
                 entry.setColor((day instanceof Holiday) ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
                 entry.setAllDay(true);
                 entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
+                entry.setRenderingMode(RenderingMode.BLOCK);
 
                 calendar.addEntry(entry);
             });
@@ -239,12 +328,18 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
     public void onEntryClickedEvent(EntryClickedEvent event) {
         String username = Session.getUsername();
 
-        userService.findByName(username).ifPresent(user -> {
-            dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
-            dialog.setHeader("Delete");
-            dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
-            dialog.open();
-        });
+// TODO for testing
+        dialog = new RostaDialog();
+        dialog.setHeader("My Rosta");
+        dialog.setFooter(new CompactHorizontalLayout(new Button("Cancel", this::onCancel)));
+        dialog.open();
+
+//        userService.findByName(username).ifPresent(user -> {
+//            dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
+//            dialog.setHeader("Delete");
+//            dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
+//            dialog.open();
+//        });
     }
 
     public void onTimeslotsSelectedEvent(TimeslotsSelectedEvent event) {
@@ -271,6 +366,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         entry.setColor(holiday ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
         entry.setAllDay(true);
         entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
+        entry.setRenderingMode(RenderingMode.BLOCK);
 
         AbstractDay day = AbstractDay.createDay(holiday, date, createDialog, createDialog.getUserUuid());
 
