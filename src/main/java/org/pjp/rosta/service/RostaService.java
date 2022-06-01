@@ -243,4 +243,8 @@ public class RostaService {
         volunteerDayRepository.deleteById(uuid);
         holidayRepository.deleteById(uuid);
     }
+
+    public void saveShift(Shift shift) {
+        shiftRepo.save(shift);
+    }
 }

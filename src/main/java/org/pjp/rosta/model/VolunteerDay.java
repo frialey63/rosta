@@ -10,7 +10,6 @@ public class VolunteerDay extends AbstractDay {
 
     public VolunteerDay() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public VolunteerDay(String uuid, LocalDate date, boolean morning, boolean afternoon, String userUuid) {

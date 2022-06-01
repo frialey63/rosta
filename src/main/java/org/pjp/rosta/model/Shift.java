@@ -5,6 +5,7 @@ import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
+import java.util.UUID;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -45,11 +46,19 @@ public class Shift {
         map.put(DayOfWeek.SUNDAY, sunday);
     }
 
+    public Shift() {
+        super();
+    }
+
     public Shift(String uuid, LocalDate fromDate, String userUuid) {
         super();
         this.uuid = uuid;
         this.fromDate = fromDate;
         this.userUuid = userUuid;
+    }
+
+    public Shift(LocalDate fromDate, String userUuid) {
+        this(UUID.randomUUID().toString(), fromDate, userUuid);
     }
 
     public String getUuid() {

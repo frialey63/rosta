@@ -7,6 +7,8 @@ import java.time.format.DateTimeFormatter;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.PartOfDay;
+import org.pjp.rosta.model.Shift;
+import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
@@ -158,6 +160,8 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         // TODO display my rosta using background entries
     }
 
+    // TODO check for existing rosta and do update
+
     public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         String username = Session.getUsername();
 
@@ -167,9 +171,17 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
             dialog = new ShiftDialog(date);
             dialog.setHeader("Create New Shift");
             dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
+                Shift shift = new Shift(date, user.getUuid());
 
-                // TODO persist as new shift instance
-                ((ShiftDialog) dialog).getEntries().forEach(entry -> System.out.println(entry));
+                ((ShiftDialog) dialog).getEntries().forEach(entry -> {
+                    ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
+                    shiftDay.setMorning(entry.isMorning());
+                    shiftDay.setAfternoon(entry.isAfternoon());
+                });
+
+                rostaService.saveShift(shift);
+
+                dialog.close();
 
             }), new Button("Cancel", this::onCancel)));
             dialog.open();

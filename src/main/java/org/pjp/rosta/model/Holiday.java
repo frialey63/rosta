@@ -10,7 +10,6 @@ public class Holiday extends AbstractDay {
 
     public Holiday() {
         super();
-        // TODO Auto-generated constructor stub
     }
 
     public Holiday(String uuid, LocalDate date, boolean morning, boolean afternoon, String userUuid) {
