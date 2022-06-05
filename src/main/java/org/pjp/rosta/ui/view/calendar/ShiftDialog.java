@@ -21,7 +21,7 @@ import com.vaadin.flow.data.renderer.ComponentRenderer;
 
 class ShiftDialog extends EnhancedDialog {
 
-    public static class ShiftEntry {
+    static class ShiftEntry {
         private DayOfWeek dayOfWeek;
 
         private boolean morning;
@@ -73,7 +73,7 @@ class ShiftDialog extends EnhancedDialog {
         }
     }
 
-    private static class MyCheckbox extends Checkbox {
+    static class MyCheckbox extends Checkbox {
         private static final long serialVersionUID = -2439486105879875636L;
 
         public MyCheckbox(boolean initialValue, ValueChangeListener<ComponentValueChangeEvent<Checkbox, Boolean>> listener) {

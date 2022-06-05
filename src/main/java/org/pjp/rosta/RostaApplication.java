@@ -1,11 +1,6 @@
 package org.pjp.rosta;
 
-import java.time.LocalDate;
-
-import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.service.RostaService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
@@ -28,8 +23,6 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     private static final long serialVersionUID = 4107623244717405998L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RostaApplication.class);
-
     @Autowired
     private RostaService service;
 
@@ -40,12 +33,6 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     @Override
     public void run(ApplicationArguments args) throws Exception {
         service.initData();
-
-        Rosta rosta = service.buildRosta(LocalDate.of(2022, 5, 18));
-
-        LOGGER.info("rosta: {}", rosta);
-
-        service.writeRosta(rosta, "data/rosta.docx");
     }
 
 }

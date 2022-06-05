@@ -91,6 +91,12 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
         calendar.addDatesRenderedListener(this);
 
+//        String customCss = "" +
+//                ".fc {" + // marks today with red
+//                "   --fc-today-bg-color: red;" +
+//                "}";
+//        calendar.addCustomStyles(customCss);
+
         setSizeFull();
 
         calendar.setHeightByParent();

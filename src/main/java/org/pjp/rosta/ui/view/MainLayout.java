@@ -32,7 +32,7 @@ public class MainLayout extends AppLayout {
     /**
      * A simple navigation item component, based on ListItem element.
      */
-    public static class MenuItemInfo extends ListItem {
+    static class MenuItemInfo extends ListItem {
         private static final long serialVersionUID = 1369566228598215516L;
 
         private final Class<? extends Component> view;
@@ -69,7 +69,6 @@ public class MainLayout extends AppLayout {
                 }
             }
         }
-
     }
 
     private H1 viewTitle;

@@ -1,8 +1,14 @@
 package org.pjp.rosta.ui.view.rosta;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.time.format.TextStyle;
+import java.time.temporal.TemporalAdjusters;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -12,17 +18,21 @@ import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.vaadin.olli.FileDownloadWrapper;
 
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.grid.Grid;
 import com.vaadin.flow.component.grid.GridVariant;
 import com.vaadin.flow.component.html.Label;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -30,13 +40,15 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
+import com.vaadin.flow.server.StreamResource;
+import com.vaadin.flow.shared.Registration;
 
 @PageTitle("The Rosta")
 @Route(value = "rosta", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class RostaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
-    public static class GridBean {
+    static class GridBean {
         private String day;
         private String morning;
         private String afternoon;
@@ -88,6 +100,8 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaView.class);
 
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd_MMMM_yyyy");
+
     private static VerticalLayout getCentredLabel(String text) {
         VerticalLayout vl = new VerticalLayout();
         vl.setPadding(false);
@@ -100,7 +114,11 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         return vl;
     }
 
-    DatePicker datePicker = new DatePicker();
+    private final DatePicker datePicker = new DatePicker();
+
+    private Registration registration;
+
+    private final FileDownloadWrapper buttonWrapper = new FileDownloadWrapper(null);
 
     private Map<DayOfWeek, Grid<GridBean>> dayGrids = new HashMap<>();
 
@@ -113,10 +131,19 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     @SuppressWarnings("unchecked")
     public RostaView() {
-        datePicker.addValueChangeListener(this);
+        registration = datePicker.addValueChangeListener(this);
 
-        setHorizontalComponentAlignment(Alignment.START, datePicker);
-        add(datePicker);
+        Span filler = new Span();
+        setFlexGrow(1, filler);
+
+        buttonWrapper.wrapComponent(new Button("Click to download"));
+
+        HorizontalLayout hl = new CompactHorizontalLayout(datePicker, filler, buttonWrapper);
+        hl.setAlignItems(Alignment.STRETCH);
+        hl.setWidth("98%");
+
+        setHorizontalComponentAlignment(Alignment.START, hl);
+        add(hl);
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             HorizontalLayout layout = createGrid(dayOfWeek);
@@ -140,11 +167,35 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     @Override
     public void valueChanged(ValueChangeEvent<LocalDate> event) {
-        Rosta rosta = rostaService.buildRosta(event.getValue());
+        LocalDate date = event.getValue().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+        registration.remove();
+        datePicker.setValue(date);
+        registration = datePicker.addValueChangeListener(this);
+
+        Rosta rosta = rostaService.buildRosta(date);
         LOGGER.info("rosta: {}", rosta);
 
         mapGridBeans(rosta);
         populateGrids();
+
+        String name = String.format("rosta_%s.docx", date.format(FORMATTER));
+        buttonWrapper.setResource(new StreamResource(name, () -> {
+            InputStream result = null;
+
+            try {
+                File tempFile = File.createTempFile("tmp-", ".tmp");
+                tempFile.deleteOnExit();
+
+                rostaService.writeRosta(rosta, tempFile);
+
+                result = new FileInputStream(tempFile);
+            } catch (IOException e) {
+                LOGGER.error("error attempting to write rosta to temporary file", e);
+            }
+
+            return result;
+        }));
     }
 
     private void populateGrids() {

@@ -1,5 +1,6 @@
 package org.pjp.rosta.service;
 
+import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
@@ -114,7 +115,9 @@ public class RostaService {
     }
 
     public Rosta buildRosta(LocalDate date) {
-        LocalDate rostaStartDate = date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        assert date.getDayOfWeek() == DayOfWeek.MONDAY;
+
+        LocalDate rostaStartDate = date;
         LocalDate rostaEndDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
 
         LOGGER.debug("rostaStartDate = {}", rostaStartDate);
@@ -155,8 +158,8 @@ public class RostaService {
         return rosta;
     }
 
-    public void writeRosta(Rosta rosta, String outputFilename) throws FileNotFoundException, IOException {
-        try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFilename)) {
+    public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
+        try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
             for (XWPFParagraph para : document.getParagraphs()) {
                 performParagraphInsertions(rosta, para);
             }

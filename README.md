@@ -3,19 +3,27 @@ Application for managing the museum's rosta of volunteers and employees.
 
 ## TODO Story
 
-Refactor rosta to roster
+Rosta
+- perform updates to shift
+- identify existence of shifts on calendar
 
-Downloader for the PDF file
+Security
+- login and session management
 
-Calendar day entry
-- investigate EntryProvider
+User
+- menubar for controls in crudui
 
-Shift entry for a user
-- is this crudui with custom form?
+About
 
-login, session and security
+DOCX
+- update format for museum
 
-Maven build against custom crudui library
+Calendar
+- investigate EntryProvider?
+
+Refactor "rosta" to roster
+
+Maven build against custom crudui library (maybe)
 
 deployment to PI
 
