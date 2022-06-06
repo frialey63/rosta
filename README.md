@@ -26,9 +26,6 @@ User
 About
 - about text, etc.
 
-DOCX
-- update format for museum
-
 Refactor "rosta" to roster
 
 Investigate EntryProvisder for calendar
