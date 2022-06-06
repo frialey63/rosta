@@ -10,7 +10,7 @@ Model
 Calendar
 - holiday and volunteer days in  future only (unless an admin?)
 - perform updates to shift
-- weekends (patch fc?) and bank holidays (https://www.gov.uk/bank-holidays.json)
+- bank holidays (https://www.gov.uk/bank-holidays.json)
 - help text / tooltip / button
 
 Report View or Dialog
