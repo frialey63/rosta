@@ -1,7 +1,7 @@
 # rosta
 Application for managing the museum's rosta of volunteers and employees.
 
-## TODO Story
+## TODO Stories
 
 Model
 - absences
@@ -10,7 +10,7 @@ Model
 Calendar
 - holiday and volunteer days in  future only (unless an admin?)
 - perform updates to shift
-- weekends and bank holidays
+- weekends (patch fc?) and bank holidays (https://www.gov.uk/bank-holidays.json)
 - help text / tooltip / button
 
 Report View or Dialog
@@ -21,6 +21,7 @@ Security
 
 User
 - menubar for controls in crudui
+- remove margin and padding
 
 About
 - about text, etc.

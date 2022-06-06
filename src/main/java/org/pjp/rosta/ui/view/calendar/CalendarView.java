@@ -162,11 +162,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
                 calendar.addEntry(entry);
             });
         });
-
-        // TODO display my rosta using background entries
     }
-
-    // TODO check for existing rosta and do update
 
     public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         String username = Session.getUsername();

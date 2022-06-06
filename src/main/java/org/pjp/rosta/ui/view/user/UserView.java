@@ -30,8 +30,6 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     public UserView() {
 
-        // TODO crudui remove margins/padding from Grid and place buttons into a Menubar
-
         // grid configuration
         crud.getGrid().setColumns("name", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);

@@ -16,7 +16,7 @@ public class Shift {
     @Id
     private String uuid;
 
-    private LocalDate fromDate;	// a Monday, TODO assert this...
+    private LocalDate fromDate;
 
     private String userUuid;
 
@@ -55,6 +55,8 @@ public class Shift {
         this.uuid = uuid;
         this.fromDate = fromDate;
         this.userUuid = userUuid;
+
+        assert fromDate.getDayOfWeek() == DayOfWeek.MONDAY;
     }
 
     public Shift(LocalDate fromDate, String userUuid) {
