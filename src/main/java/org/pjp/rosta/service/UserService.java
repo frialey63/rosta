@@ -2,10 +2,12 @@ package org.pjp.rosta.service;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.UUID;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -29,9 +31,18 @@ public class UserService {
 
     private final ShiftRepository shiftRepository;
 
+    @Autowired
     public UserService(UserRepository userRepository, ShiftRepository shiftRepository) {
         this.userRepository = userRepository;
         this.shiftRepository = shiftRepository;
+    }
+
+    public void initData() {
+        userRepository.deleteAll();
+
+        String id = UUID.randomUUID().toString();
+        User user = new User(id, "Admin", "admin@gmail.com", false, true);
+        userRepository.save(user);
     }
 
     public List<User> findAll() {

@@ -1,6 +1,7 @@
 package org.pjp.rosta.ui.view.user;
 
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
@@ -35,7 +36,6 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
         crud.getGrid().setColumns("name", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
-        crud.addUpdateButtonColumn();
         crud.setWidth("98%");
 
         // form configuration
@@ -62,6 +62,21 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        String username = Session.getUsername();
+
+        userService.findByName(username).ifPresent(user -> {
+            boolean admin = user.isAdmin();
+
+            // logic configuration
+            crud.setAddOperationVisible(admin);
+            crud.setUpdateOperationVisible(admin);
+            crud.setDeleteOperationVisible(admin);
+
+            if (admin) {
+                crud.addUpdateButtonColumn();
+            }
+        });
+
         crud.refreshGrid();
     }
 

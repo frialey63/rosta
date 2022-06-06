@@ -114,6 +114,8 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         return vl;
     }
 
+    private final Span labelSpan = new Span("Week beginning:");
+
     private final DatePicker datePicker = new DatePicker();
 
     private Registration registration;
@@ -138,7 +140,8 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
         buttonWrapper.wrapComponent(new Button("Click to download"));
 
-        HorizontalLayout hl = new CompactHorizontalLayout(datePicker, filler, buttonWrapper);
+        HorizontalLayout hl = new CompactHorizontalLayout(labelSpan, datePicker, filler, buttonWrapper);
+        hl.setVerticalComponentAlignment(Alignment.CENTER, labelSpan, datePicker, filler, buttonWrapper);
         hl.setAlignItems(Alignment.STRETCH);
         hl.setWidth("98%");
 

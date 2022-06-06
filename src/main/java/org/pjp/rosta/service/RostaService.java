@@ -59,6 +59,10 @@ public class RostaService {
     @Autowired
     private HolidayRepository holidayRepository;
 
+    public RostaService() {
+        super();
+    }
+
     public void initData() {
         userRepo.deleteAll();
         shiftRepo.deleteAll();
@@ -68,7 +72,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "Fred", "fred@gmail.com", true, false);
+            User user = new User(id, "Fred", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
             userRepo.save(user);
 
             Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
