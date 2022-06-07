@@ -149,7 +149,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
 
         calendar.removeAllEntries();
 
-        userService.findByName(username).ifPresent(user -> {
+        userService.findByUsername(username).ifPresent(user -> {
             rostaService.getDays(user, start, end).forEach(day -> {
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -167,7 +167,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
     public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         String username = Session.getUsername();
 
-        userService.findByName(username).ifPresent(user -> {
+        userService.findByUsername(username).ifPresent(user -> {
             LocalDate date = event.getDate();
 
             dialog = new ShiftDialog(date);
@@ -193,7 +193,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
     public void onEntryClickedEvent(EntryClickedEvent event) {
         String username = Session.getUsername();
 
-        userService.findByName(username).ifPresent(user -> {
+        userService.findByUsername(username).ifPresent(user -> {
             dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
             dialog.setHeader("Delete");
             dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
@@ -204,7 +204,7 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
     public void onTimeslotsSelectedEvent(TimeslotsSelectedEvent event) {
         String username = Session.getUsername();
 
-        userService.findByName(username).ifPresent(user -> {
+        userService.findByUsername(username).ifPresent(user -> {
             String header = String.format("Add %s", (user.isEmployee() ? "Holiday" : "Volunteer Day"));
 
             dialog = new CreateDialog(user.isEmployee(), event.getStartDate(), user.getUuid());

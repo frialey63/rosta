@@ -12,6 +12,12 @@ public class User implements Comparable<User> {
     private String uuid;
 
     @NotNull
+    private String username;
+
+    @NotNull
+    private String password;
+
+    @NotNull
     private String name;
 
     @NotNull
@@ -25,9 +31,11 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
+    public User(String uuid, @NotNull String username, @NotNull String password, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
         super();
         this.uuid = uuid;
+        this.username = username;
+        this.password = password;
         this.name = name;
         this.email = email;
         this.employee = employee;
@@ -40,6 +48,22 @@ public class User implements Comparable<User> {
 
     public void setUuid(String name) {
         this.uuid = name;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public void setPassword(String password) {
+        this.password = password;
     }
 
     public String getName() {
@@ -79,6 +103,10 @@ public class User implements Comparable<User> {
         StringBuilder builder = new StringBuilder();
         builder.append("User [uuid=");
         builder.append(uuid);
+        builder.append(", username=");
+        builder.append(username);
+        builder.append(", password=");
+        builder.append(password);
         builder.append(", name=");
         builder.append(name);
         builder.append(", email=");
@@ -99,7 +127,7 @@ public class User implements Comparable<User> {
             return 1;
         }
 
-        return name.compareTo(other.getName());
+        return username.compareTo(other.getUsername());
     }
 
 }

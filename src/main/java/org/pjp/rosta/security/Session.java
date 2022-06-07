@@ -3,7 +3,7 @@ package org.pjp.rosta.security;
 public final class Session {
 
     public static String getUsername() {
-        return "Fred";
+        return "fred";
     }
 
     private Session() {

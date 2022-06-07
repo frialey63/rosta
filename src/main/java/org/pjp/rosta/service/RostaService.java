@@ -72,7 +72,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "Fred", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
+            User user = new User(id, "fred", "password", "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
             userRepo.save(user);
 
             Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -91,7 +91,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "Bill", "bill@gmail.com", true, false);
+            User user = new User(id, "bill", "password", "Bill Smith", "bill@gmail.com", true, false);
             userRepo.save(user);
 
             Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -110,7 +110,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "Anne", "anne@gmail.com", false, false);
+            User user = new User(id, "anne", "password", "Anne Boleyn", "anne@gmail.com", false, false);
             userRepo.save(user);
 
             VolunteerDay VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);

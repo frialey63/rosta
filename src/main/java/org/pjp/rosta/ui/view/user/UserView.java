@@ -11,6 +11,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
@@ -31,15 +32,16 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
     public UserView() {
 
         // grid configuration
-        crud.getGrid().setColumns("name", "email", "employee", "admin");
+        crud.getGrid().setColumns("username", "name", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
+        crud.addUpdateButtonColumn();
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("name", "email", "employee", "admin");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "name", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "employee", "admin");
 
         // logic configuration
         crud.setOperations(
@@ -48,6 +50,30 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
                 user -> updateUser(userService, user),
                 user -> deleteUser(userService, user)
         );
+
+        crud.getGrid().setSelectionMode(SelectionMode.SINGLE);
+        crud.getGrid().addSelectionListener(l -> {
+            String username = Session.getUsername();
+
+            l.getFirstSelectedItem().ifPresent(selUser -> {
+                boolean self = username.equals(selUser.getUsername());
+
+                crud.getUpdateButton().setEnabled(self);
+                // TODO enablement of the update button button column
+
+                if (self) {
+                    crud.getDeleteButton().setEnabled(false);
+                } else {
+                    userService.findByUsername(username).ifPresent(user -> {
+                        boolean admin = user.isAdmin();
+
+                        crud.getUpdateButton().setEnabled(admin);
+                        crud.getDeleteButton().setEnabled(admin);
+                        // TODO enablement of the update button button column
+                    });
+                }
+            });
+        });
 
         // layout configuration
         setMargin(true);
@@ -62,17 +88,10 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
     public void afterNavigation(AfterNavigationEvent event) {
         String username = Session.getUsername();
 
-        userService.findByName(username).ifPresent(user -> {
+        userService.findByUsername(username).ifPresent(user -> {
             boolean admin = user.isAdmin();
 
-            // logic configuration
-            crud.setAddOperationVisible(admin);
-            crud.setUpdateOperationVisible(admin);
-            crud.setDeleteOperationVisible(admin);
-
-            if (admin) {
-                crud.addUpdateButtonColumn();
-            }
+            crud.getAddButton().setEnabled(admin);
         });
 
         crud.refreshGrid();

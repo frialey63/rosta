@@ -21,8 +21,10 @@ Report View or Dialog
 
 Security
 - login and session management
+- passsword
 
 User
+- edit self
 - menubar for controls in crudui
 - remove margin and padding
 
@@ -31,13 +33,10 @@ About
 
 Refactor "rosta" to roster
 
-Investigate EntryProvisder for calendar
+Investigate EntryProvider for calendar
 
-Maven build against custom crudui library (maybe)
-
-deployment to PI
+Deployment to PI
 
 Backup of the Mongo DB
 
 QA
-

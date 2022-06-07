@@ -41,7 +41,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "Admin", "admin@gmail.com", false, true);
+        User user = new User(id, "admin", "password", "Admin", "admin@gmail.com", false, true);
         userRepository.save(user);
     }
 
@@ -57,8 +57,8 @@ public class UserService {
         return userRepository.findByNameContainingIgnoreCase(name);
     }
 
-    public Optional<User> findByName(String name) {
-        return userRepository.findByName(name);
+    public Optional<User> findByUsername(String username) {
+        return userRepository.findByUsername(username);
     }
 
     public User save(User user) {
@@ -67,14 +67,14 @@ public class UserService {
                 throw new LimitReached();
             }
 
-            userRepository.findByName(user.getName()).ifPresent(u -> {
+            userRepository.findByUsername(user.getName()).ifPresent(u -> {
                 throw new ExistingUser();
             });
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String name = user.getName();
 
-                if (!existingUser.getName().equals(name) && userRepository.findByName(name).isPresent()) {
+                if (!existingUser.getName().equals(name) && userRepository.findByUsername(name).isPresent()) {
                     throw new ExistingUser();
                 }
             });
