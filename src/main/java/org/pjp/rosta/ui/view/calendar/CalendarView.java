@@ -38,12 +38,11 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
-import com.vaadin.flow.router.PageTitle;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-@PageTitle("Calendar of Volunteer Days & Holidays")
 @Route(value = "calendar", layout = MainLayout.class)
-public class CalendarView extends VerticalLayout implements ComponentEventListener<DatesRenderedEvent> {
+public class CalendarView extends VerticalLayout implements HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
 
     private static final long serialVersionUID = -4423320972580039035L;
 
@@ -68,6 +67,8 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
 
         throw new IllegalStateException();
     }
+
+    private String pageTitle = "Calendar";
 
     private final FullCalendar calendar = FullCalendarBuilder.create().build();
 
@@ -134,6 +135,17 @@ public class CalendarView extends VerticalLayout implements ComponentEventListen
         menuBar.addItem("Today", e -> calendar.today());
 
         return menuBar;
+    }
+
+    @Override
+    public String getPageTitle() {
+        String username = Session.getUsername();
+
+        userService.findByUsername(username).ifPresent(user -> {
+            pageTitle += user.isEmployee() ? " of Shifts & Holidays" : " of Volunteer Days";
+        });
+
+        return pageTitle;
     }
 
     @Override

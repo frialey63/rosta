@@ -19,6 +19,7 @@ import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
 
@@ -94,7 +95,7 @@ public class MainLayout extends AppLayout {
     }
 
     private Component createDrawerContent() {
-        H2 appName = new H2("Museum Rosta");
+        H2 appName = new H2("Museum Shop");
         appName.addClassNames("app-name");
 
         com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
@@ -122,7 +123,7 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         return new MenuItemInfo[]{ //
-                new MenuItemInfo("Rosta", "la la-globe", RostaView.class), //
+                new MenuItemInfo("Rota", "la la-globe", RostaView.class), //
 
                 new MenuItemInfo("Calendar", "la la-globe", CalendarView.class), //
 
@@ -146,7 +147,13 @@ public class MainLayout extends AppLayout {
     }
 
     private String getCurrentPageTitle() {
-        PageTitle title = getContent().getClass().getAnnotation(PageTitle.class);
+        Component content = getContent();
+
+        if (content instanceof HasDynamicTitle) {
+            return ((HasDynamicTitle) content).getPageTitle();
+        }
+
+        PageTitle title = content.getClass().getAnnotation(PageTitle.class);
         return title == null ? "" : title.value();
     }
 }
