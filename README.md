@@ -3,6 +3,9 @@ Application for managing the museum's rosta of volunteers and employees.
 
 ## TODO Stories
 
+Email
+- weekly detection of days with insufficient staff and send emails to volunteers
+
 Model
 - absences
 - shift expiry date (TBD)
@@ -37,3 +40,4 @@ deployment to PI
 Backup of the Mongo DB
 
 QA
+
