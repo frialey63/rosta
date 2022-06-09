@@ -3,27 +3,27 @@ Application for managing the museum's rosta of volunteers and employees.
 
 ## TODO Stories
 
-Email
-- weekly detection of days with insufficient staff and send emails to volunteers
-
 Model
 - absences
 - opener in shift
-
-Calendar
-- bank holidays (https://www.gov.uk/bank-holidays.json)
-
-Report View or Dialog
-- list holidays, volunteer days, absences via query
-
-Security
-- login and session management
-- passsword
 
 crudui
 - enablement of the update button button column
 - menubar for controls
 - remove margin and padding
+
+Security
+- login and session management
+- passsword
+
+Email
+- weekly detection of days with insufficient staff and send emails to volunteers
+
+Report View or Dialog
+- list holidays, volunteer days, absences via query
+
+Calendar
+- bank holidays (https://www.gov.uk/bank-holidays.json)
 
 Refactor "rosta" to roster
 
