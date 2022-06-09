@@ -8,11 +8,9 @@ Email
 
 Model
 - absences
-- shift expiry date (TBD)
 - opener in shift
 
 Calendar
-- perform updates to shift
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 
 Report View or Dialog
