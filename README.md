@@ -9,12 +9,11 @@ Email
 Model
 - absences
 - shift expiry date (TBD)
+- opener in shift
 
 Calendar
-- holiday and volunteer days in  future only (unless an admin?)
 - perform updates to shift
 - bank holidays (https://www.gov.uk/bank-holidays.json)
-- help text / tooltip / button
 
 Report View or Dialog
 - list holidays, volunteer days, absences via query
@@ -24,12 +23,8 @@ Security
 - passsword
 
 User
-- edit self
 - menubar for controls in crudui
 - remove margin and padding
-
-About
-- about text, etc.
 
 Refactor "rosta" to roster
 

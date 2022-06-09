@@ -3,6 +3,7 @@ package org.pjp.rosta.ui.view.calendar;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.TemporalAdjusters;
 
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
@@ -23,6 +24,7 @@ import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
+import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
 import org.vaadin.stefan.fullcalendar.TimeslotsSelectedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
@@ -34,6 +36,7 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
@@ -87,7 +90,10 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
         // Create a new calendar instance and attach it to our layout
         calendar.setFirstDay(DayOfWeek.MONDAY);
-        calendar.addTimeslotsSelectedListener(this::onTimeslotsSelectedEvent);
+        calendar.setEntryDurationEditable(false);
+        calendar.setEntryResizableFromStart(false);
+        calendar.setEntryStartEditable(false);
+        calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
         calendar.addEntryClickedListener(this::onEntryClickedEvent);
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
         calendar.addDatesRenderedListener(this);
@@ -103,8 +109,11 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         calendar.setHeightByParent();
         setFlexGrow(1, calendar);
 
-        setHorizontalComponentAlignment(Alignment.STRETCH, menuBar, calendar);
-        add(menuBar, calendar);
+        Span helpText = new Span("Click on a day to enter voluntary day, holiday and/or absence; click on week number to access shift pattern (employees only).");
+        helpText.getElement().getStyle().set("font-style", "italic");
+
+        setHorizontalComponentAlignment(Alignment.STRETCH, menuBar, calendar, helpText);
+        add(menuBar, calendar, helpText);
     }
 
     private void updateMonthReadout(HasText label, LocalDate date) {
@@ -171,6 +180,10 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
                 entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
                 entry.setRenderingMode(RenderingMode.BLOCK);
 
+                entry.setDurationEditable(false);
+                entry.setEditable(false);
+                entry.setDurationEditable(false);
+
                 calendar.addEntry(entry);
             });
         });
@@ -181,6 +194,17 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
         userService.findByUsername(username).ifPresent(user -> {
             LocalDate date = event.getDate();
+
+            LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate sunday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+            if (date.isBefore(monday)) {
+                // view only
+            } else if (date.isAfter(sunday)) {
+                // create
+            } else {
+                // edit
+            }
 
             dialog = new ShiftDialog(date);
             dialog.setHeader("Create New Shift");
@@ -206,23 +230,31 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         String username = Session.getUsername();
 
         userService.findByUsername(username).ifPresent(user -> {
-            dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
-            dialog.setHeader("Delete");
-            dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
-            dialog.open();
+            LocalDate startDate = event.getEntry().getStartAsLocalDate();
+
+            if (!startDate.isBefore(LocalDate.now())) {
+                dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
+                dialog.setHeader("Delete");
+                dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
+                dialog.open();
+            }
         });
     }
 
-    public void onTimeslotsSelectedEvent(TimeslotsSelectedEvent event) {
+    public void onTimeslotClickedEvent(TimeslotClickedEvent event) {
         String username = Session.getUsername();
 
         userService.findByUsername(username).ifPresent(user -> {
-            String header = String.format("Add %s", (user.isEmployee() ? "Holiday" : "Volunteer Day"));
+            LocalDate startDate = event.getDate();
 
-            dialog = new CreateDialog(user.isEmployee(), event.getStartDate(), user.getUuid());
-            dialog.setHeader(header);
-            dialog.setFooter(new HorizontalLayout(new Button("Save", this::onCreate), new Button("Cancel", this::onCancel)));
-            dialog.open();
+            if (!startDate.isBefore(LocalDate.now())) {
+                String header = String.format("Add %s", (user.isEmployee() ? "Holiday" : "Volunteer Day"));
+
+                dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
+                dialog.setHeader(header);
+                dialog.setFooter(new HorizontalLayout(new Button("Save", this::onCreate), new Button("Cancel", this::onCancel)));
+                dialog.open();
+            }
         });
     }
 
@@ -238,6 +270,11 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         entry.setAllDay(true);
         entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
+
+
+        entry.setDurationEditable(false);
+        entry.setEditable(false);
+        entry.setDurationEditable(false);
 
         AbstractDay day = AbstractDay.createDay(holiday, date, createDialog, createDialog.getUserUuid());
 
