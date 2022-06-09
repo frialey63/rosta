@@ -26,6 +26,8 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     private final GridCrud<User> crud = new GridCrud<>(User.class);
 
+    private final String username = Session.getUsername();
+
     @Autowired
     private UserService userService;
 
@@ -53,8 +55,6 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         crud.getGrid().setSelectionMode(SelectionMode.SINGLE);
         crud.getGrid().addSelectionListener(l -> {
-            String username = Session.getUsername();
-
             l.getFirstSelectedItem().ifPresent(selUser -> {
                 boolean self = username.equals(selUser.getUsername());
 
@@ -86,8 +86,6 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        String username = Session.getUsername();
-
         userService.findByUsername(username).ifPresent(user -> {
             boolean admin = user.isAdmin();
 

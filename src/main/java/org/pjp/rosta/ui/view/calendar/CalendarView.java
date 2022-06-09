@@ -4,11 +4,13 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.Optional;
 
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
+import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
@@ -39,11 +41,13 @@ import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
 @Route(value = "calendar", layout = MainLayout.class)
-public class CalendarView extends VerticalLayout implements HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
+public class CalendarView extends VerticalLayout implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
 
     private static final long serialVersionUID = -4423320972580039035L;
 
@@ -66,6 +70,8 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
         throw new IllegalStateException();
     }
+
+    private Optional<User> optUser;
 
     private String pageTitle = "Calendar";
 
@@ -144,6 +150,13 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
     }
 
     @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+        String username = Session.getUsername();
+
+        optUser = userService.findByUsername(username);
+    }
+
+    @Override
     public String getPageTitle() {
         String username = Session.getUsername();
 
@@ -161,13 +174,11 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
         LOGGER.info("start = {}, end = {}", start, end);
 
-        String username = Session.getUsername();
-
         updateMonthReadout(buttonDatePicker, start);
 
         calendar.removeAllEntries();
 
-        userService.findByUsername(username).ifPresent(user -> {
+        optUser.ifPresent(user -> {
             rostaService.getDays(user, start, end).forEach(day -> {
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -188,9 +199,7 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
     }
 
     public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
-        String username = Session.getUsername();
-
-        userService.findByUsername(username).ifPresent(user -> {
+        optUser.ifPresent(user -> {
             LocalDate date = event.getDate();
 
             assert date.getDayOfWeek() == DayOfWeek.MONDAY;
@@ -253,9 +262,7 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
     }
 
     public void onEntryClickedEvent(EntryClickedEvent event) {
-        String username = Session.getUsername();
-
-        userService.findByUsername(username).ifPresent(user -> {
+        optUser.ifPresent(user -> {
             LocalDate startDate = event.getEntry().getStartAsLocalDate();
 
             if (!startDate.isBefore(LocalDate.now())) {
@@ -268,9 +275,7 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
     }
 
     public void onTimeslotClickedEvent(TimeslotClickedEvent event) {
-        String username = Session.getUsername();
-
-        userService.findByUsername(username).ifPresent(user -> {
+        optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
 
             if (!startDate.isBefore(LocalDate.now())) {
