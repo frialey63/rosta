@@ -122,7 +122,7 @@ public class RostaService {
         assert date.getDayOfWeek() == DayOfWeek.MONDAY;
 
         LocalDate rostaStartDate = date;
-        LocalDate rostaEndDate = date.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+        LocalDate rostaEndDate = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
         LOGGER.debug("rostaStartDate = {}", rostaStartDate);
         LOGGER.debug("rostaEndDate = {}", rostaEndDate);
@@ -134,7 +134,7 @@ public class RostaService {
 
             String userUuid = user.getUuid();
 
-            shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(user.getUuid(), rostaEndDate).ifPresent(shift -> {
+            getShiftForUser(rostaEndDate, user).ifPresent(shift -> {
                 LOGGER.debug("shift: {}", shift);
 
                 shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
@@ -160,6 +160,10 @@ public class RostaService {
         });
 
         return rosta;
+    }
+
+    public Optional<Shift> getShiftForUser(LocalDate date, User user) {
+        return shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(user.getUuid(), date);
     }
 
     public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {

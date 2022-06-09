@@ -25,7 +25,6 @@ import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
-import org.vaadin.stefan.fullcalendar.TimeslotsSelectedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
@@ -90,9 +89,6 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
         // Create a new calendar instance and attach it to our layout
         calendar.setFirstDay(DayOfWeek.MONDAY);
-        calendar.setEntryDurationEditable(false);
-        calendar.setEntryResizableFromStart(false);
-        calendar.setEntryStartEditable(false);
         calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
         calendar.addEntryClickedListener(this::onEntryClickedEvent);
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
@@ -117,6 +113,10 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
     }
 
     private void updateMonthReadout(HasText label, LocalDate date) {
+        if (date.getDayOfMonth() != 1) {
+            date = date.with(TemporalAdjusters.firstDayOfNextMonth());
+        }
+
         String text = date.format(FORMATTER.withLocale(calendar.getLocale()));
         label.setText(text);
     }
@@ -195,34 +195,62 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         userService.findByUsername(username).ifPresent(user -> {
             LocalDate date = event.getDate();
 
-            LocalDate monday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            LocalDate sunday = LocalDate.now().with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+            assert date.getDayOfWeek() == DayOfWeek.MONDAY;
 
-            if (date.isBefore(monday)) {
-                // view only
-            } else if (date.isAfter(sunday)) {
-                // create
-            } else {
-                // edit
-            }
+            LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-            dialog = new ShiftDialog(date);
-            dialog.setHeader("Create New Shift");
-            dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
-                Shift shift = new Shift(date, user.getUuid());
-
-                ((ShiftDialog) dialog).getEntries().forEach(entry -> {
-                    ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
-                    shiftDay.setMorning(entry.isMorning());
-                    shiftDay.setAfternoon(entry.isAfternoon());
+            if (date.isBefore(nowMonday)) {
+                rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
+                    dialog = new ShiftDialog(shift);
+                    dialog.setHeader("View Shift");
+                    dialog.setFooter(new Button("Cancel", this::onCancel));
+                    dialog.open();
+                }, () -> {
+                    dialog = new EnhancedDialog();
+                    dialog.setHeader("No Shift");
+                    dialog.setFooter(new Button("Cancel", this::onCancel));
+                    dialog.open();
                 });
+            } else {
+                rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
+                    dialog = new ShiftDialog(date, shift);
+                    dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
+                    dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
+                        Shift newShift = new Shift(date, user.getUuid());
 
-                rostaService.saveShift(shift);
+                        ((ShiftDialog) dialog).getEntries().forEach(entry -> {
+                            ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                            shiftDay.setMorning(entry.isMorning());
+                            shiftDay.setAfternoon(entry.isAfternoon());
+                        });
 
-                dialog.close();
+                        rostaService.saveShift(newShift);
 
-            }), new Button("Cancel", this::onCancel)));
-            dialog.open();
+                        dialog.close();
+
+                    }), new Button("Cancel", this::onCancel)));
+                    dialog.open();
+                }, () -> {
+                    dialog = new ShiftDialog(date);
+                    dialog.setHeader("New Shift");
+                    dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
+                        Shift newShift = new Shift(date, user.getUuid());
+
+                        ((ShiftDialog) dialog).getEntries().forEach(entry -> {
+                            ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                            shiftDay.setMorning(entry.isMorning());
+                            shiftDay.setAfternoon(entry.isAfternoon());
+                        });
+
+                        rostaService.saveShift(newShift);
+
+                        dialog.close();
+
+                    }), new Button("Cancel", this::onCancel)));
+                    dialog.open();
+                });
+            }
         });
     }
 

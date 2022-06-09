@@ -22,8 +22,9 @@ Security
 - login and session management
 - passsword
 
-User
-- menubar for controls in crudui
+crudui
+- enablement of the update button button column
+- menubar for controls
 - remove margin and padding
 
 Refactor "rosta" to roster

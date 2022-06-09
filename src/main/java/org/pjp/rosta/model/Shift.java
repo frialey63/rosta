@@ -6,6 +6,7 @@ import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.UUID;
+import java.util.stream.Stream;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -81,6 +82,10 @@ public class Shift {
 
     public Iterator<ShiftDay> getShiftDayIterator() {
         return map.values().iterator();
+    }
+
+    public Stream<ShiftDay> getShiftDayStream() {
+        return map.values().stream();
     }
 
     @Override

@@ -7,6 +7,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.ui.view.CompactVerticalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
@@ -76,26 +77,43 @@ class ShiftDialog extends EnhancedDialog {
     static class MyCheckbox extends Checkbox {
         private static final long serialVersionUID = -2439486105879875636L;
 
-        public MyCheckbox(boolean initialValue, ValueChangeListener<ComponentValueChangeEvent<Checkbox, Boolean>> listener) {
+        public MyCheckbox(boolean initialValue, boolean enabled, ValueChangeListener<ComponentValueChangeEvent<Checkbox, Boolean>> listener) {
             super(null, listener);
-            this.setValue(initialValue);
+            setValue(initialValue);
+            setEnabled(enabled);
         }
-
     }
 
     private static final long serialVersionUID = -4941020550845994051L;
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
+    static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
-    private final List<ShiftDialog.ShiftEntry> entries = Arrays.asList(DayOfWeek.values()).stream().map(dow -> new ShiftEntry(dow, true, true)).collect(Collectors.toList());
+    private final List<ShiftDialog.ShiftEntry> entries;
 
     private final LocalDate date;
 
     public ShiftDialog(LocalDate date) {
         super();
         this.date = date;
+        this.entries = Arrays.asList(DayOfWeek.values()).stream().map(dow -> new ShiftEntry(dow, true, true)).collect(Collectors.toList());
 
-        setContent(getContent());
+        setContent(getContent(true));
+    }
+
+    public ShiftDialog(Shift shift) {
+        super();
+        this.date = shift.getFromDate();
+        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+
+        setContent(getContent(false));
+    }
+
+    public ShiftDialog(LocalDate date, Shift shift) {
+        super();
+        this.date = date;
+        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+
+        setContent(getContent(true));
     }
 
     public LocalDate getDate() {
@@ -106,15 +124,15 @@ class ShiftDialog extends EnhancedDialog {
         return entries;
     }
 
-    private Component getContent() {
+    private Component getContent(boolean enabled) {
         Grid<ShiftDialog.ShiftEntry> grid = new Grid<>(ShiftDialog.ShiftEntry.class, false);
         grid.setColumnReorderingAllowed(false);
         grid.setAllRowsVisible(true);
         grid.setWidth("30em");
 
         grid.addColumn(ShiftEntry::getDayOfWeek).setHeader("Day");
-        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isMorning(), l -> rostaEntry.setMorning(l.getValue())))).setHeader("Morning");
-        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isAfternoon(), l -> rostaEntry.setAfternoon(l.getValue())))).setHeader("Afternoon");
+        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isMorning(), enabled, l -> rostaEntry.setMorning(l.getValue())))).setHeader("Morning");
+        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isAfternoon(), enabled, l -> rostaEntry.setAfternoon(l.getValue())))).setHeader("Afternoon");
 
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);
