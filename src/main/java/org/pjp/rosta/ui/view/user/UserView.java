@@ -55,11 +55,13 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         crud.getGrid().setSelectionMode(SelectionMode.SINGLE);
         crud.getGrid().addSelectionListener(l -> {
+            crud.setUpdateButtonColumnEnabled(false);
+
             l.getFirstSelectedItem().ifPresent(selUser -> {
                 boolean self = username.equals(selUser.getUsername());
 
                 crud.getUpdateButton().setEnabled(self);
-                // TODO enablement of the update button button column
+                crud.getUpdateButton(selUser).setEnabled(self);
 
                 if (self) {
                     crud.getDeleteButton().setEnabled(false);
@@ -69,7 +71,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
                         crud.getUpdateButton().setEnabled(admin);
                         crud.getDeleteButton().setEnabled(admin);
-                        // TODO enablement of the update button button column
+                        crud.getUpdateButton(selUser).setEnabled(admin);
                     });
                 }
             });

@@ -6,11 +6,6 @@ Application for managing the museum's rosta of volunteers and employees.
 Model
 - opener in shift
 
-crudui
-- enablement of the update button button column
-- menubar for controls
-- remove margin and padding
-
 Security
 - login and session management
 - passsword
