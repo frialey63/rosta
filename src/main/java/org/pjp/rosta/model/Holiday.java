@@ -29,4 +29,9 @@ public class Holiday extends AbstractDay {
         return builder.toString();
     }
 
+    @Override
+    public String getColour() {
+        return "#3333ff";
+    }
+
 }

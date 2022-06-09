@@ -29,4 +29,9 @@ public class VolunteerDay extends AbstractDay {
         return builder.toString();
     }
 
+    @Override
+    public String getColour() {
+        return "#33ff33";
+    }
+
 }

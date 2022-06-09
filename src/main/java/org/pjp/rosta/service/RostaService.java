@@ -24,11 +24,13 @@ import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.VolunteerDay;
+import org.pjp.rosta.repository.AbsenceDayRepository;
 import org.pjp.rosta.repository.HolidayRepository;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
@@ -58,6 +60,9 @@ public class RostaService {
 
     @Autowired
     private HolidayRepository holidayRepository;
+
+    @Autowired
+    private AbsenceDayRepository absenceDayRepository;
 
     public RostaService() {
         super();
@@ -150,12 +155,18 @@ public class RostaService {
                 rostaDay.addUserUuid(volunteerDay, userUuid);
             });
 
-
             holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
                 LOGGER.debug("holiday: {}", holiday);
 
                 RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
                 rostaDay.removeUserUuid(holiday, userUuid);
+            });
+
+            absenceDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(absenceDay -> {
+                LOGGER.debug("absenceDay: {}", absenceDay);
+
+                RostaDay rostaDay = rosta.getRostaDay(absenceDay.getDate().getDayOfWeek());
+                rostaDay.removeUserUuid(absenceDay, userUuid);
             });
         });
 
@@ -236,8 +247,9 @@ public class RostaService {
     public List<AbstractDay> getDays(User user, LocalDate dateStart, LocalDate dateEnd) {
         List<AbstractDay> result = new ArrayList<>();
 
-        result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
         result.addAll(holidayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        result.addAll(absenceDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
 
         return result;
     }
@@ -245,8 +257,12 @@ public class RostaService {
     public void saveDay(AbstractDay day) {
         if (day instanceof Holiday) {
             holidayRepository.save((Holiday) day);
-        } else {
+        } else if (day instanceof AbsenceDay) {
+            absenceDayRepository.save((AbsenceDay) day);
+        } else if (day instanceof VolunteerDay) {
             volunteerDayRepository.save((VolunteerDay) day);
+        } else {
+            throw new IllegalStateException();
         }
     }
 

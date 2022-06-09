@@ -6,12 +6,21 @@ import org.springframework.data.annotation.Id;
 
 public abstract class AbstractDay implements PartOfDay {
 
-    public static AbstractDay createDay(boolean holiday, LocalDate date, PartOfDay partOfDay, String userUuid) {
-        if (holiday) {
-            return new Holiday(date, partOfDay, userUuid);
-        }
+    public static AbstractDay createDay(DayType dayType, LocalDate date, PartOfDay partOfDay, String userUuid) {
+        return switch(dayType) {
+        case Absence -> new AbsenceDay(date, partOfDay, userUuid);
+        case Holiday -> new Holiday(date, partOfDay, userUuid);
+        case VolunteerDay -> new VolunteerDay(date, partOfDay, userUuid);
+        };
+    }
 
-        return new VolunteerDay(date, partOfDay, userUuid);
+    public static DayType getDayType(String className) {
+        return switch(className) {
+        case "org.pjp.rosta.model.AbsenceDay" -> DayType.Absence;
+        case "org.pjp.rosta.model.Holiday" -> DayType.Holiday;
+        case "org.pjp.rosta.model.VolunteerDay" -> DayType.VolunteerDay;
+        default -> null;
+        };
     }
 
     @Id
@@ -81,4 +90,5 @@ public abstract class AbstractDay implements PartOfDay {
         return builder.toString();
     }
 
+    public abstract String getColour();
 }

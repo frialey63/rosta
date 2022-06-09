@@ -1,5 +1,6 @@
 package org.pjp.rosta.ui.view.calendar;
 
+import org.pjp.rosta.model.AbstractDay;
 import org.vaadin.stefan.fullcalendar.Entry;
 
 import com.vaadin.componentfactory.EnhancedDialog;
@@ -11,11 +12,13 @@ class DeleteDialog extends EnhancedDialog {
 
     private final Entry entry;
 
-    public DeleteDialog(boolean holiday, Entry entry) {
+    public DeleteDialog(Entry entry) {
         super();
         this.entry = entry;
 
-        String question = String.format("Do you want to delete this %s?", (holiday ? "Holiday" : "Volunteer Day"));
+        String className = entry.getCustomProperty(CalendarView.KEY_DAY_CLASS);
+
+        String question = String.format("Do you want to delete this %s?", AbstractDay.getDayType(className));
         setContent(getContent(question));
     }
 

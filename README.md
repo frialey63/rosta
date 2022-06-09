@@ -4,7 +4,6 @@ Application for managing the museum's rosta of volunteers and employees.
 ## TODO Stories
 
 Model
-- absences
 - opener in shift
 
 crudui

@@ -29,4 +29,9 @@ public class AbsenceDay extends AbstractDay {
         return builder.toString();
     }
 
+    @Override
+    public String getColour() {
+        return "#ff3333";
+    }
+
 }

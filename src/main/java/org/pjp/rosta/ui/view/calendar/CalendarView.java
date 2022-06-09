@@ -6,7 +6,6 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 
 import org.pjp.rosta.model.AbstractDay;
-import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
@@ -50,13 +49,11 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalendarView.class);
 
-    private static final String HOLIDAY_COLOUR = "#ff3333";
-
-    private static final String VOLUNTEER_DAY_COLOUR = "#33ff33";
-
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
-    private static final String KEY_UUID = "uuid";
+    static final String KEY_UUID = "uuid";
+
+    static final String KEY_DAY_CLASS = "dayClass";
 
     private static String getTitle(PartOfDay partOfDay) {
         if (partOfDay.isMorning() && partOfDay.isAfternoon()) {
@@ -174,8 +171,9 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
             rostaService.getDays(user, start, end).forEach(day -> {
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
+                entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
                 entry.setStart(day.getDate());
-                entry.setColor((day instanceof Holiday) ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
+                entry.setColor(day.getColour());
                 entry.setAllDay(true);
                 entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
                 entry.setRenderingMode(RenderingMode.BLOCK);
@@ -261,7 +259,7 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
             LocalDate startDate = event.getEntry().getStartAsLocalDate();
 
             if (!startDate.isBefore(LocalDate.now())) {
-                dialog = new DeleteDialog(user.isEmployee(), event.getEntry());
+                dialog = new DeleteDialog(event.getEntry());
                 dialog.setHeader("Delete");
                 dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
                 dialog.open();
@@ -276,7 +274,7 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
             LocalDate startDate = event.getDate();
 
             if (!startDate.isBefore(LocalDate.now())) {
-                String header = String.format("Add %s", (user.isEmployee() ? "Holiday" : "Volunteer Day"));
+                String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
                 dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
                 dialog.setHeader(header);
@@ -290,11 +288,14 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         CreateDialog createDialog = (CreateDialog) dialog;
 
         LocalDate date = createDialog.getDate();
-        boolean holiday = createDialog.isHoliday();
+
+        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, createDialog.getUserUuid());
 
         Entry entry = new Entry();
+        entry.setCustomProperty(KEY_UUID, day.getUuid());
+        entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
         entry.setStart(date);
-        entry.setColor(holiday ? HOLIDAY_COLOUR : VOLUNTEER_DAY_COLOUR);
+        entry.setColor(day.getColour());
         entry.setAllDay(true);
         entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
@@ -303,8 +304,6 @@ public class CalendarView extends VerticalLayout implements HasDynamicTitle, Com
         entry.setDurationEditable(false);
         entry.setEditable(false);
         entry.setDurationEditable(false);
-
-        AbstractDay day = AbstractDay.createDay(holiday, date, createDialog, createDialog.getUserUuid());
 
         try {
             rostaService.saveDay(day);
