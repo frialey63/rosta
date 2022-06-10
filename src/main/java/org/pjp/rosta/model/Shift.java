@@ -21,15 +21,15 @@ public class Shift {
 
     private String userUuid;
 
-    private ShiftDay monday = new ShiftDay(DayOfWeek.MONDAY, true);
+    private ShiftDay monday = new ShiftDay(DayOfWeek.MONDAY, false, true);
 
-    private ShiftDay tuesday = new ShiftDay(DayOfWeek.TUESDAY, true);
+    private ShiftDay tuesday = new ShiftDay(DayOfWeek.TUESDAY, false, true);
 
-    private ShiftDay wednesday = new ShiftDay(DayOfWeek.WEDNESDAY, true);
+    private ShiftDay wednesday = new ShiftDay(DayOfWeek.WEDNESDAY, false, true);
 
-    private ShiftDay thursday = new ShiftDay(DayOfWeek.THURSDAY, true);
+    private ShiftDay thursday = new ShiftDay(DayOfWeek.THURSDAY, false, true);
 
-    private ShiftDay friday = new ShiftDay(DayOfWeek.FRIDAY, true);
+    private ShiftDay friday = new ShiftDay(DayOfWeek.FRIDAY, false, true);
 
     private ShiftDay saturday = new ShiftDay(DayOfWeek.SATURDAY);
 

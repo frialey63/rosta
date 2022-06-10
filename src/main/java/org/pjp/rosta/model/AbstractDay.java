@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import org.springframework.data.annotation.Id;
 
-public abstract class AbstractDay implements PartOfDay {
+public abstract sealed class AbstractDay implements PartOfDay permits AbsenceDay, Holiday, VolunteerDay {
 
     public static AbstractDay createDay(DayType dayType, LocalDate date, PartOfDay partOfDay, String userUuid) {
         return switch(dayType) {

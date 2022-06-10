@@ -3,9 +3,6 @@ Application for managing the museum's rosta of volunteers and employees.
 
 ## TODO Stories
 
-Model
-- opener in shift
-
 Security
 - login and session management
 - passsword

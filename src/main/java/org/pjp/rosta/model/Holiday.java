@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class Holiday extends AbstractDay {
+public final class Holiday extends AbstractDay {
 
     public Holiday() {
         super();

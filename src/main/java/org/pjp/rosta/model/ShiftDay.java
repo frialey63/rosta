@@ -2,9 +2,11 @@ package org.pjp.rosta.model;
 
 import java.time.DayOfWeek;
 
-public class ShiftDay implements PartOfDay {
+public class ShiftDay implements PartOfDayWithOpener {
 
     private DayOfWeek dayOfWeek;
+
+    private boolean opener;
 
     private boolean morning;
 
@@ -19,15 +21,24 @@ public class ShiftDay implements PartOfDay {
         this.dayOfWeek = dayOfWeek;
     }
 
-    public ShiftDay(DayOfWeek dayOfWeek, boolean morning, boolean afternoon) {
+    public ShiftDay(DayOfWeek dayOfWeek, boolean opener, boolean morning, boolean afternoon) {
         super();
         this.dayOfWeek = dayOfWeek;
+        this.opener = opener;
         this.morning = morning;
         this.afternoon = afternoon;
     }
 
-    public ShiftDay(DayOfWeek dayOfWeek, boolean allDay) {
-        this(dayOfWeek, allDay, allDay);
+    public ShiftDay(DayOfWeek dayOfWeek, boolean opener, boolean allDay) {
+        this(dayOfWeek, opener, allDay, allDay);
+    }
+
+    public boolean isOpener() {
+        return opener;
+    }
+
+    public void setOpener(boolean opener) {
+        this.opener = opener;
     }
 
     @Override
@@ -59,7 +70,9 @@ public class ShiftDay implements PartOfDay {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("ShiftDay [morning=");
+        builder.append("ShiftDay [opener=");
+        builder.append(opener);
+        builder.append(", morning=");
         builder.append(morning);
         builder.append(", afternoon=");
         builder.append(afternoon);

@@ -228,6 +228,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
                         ((ShiftDialog) dialog).getEntries().forEach(entry -> {
                             ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                            shiftDay.setOpener(entry.isOpener());
                             shiftDay.setMorning(entry.isMorning());
                             shiftDay.setAfternoon(entry.isAfternoon());
                         });
@@ -246,6 +247,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
                         ((ShiftDialog) dialog).getEntries().forEach(entry -> {
                             ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                            shiftDay.setOpener(entry.isOpener());
                             shiftDay.setMorning(entry.isMorning());
                             shiftDay.setAfternoon(entry.isAfternoon());
                         });

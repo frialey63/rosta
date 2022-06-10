@@ -76,11 +76,11 @@ public class RostaService {
         LocalDate date = LocalDate.of(2022, 5, 16);
 
         {
-            String id = UUID.randomUUID().toString();
-            User user = new User(id, "fred", "password", "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
+            var id = UUID.randomUUID().toString();
+            var user = new User(id, "fred", "password", "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
             userRepo.save(user);
 
-            Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
+            var shift = new Shift(UUID.randomUUID().toString(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setMorning(false);
             shiftRepo.save(shift);
 
@@ -90,16 +90,16 @@ public class RostaService {
             shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
-            Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
+            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
             holidayRepository.save(holiday);
         }
 
         {
-            String id = UUID.randomUUID().toString();
-            User user = new User(id, "bill", "password", "Bill Smith", "bill@gmail.com", true, false);
+            var id = UUID.randomUUID().toString();
+            var user = new User(id, "bill", "password", "Bill Smith", "bill@gmail.com", true, false);
             userRepo.save(user);
 
-            Shift shift = new Shift(UUID.randomUUID().toString(), date, id);
+            var shift = new Shift(UUID.randomUUID().toString(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
             shiftRepo.save(shift);
 
@@ -109,16 +109,16 @@ public class RostaService {
             shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
-            Holiday holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
+            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
             holidayRepository.save(holiday);
         }
 
         {
-            String id = UUID.randomUUID().toString();
-            User user = new User(id, "anne", "password", "Anne Boleyn", "anne@gmail.com", false, false);
+            var id = UUID.randomUUID().toString();
+            var user = new User(id, "anne", "password", "Anne Boleyn", "anne@gmail.com", false, false);
             userRepo.save(user);
 
-            VolunteerDay VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
+            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
     }
@@ -255,12 +255,12 @@ public class RostaService {
     }
 
     public void saveDay(AbstractDay day) {
-        if (day instanceof Holiday) {
-            holidayRepository.save((Holiday) day);
-        } else if (day instanceof AbsenceDay) {
-            absenceDayRepository.save((AbsenceDay) day);
-        } else if (day instanceof VolunteerDay) {
-            volunteerDayRepository.save((VolunteerDay) day);
+        if (day instanceof Holiday holiday) {
+            holidayRepository.save(holiday);
+        } else if (day instanceof AbsenceDay absenceDay) {
+            absenceDayRepository.save(absenceDay);
+        } else if (day instanceof VolunteerDay volunteerDay) {
+            volunteerDayRepository.save(volunteerDay);
         } else {
             throw new IllegalStateException();
         }

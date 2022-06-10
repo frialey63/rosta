@@ -50,6 +50,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     static class GridBean {
         private String day;
+        private String opener;
         private String morning;
         private String afternoon;
 
@@ -57,17 +58,24 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
             super();
         }
 
-        public GridBean(String morning, String afternoon) {
+        public GridBean(String opener, String morning, String afternoon) {
             super();
+            this.opener = opener;
             this.morning = morning;
             this.afternoon = afternoon;
         }
 
         public void set(PartOfDay partOfDay, String str) {
-            if (partOfDay == PartOfDay.MORNING) {
+            switch(partOfDay) {
+            case OPENER:
+                setOpener(str);
+                break;
+            case MORNING:
                 setMorning(str);
-            } else {
+                break;
+            case AFTERNOON:
                 setAfternoon(str);
+                break;
             }
         }
 
@@ -77,6 +85,14 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
         public void setDay(String day) {
             this.day = day;
+        }
+
+        public String getOpener() {
+            return opener;
+        }
+
+        public void setOpener(String opener) {
+            this.opener = opener;
         }
 
         public String getMorning() {
@@ -256,8 +272,9 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         grid.addThemeVariants(GridVariant.LUMO_ROW_STRIPES);
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
 
-        grid.addColumn(GridBean::getMorning).setHeader(getCentredLabel("Morning")).setWidth("50%").setFlexGrow(0);
-        grid.addColumn(GridBean::getAfternoon).setHeader(getCentredLabel("Afternoon")).setWidth("50%").setFlexGrow(0);
+        grid.addColumn(GridBean::getOpener).setHeader(getCentredLabel("Opener")).setWidth("20%").setFlexGrow(0);
+        grid.addColumn(GridBean::getMorning).setHeader(getCentredLabel("Morning")).setWidth("40%").setFlexGrow(0);
+        grid.addColumn(GridBean::getAfternoon).setHeader(getCentredLabel("Afternoon")).setWidth("40%").setFlexGrow(0);
 
         grid.getColumns().forEach(c -> c.setSortable(false));
 

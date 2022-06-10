@@ -149,8 +149,8 @@ public class MainLayout extends AppLayout {
     private String getCurrentPageTitle() {
         Component content = getContent();
 
-        if (content instanceof HasDynamicTitle) {
-            return ((HasDynamicTitle) content).getPageTitle();
+        if (content instanceof HasDynamicTitle hdt) {
+            return hdt.getPageTitle();
         }
 
         PageTitle title = content.getClass().getAnnotation(PageTitle.class);

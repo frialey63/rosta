@@ -1,7 +1,7 @@
 package org.pjp.rosta.bean;
 
 public enum PartOfDay {
-    MORNING, AFTERNOON, EVENING;
+    OPENER, MORNING, AFTERNOON;
 
     @Override
     public String toString() {

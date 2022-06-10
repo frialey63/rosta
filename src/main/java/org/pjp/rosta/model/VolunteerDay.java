@@ -6,7 +6,7 @@ import java.util.UUID;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
-public class VolunteerDay extends AbstractDay {
+public final class VolunteerDay extends AbstractDay {
 
     public VolunteerDay() {
         super();
