@@ -4,9 +4,12 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 import org.pjp.rosta.model.AbstractDay;
+import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
@@ -90,6 +93,16 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     public CalendarView() {
         MenuBar menuBar = createMenuBar();
 
+        Span filler = new Span();
+        setFlexGrow(1, filler);
+
+        Button mySummary = new Button("My Summary", this::onMySummary);
+
+        HorizontalLayout hl = new CompactHorizontalLayout(menuBar, filler, mySummary);
+        hl.setVerticalComponentAlignment(Alignment.CENTER, menuBar, filler, mySummary);
+        hl.setAlignItems(Alignment.STRETCH);
+        hl.setWidthFull();
+
         // Create a new calendar instance and attach it to our layout
         calendar.setFirstDay(DayOfWeek.MONDAY);
         calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
@@ -111,8 +124,8 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         Span helpText = new Span("Click on a day to enter voluntary day, holiday and/or absence; click on week number to access shift pattern (employees only).");
         helpText.getElement().getStyle().set("font-style", "italic");
 
-        setHorizontalComponentAlignment(Alignment.STRETCH, menuBar, calendar, helpText);
-        add(menuBar, calendar, helpText);
+        setHorizontalComponentAlignment(Alignment.STRETCH, hl, calendar, helpText);
+        add(hl, calendar, helpText);
     }
 
     private void updateMonthReadout(HasText label, LocalDate date) {
@@ -179,7 +192,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         calendar.removeAllEntries();
 
         optUser.ifPresent(user -> {
-            rostaService.getDays(user, start, end).forEach(day -> {
+            rostaService.getDays(user, Set.of(DayType.values()), start, end).forEach(day -> {
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
                 entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
@@ -198,7 +211,27 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         });
     }
 
-    public void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
+    private void onMySummary(ClickEvent<Button> event) {
+        optUser.ifPresent(user -> {
+            LocalDate today = LocalDate.now();
+
+            LocalDate start = today.with(TemporalAdjusters.firstDayOfYear());
+            LocalDate end = today.with(TemporalAdjusters.lastDayOfYear());
+
+            boolean employee = user.isEmployee();
+            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
+            List<AbstractDay> days = rostaService.getDays(user, dayTypes, start, end);
+
+            dialog = new SummaryDialog(employee, days);
+            dialog.setHeader("My Summary for " + today.getYear());
+            dialog.setFooter(new Button("Cancel", this::onCancel));
+            dialog.setHeight("80%");
+            dialog.setWidth("40%");
+            dialog.open();
+        });
+    }
+
+    private void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         optUser.ifPresent(user -> {
             LocalDate date = event.getDate();
 
@@ -263,7 +296,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         });
     }
 
-    public void onEntryClickedEvent(EntryClickedEvent event) {
+    private void onEntryClickedEvent(EntryClickedEvent event) {
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getEntry().getStartAsLocalDate();
 
@@ -276,7 +309,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         });
     }
 
-    public void onTimeslotClickedEvent(TimeslotClickedEvent event) {
+    private void onTimeslotClickedEvent(TimeslotClickedEvent event) {
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
 
@@ -334,5 +367,4 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     private void onCancel(ClickEvent<Button> event) {
         dialog.close();
     }
-
 }

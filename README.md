@@ -10,9 +10,6 @@ Security
 Email
 - weekly detection of days with insufficient staff and send emails to volunteers
 
-Report View or Dialog
-- list holidays, volunteer days, absences via query
-
 Calendar
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 

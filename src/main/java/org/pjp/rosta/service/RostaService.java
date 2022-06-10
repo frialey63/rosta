@@ -12,6 +12,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
@@ -26,6 +27,7 @@ import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
+import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
@@ -244,12 +246,18 @@ public class RostaService {
         return rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
     }
 
-    public List<AbstractDay> getDays(User user, LocalDate dateStart, LocalDate dateEnd) {
+    public List<AbstractDay> getDays(User user, Set<DayType> dayTypes, LocalDate dateStart, LocalDate dateEnd) {
         List<AbstractDay> result = new ArrayList<>();
 
-        result.addAll(holidayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
-        result.addAll(absenceDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
-        result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        if (dayTypes.contains(DayType.ABSENCE)) {
+            result.addAll(absenceDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        }
+        if (dayTypes.contains(DayType.HOLIDAY)) {
+            result.addAll(holidayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        }
+        if (dayTypes.contains(DayType.VOLUNTARY)) {
+            result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        }
 
         return result;
     }

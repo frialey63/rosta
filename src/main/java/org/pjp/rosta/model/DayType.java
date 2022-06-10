@@ -1,3 +1,14 @@
 package org.pjp.rosta.model;
 
-public enum DayType { Holiday, Absence, VolunteerDay }
+public enum DayType {
+    HOLIDAY, ABSENCE, VOLUNTARY;
+
+
+    @Override
+    public String toString() {
+        String str = super.toString();
+
+        return str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
+    }
+
+}

@@ -21,15 +21,6 @@ public final class VolunteerDay extends AbstractDay {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("VolunteerDay [toString()=");
-        builder.append(super.toString());
-        builder.append("]");
-        return builder.toString();
-    }
-
-    @Override
     public String getColour() {
         return "#33ff33";
     }

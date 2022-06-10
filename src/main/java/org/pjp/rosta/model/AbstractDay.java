@@ -1,27 +1,30 @@
 package org.pjp.rosta.model;
 
 import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 import org.springframework.data.annotation.Id;
 
-public abstract sealed class AbstractDay implements PartOfDay permits AbsenceDay, Holiday, VolunteerDay {
+public abstract sealed class AbstractDay implements Comparable<AbstractDay>, PartOfDay permits AbsenceDay, Holiday, VolunteerDay {
 
     public static AbstractDay createDay(DayType dayType, LocalDate date, PartOfDay partOfDay, String userUuid) {
         return switch(dayType) {
-        case Absence -> new AbsenceDay(date, partOfDay, userUuid);
-        case Holiday -> new Holiday(date, partOfDay, userUuid);
-        case VolunteerDay -> new VolunteerDay(date, partOfDay, userUuid);
+        case ABSENCE -> new AbsenceDay(date, partOfDay, userUuid);
+        case HOLIDAY -> new Holiday(date, partOfDay, userUuid);
+        case VOLUNTARY -> new VolunteerDay(date, partOfDay, userUuid);
         };
     }
 
     public static DayType getDayType(String className) {
         return switch(className) {
-        case "org.pjp.rosta.model.AbsenceDay" -> DayType.Absence;
-        case "org.pjp.rosta.model.Holiday" -> DayType.Holiday;
-        case "org.pjp.rosta.model.VolunteerDay" -> DayType.VolunteerDay;
+        case "org.pjp.rosta.model.AbsenceDay" -> DayType.ABSENCE;
+        case "org.pjp.rosta.model.Holiday" -> DayType.HOLIDAY;
+        case "org.pjp.rosta.model.VolunteerDay" -> DayType.VOLUNTARY;
         default -> null;
         };
     }
+
+    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("E dd MMMM");
 
     @Id
     private String uuid;
@@ -74,20 +77,23 @@ public abstract sealed class AbstractDay implements PartOfDay permits AbsenceDay
     }
 
     @Override
+    public int compareTo(AbstractDay other) {
+        return date.compareTo(other.date);
+    }
+
+    @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("AbstractDay [uuid=");
-        builder.append(uuid);
-        builder.append(", date=");
-        builder.append(date);
-        builder.append(", morning=");
-        builder.append(morning);
-        builder.append(", afternoon=");
-        builder.append(afternoon);
-        builder.append(", userUuid=");
-        builder.append(userUuid);
-        builder.append("]");
-        return builder.toString();
+        String str = date.format(FORMATTER);
+
+        if (isAllDay()) {
+            str += "";
+        } else if (morning) {
+            str += " Morning";
+        } else if (afternoon) {
+            str += " Afternoon";
+        }
+
+        return str;
     }
 
     public abstract String getColour();

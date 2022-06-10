@@ -21,15 +21,6 @@ public final class AbsenceDay extends AbstractDay {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("AbsenceDay [toString()=");
-        builder.append(super.toString());
-        builder.append("]");
-        return builder.toString();
-    }
-
-    @Override
     public String getColour() {
         return "#ff3333";
     }

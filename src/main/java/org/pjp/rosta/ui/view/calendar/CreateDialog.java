@@ -50,30 +50,30 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         setContent(getContent());
     }
 
-    public Component getContent() {
+    private Component getContent() {
         VerticalLayout subPanel = new CompactVerticalLayout(morning, afternoon);
         subPanel.setHorizontalComponentAlignment(Alignment.START, morning, afternoon);
         subPanel.setHeightFull();
 
-        VerticalLayout panel;
+        VerticalLayout content;
 
         if (employee) {
-            dayType.setItems(DayType.Holiday, DayType.Absence);
-            dayType.setValue(DayType.Holiday);
+            dayType.setItems(DayType.HOLIDAY, DayType.ABSENCE);
+            dayType.setValue(DayType.HOLIDAY);
 
             Hr separator = new Hr();
             separator.setWidthFull();
 
-            panel = new CompactVerticalLayout(dayType, separator, subPanel);
+            content = new CompactVerticalLayout(dayType, separator, subPanel);
         } else {
-            panel = subPanel;
+            content = subPanel;
         }
 
-        return panel;
+        return content;
     }
 
     public DayType getDayType() {
-        return employee ? dayType.getValue() : DayType.VolunteerDay;
+        return employee ? dayType.getValue() : DayType.VOLUNTARY;
     }
 
     public boolean isEmployee() {

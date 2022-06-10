@@ -21,15 +21,6 @@ public final class Holiday extends AbstractDay {
     }
 
     @Override
-    public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("Holiday [toString()=");
-        builder.append(super.toString());
-        builder.append("]");
-        return builder.toString();
-    }
-
-    @Override
     public String getColour() {
         return "#3333ff";
     }

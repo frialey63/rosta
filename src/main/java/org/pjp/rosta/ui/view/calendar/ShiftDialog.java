@@ -130,7 +130,7 @@ class ShiftDialog extends EnhancedDialog {
         Grid<ShiftDialog.ShiftEntry> grid = new Grid<>(ShiftDialog.ShiftEntry.class, false);
         grid.setColumnReorderingAllowed(false);
         grid.setAllRowsVisible(true);
-        grid.setWidth("30em");
+        grid.setWidthFull();
 
         grid.addColumn(ShiftEntry::getDayOfWeek).setHeader("Day");
         grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isOpener(), enabled, l -> rostaEntry.setOpener(l.getValue())))).setHeader("Opener");
@@ -144,10 +144,10 @@ class ShiftDialog extends EnhancedDialog {
 
         Label label = new Label("Effective from: " + date.format(FORMATTER));
 
-        VerticalLayout vl = new CompactVerticalLayout(label, grid);
-        vl.setHorizontalComponentAlignment(Alignment.START, label, grid);
+        VerticalLayout content = new CompactVerticalLayout(label, grid);
+        content.setHorizontalComponentAlignment(Alignment.START, label, grid);
 
-        return vl;
+        return content;
     }
 
 
