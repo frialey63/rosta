@@ -67,6 +67,16 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
                         .password("{noop}password")
                         .roles("USER")
                         .build();
+//        UserDetails bill =
+//                User.withUsername("fred")
+//                        .password("{noop}password")
+//                        .roles("USER")
+//                        .build();
+//        UserDetails anne =
+//                User.withUsername("anne")
+//                        .password("{noop}password")
+//                        .roles("USER")
+//                        .build();
         UserDetails admin =
                 User.withUsername("admin")
                         .password("{noop}password")

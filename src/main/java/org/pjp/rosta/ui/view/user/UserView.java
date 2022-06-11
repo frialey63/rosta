@@ -3,7 +3,7 @@ package org.pjp.rosta.ui.view.user;
 import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.Session;
+import org.pjp.rosta.service.SecurityService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
@@ -30,13 +30,13 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     private final GridCrud<User> crud = new GridCrud<>(User.class);
 
-    private final String username = Session.getUsername();
+    @Autowired
+    private SecurityService securityService;
 
     @Autowired
     private UserService userService;
 
     public UserView() {
-
         // grid configuration
         crud.getGrid().setColumns("username", "name", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);
@@ -62,7 +62,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
             crud.setUpdateButtonColumnEnabled(false);
 
             l.getFirstSelectedItem().ifPresent(selUser -> {
-                boolean self = username.equals(selUser.getUsername());
+                boolean self = getUsername().equals(selUser.getUsername());
 
                 Button updateButton = crud.getUpdateButton(selUser);
 
@@ -74,7 +74,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
                 if (self) {
                     crud.getDeleteButton().setEnabled(false);
                 } else {
-                    userService.findByUsername(username).ifPresent(user -> {
+                    userService.findByUsername(getUsername()).ifPresent(user -> {
                         boolean admin = user.isAdmin();
 
                         crud.getUpdateButton().setEnabled(admin);
@@ -96,9 +96,13 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
         add(crud);
     }
 
+    private String getUsername() {
+        return securityService.getAuthenticatedUser().getUsername();
+    }
+
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        userService.findByUsername(username).ifPresent(user -> {
+        userService.findByUsername(getUsername()).ifPresent(user -> {
             boolean admin = user.isAdmin();
 
             crud.getAddButton().setEnabled(admin);

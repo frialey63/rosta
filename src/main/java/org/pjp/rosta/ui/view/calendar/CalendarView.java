@@ -17,8 +17,8 @@ import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.SecurityService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.DrawerToggleEvent;
@@ -92,6 +92,9 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     private EnhancedDialog dialog;
 
     @Autowired
+    private SecurityService securityService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -138,6 +141,10 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
             add(calendar, helpText);
             setHorizontalComponentAlignment(Alignment.STRETCH, calendar, helpText);
         });
+    }
+
+    private String getUsername() {
+        return securityService.getAuthenticatedUser().getUsername();
     }
 
     private FullCalendar createCalendar() {
@@ -189,16 +196,12 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        String username = Session.getUsername();
-
-        optUser = userService.findByUsername(username);
+        optUser = userService.findByUsername(getUsername());
     }
 
     @Override
     public String getPageTitle() {
-        String username = Session.getUsername();
-
-        userService.findByUsername(username).ifPresent(user -> {
+        userService.findByUsername(getUsername()).ifPresent(user -> {
             pageTitle += user.isEmployee() ? " of Shifts & Holidays" : " of Volunteer Days";
         });
 
