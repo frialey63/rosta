@@ -263,43 +263,34 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                     dialog.open();
                 });
             } else {
+                Span filler = new Span();
+                CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
+                    Shift newShift = new Shift(date, user.getUuid());
+
+                    ((ShiftDialog) dialog).getEntries().forEach(entry -> {
+                        ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                        shiftDay.setOpener(entry.isOpener());
+                        shiftDay.setMorning(entry.isMorning());
+                        shiftDay.setAfternoon(entry.isAfternoon());
+                    });
+
+                    rostaService.saveShift(newShift);
+
+                    dialog.close();
+
+                }), new Button("Cancel", this::onCancel));
+                footer.setAlignItems(Alignment.STRETCH);
+                footer.setFlexGrow(1, filler);
+
                 rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
                     dialog = new ShiftDialog(date, shift);
                     dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
-                    dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
-                        Shift newShift = new Shift(date, user.getUuid());
-
-                        ((ShiftDialog) dialog).getEntries().forEach(entry -> {
-                            ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
-                            shiftDay.setOpener(entry.isOpener());
-                            shiftDay.setMorning(entry.isMorning());
-                            shiftDay.setAfternoon(entry.isAfternoon());
-                        });
-
-                        rostaService.saveShift(newShift);
-
-                        dialog.close();
-
-                    }), new Button("Cancel", this::onCancel)));
+                    dialog.setFooter(footer);
                     dialog.open();
                 }, () -> {
                     dialog = new ShiftDialog(date);
                     dialog.setHeader("New Shift");
-                    dialog.setFooter(new CompactHorizontalLayout(new Button("Save", e -> {
-                        Shift newShift = new Shift(date, user.getUuid());
-
-                        ((ShiftDialog) dialog).getEntries().forEach(entry -> {
-                            ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
-                            shiftDay.setOpener(entry.isOpener());
-                            shiftDay.setMorning(entry.isMorning());
-                            shiftDay.setAfternoon(entry.isAfternoon());
-                        });
-
-                        rostaService.saveShift(newShift);
-
-                        dialog.close();
-
-                    }), new Button("Cancel", this::onCancel)));
+                    dialog.setFooter(footer);
                     dialog.open();
                 });
             }
