@@ -179,6 +179,10 @@ public class RostaService {
         return shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(user.getUuid(), date);
     }
 
+    public Optional<Shift> getShift(String shiftUuid) {
+        return shiftRepo.findById(shiftUuid);
+    }
+
     public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
         try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
             for (XWPFParagraph para : document.getParagraphs()) {

@@ -94,10 +94,13 @@ class ShiftDialog extends EnhancedDialog {
 
     private final LocalDate date;
 
+    private final String shiftUuid;
+
     public ShiftDialog(LocalDate date) {
         super();
         this.date = date;
         this.entries = Arrays.asList(DayOfWeek.values()).stream().map(dow -> new ShiftEntry(dow)).collect(Collectors.toList());
+        shiftUuid = null;
 
         setContent(getContent(true));
     }
@@ -106,6 +109,7 @@ class ShiftDialog extends EnhancedDialog {
         super();
         this.date = shift.getFromDate();
         this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isOpener(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+        shiftUuid = null;
 
         setContent(getContent(false));
     }
@@ -114,8 +118,17 @@ class ShiftDialog extends EnhancedDialog {
         super();
         this.date = date;
         this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isOpener(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+        this.shiftUuid = date.equals(shift.getFromDate()) ? shift.getUuid() : null;
 
         setContent(getContent(true));
+    }
+
+    public String getShiftUuid() {
+        return shiftUuid;
+    }
+
+    public boolean isEdit() {
+        return shiftUuid != null;
     }
 
     public LocalDate getDate() {

@@ -265,16 +265,18 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
             } else {
                 Span filler = new Span();
                 CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
-                    Shift newShift = new Shift(date, user.getUuid());
+                    ShiftDialog shiftDialog = (ShiftDialog) dialog;
 
-                    ((ShiftDialog) dialog).getEntries().forEach(entry -> {
-                        ShiftDay shiftDay = newShift.getShiftDay(entry.getDayOfWeek());
+                    Shift shift = shiftDialog.isEdit() ? rostaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
+
+                    shiftDialog.getEntries().forEach(entry -> {
+                        ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
                         shiftDay.setOpener(entry.isOpener());
                         shiftDay.setMorning(entry.isMorning());
                         shiftDay.setAfternoon(entry.isAfternoon());
                     });
 
-                    rostaService.saveShift(newShift);
+                    rostaService.saveShift(shift);
 
                     dialog.close();
 

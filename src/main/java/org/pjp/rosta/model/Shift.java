@@ -97,6 +97,20 @@ public class Shift {
         builder.append(fromDate);
         builder.append(", userUuid=");
         builder.append(userUuid);
+        builder.append(", monday=");
+        builder.append(monday);
+        builder.append(", tuesday=");
+        builder.append(tuesday);
+        builder.append(", wednesday=");
+        builder.append(wednesday);
+        builder.append(", thursday=");
+        builder.append(thursday);
+        builder.append(", friday=");
+        builder.append(friday);
+        builder.append(", saturday=");
+        builder.append(saturday);
+        builder.append(", sunday=");
+        builder.append(sunday);
         builder.append("]");
         return builder.toString();
     }
