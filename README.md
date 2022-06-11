@@ -7,9 +7,6 @@ Security
 - login and session management
 - passsword
 
-Email
-- weekly detection of days with insufficient staff and send emails to volunteers
-
 Calendar
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 

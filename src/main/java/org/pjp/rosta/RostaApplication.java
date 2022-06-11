@@ -38,7 +38,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
         service.initData();
     }
 
-    @Scheduled(fixedRate = 60_000)
+    @Scheduled(fixedRate = 60_000, initialDelay = 10_000)
     @Scheduled(cron = "0 0 18 * * FRI")	// TODO set the crontab
     public void checkRosta() {
         service.checkRosta();

@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
@@ -14,6 +16,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
@@ -40,10 +43,15 @@ import org.pjp.rosta.repository.VolunteerDayRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
+import org.springframework.util.FileCopyUtils;
 
 @Service
 public class RostaService {
+
+    private static final String TEMPLATE = "classpath:email-template.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
@@ -51,7 +59,12 @@ public class RostaService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
-    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {}
+    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {
+        @Override
+        public String toString() {
+            return dayOfWeek + " " + partOfDay;
+        }
+    }
 
     @Autowired
     private UserRepository userRepo;
@@ -67,6 +80,12 @@ public class RostaService {
 
     @Autowired
     private AbsenceDayRepository absenceDayRepository;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private ResourceLoader resourceLoader;
 
     public RostaService() {
         super();
@@ -132,7 +151,7 @@ public class RostaService {
 
         Rosta rosta = buildRosta(nextMonday);
 
-        LOGGER.info("checking rosta for {}...", nextMonday);
+        LOGGER.info("checking rosta for {}", nextMonday);
 
         List<MissingCover> missingCover = new ArrayList<>();
 
@@ -150,7 +169,34 @@ public class RostaService {
             }
         }
 
-        LOGGER.info("missingCover = " + missingCover);
+        LOGGER.debug("missingCover = {}", missingCover);
+
+        if (!missingCover.isEmpty()) {
+            LOGGER.info("found missing cover in rota, sending emails to all volunteers");
+
+            Resource resource = resourceLoader.getResource(TEMPLATE);
+
+            try (InputStream inputStream = resource.getInputStream()) {
+                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+                String missingCoverStr = missingCover.stream().map(mc -> mc.toString()).collect(Collectors.joining("\n"));
+
+                String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
+
+                userRepo.findByEmployee(false).forEach(user -> {
+                    if (user.getEmail() != null) {
+                        String text = String.format(templateStr, user.getName()) + missingCoverStr;
+
+                        try {
+                            emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                        } catch (Exception e) {
+                            LOGGER.warn("failed to send email to address "+ user.getEmail());
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                LOGGER.error("failed to read email-template.txt from classpath resources", e);
+            }
+        }
     }
 
     public Rosta buildRosta(LocalDate date) {
