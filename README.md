@@ -11,7 +11,7 @@ Email
 - weekly detection of days with insufficient staff and send emails to volunteers
 
 Bugs
-- modify current week is an edit
+- modify shift defined in the week is an edit!
 - calendar refresh when menu button clicked on main layout
 
 Calendar
