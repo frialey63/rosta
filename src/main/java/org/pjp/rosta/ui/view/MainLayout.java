@@ -7,6 +7,8 @@ import org.pjp.rosta.ui.view.rosta.RostaView;
 import org.pjp.rosta.ui.view.user.UserView;
 
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
 import com.vaadin.flow.component.button.ButtonVariant;
@@ -85,6 +87,9 @@ public class MainLayout extends AppLayout {
         toggle.addClassNames("view-toggle");
         toggle.addThemeVariants(ButtonVariant.LUMO_CONTRAST);
         toggle.getElement().setAttribute("aria-label", "Menu toggle");
+        toggle.addClickListener(l -> {
+            ComponentUtil.fireEvent(UI.getCurrent(), new DrawerToggleEvent(toggle, false));
+        });
 
         viewTitle = new H1();
         viewTitle.addClassNames("view-title");
@@ -98,8 +103,7 @@ public class MainLayout extends AppLayout {
         H2 appName = new H2("Museum Shop");
         appName.addClassNames("app-name");
 
-        com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName,
-                createNavigation(), createFooter());
+        com.vaadin.flow.component.html.Section section = new com.vaadin.flow.component.html.Section(appName, createNavigation(), createFooter());
         section.addClassNames("drawer-section");
         return section;
     }

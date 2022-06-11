@@ -19,6 +19,7 @@ import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
+import org.pjp.rosta.ui.view.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -36,7 +37,9 @@ import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
+import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasText;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.datepicker.DatePicker;
@@ -127,6 +130,10 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
         setHorizontalComponentAlignment(Alignment.STRETCH, hl, calendar, helpText);
         add(hl, calendar, helpText);
+
+        ComponentUtil.addListener(UI.getCurrent(), DrawerToggleEvent.class, event -> {
+            calendar.render();	// FIXME does not work
+        });
     }
 
     private void updateMonthReadout(HasText label, LocalDate date) {
