@@ -1,5 +1,5 @@
 # rosta
-Application for managing the museum's rosta of volunteers and employees.
+Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 

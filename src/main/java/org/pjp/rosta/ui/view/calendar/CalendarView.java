@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import javax.annotation.security.PermitAll;
+
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
@@ -53,6 +55,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+@PermitAll
 @Route(value = "calendar", layout = MainLayout.class)
 public class CalendarView extends VerticalLayout implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
 
@@ -141,7 +144,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         calendar = FullCalendarBuilder.create().build();
         calendar.setHeightByParent();
         calendar.setFirstDay(DayOfWeek.MONDAY);
-        
+
         calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
         calendar.addEntryClickedListener(this::onEntryClickedEvent);
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);

@@ -13,6 +13,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import javax.annotation.security.PermitAll;
+
 import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
@@ -43,6 +45,7 @@ import com.vaadin.flow.router.RouteAlias;
 import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
+@PermitAll
 @PageTitle("The Shop Rota")
 @Route(value = "rota", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)

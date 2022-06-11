@@ -1,26 +1,29 @@
 package org.pjp.rosta.ui.view;
 
 
+import org.pjp.rosta.service.SecurityService;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
 import org.pjp.rosta.ui.view.rosta.RostaView;
 import org.pjp.rosta.ui.view.user.UserView;
+import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.applayout.AppLayout;
 import com.vaadin.flow.component.applayout.DrawerToggle;
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.html.Footer;
 import com.vaadin.flow.component.html.H1;
 import com.vaadin.flow.component.html.H2;
-import com.vaadin.flow.component.html.Header;
 import com.vaadin.flow.component.html.ListItem;
 import com.vaadin.flow.component.html.Nav;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.html.UnorderedList;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.RouterLink;
@@ -76,7 +79,11 @@ public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
-    public MainLayout() {
+    private SecurityService securityService;
+
+    public MainLayout(@Autowired SecurityService securityService) {
+        this.securityService = securityService;
+
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
         addToDrawer(createDrawerContent());
@@ -94,8 +101,21 @@ public class MainLayout extends AppLayout {
         viewTitle = new H1();
         viewTitle.addClassNames("view-title");
 
-        Header header = new Header(toggle, viewTitle);
+        HorizontalLayout header;
+
+        if (securityService.getAuthenticatedUser() != null) {
+            Span filler = new Span();
+
+            Button logout = new Button("Logout", click -> securityService.logout());
+            header = new CompactHorizontalLayout(toggle, viewTitle, filler, logout);
+            header.setFlexGrow(1, filler);
+        } else {
+            header = new CompactHorizontalLayout(toggle, viewTitle);
+        }
+
         header.addClassNames("view-header");
+        header.setPadding(true);
+
         return header;
     }
 

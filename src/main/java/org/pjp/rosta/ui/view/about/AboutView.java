@@ -11,7 +11,9 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.auth.AnonymousAllowed;
 
+@AnonymousAllowed
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout implements AfterNavigationObserver {
@@ -21,7 +23,7 @@ public class AboutView extends VerticalLayout implements AfterNavigationObserver
     @Value("${application.version}")
     private String applicationVersion;
 
-    private final Paragraph paragraph = new Paragraph("Shop Rota Application version " + applicationVersion);
+    private final Paragraph paragraph = new Paragraph();
 
     public AboutView() {
         setSpacing(false);
@@ -41,7 +43,7 @@ public class AboutView extends VerticalLayout implements AfterNavigationObserver
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        paragraph.setText("Shop Rota Application version " + applicationVersion);
+        paragraph.setText("Shop Rota App version " + applicationVersion);
     }
 
 }

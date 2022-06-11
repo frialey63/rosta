@@ -1,5 +1,7 @@
 package org.pjp.rosta.ui.view.user;
 
+import javax.annotation.security.PermitAll;
+
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.Session;
 import org.pjp.rosta.service.UserService;
@@ -19,6 +21,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
+@PermitAll
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserView extends VerticalLayout implements AfterNavigationObserver {
