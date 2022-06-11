@@ -20,7 +20,6 @@ public class User implements Comparable<User> {
     @NotNull
     private String name;
 
-    @NotNull
     private String email;
 
     private boolean employee;

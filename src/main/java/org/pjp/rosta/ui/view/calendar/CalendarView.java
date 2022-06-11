@@ -186,7 +186,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         LocalDate start = event.getStart();
         LocalDate end = event.getEnd();
 
-        LOGGER.info("start = {}, end = {}", start, end);
+        LOGGER.debug("start = {}, end = {}", start, end);
 
         updateMonthReadout(buttonDatePicker, start);
 

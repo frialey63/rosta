@@ -193,7 +193,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
         registration = datePicker.addValueChangeListener(this);
 
         Rosta rosta = rostaService.buildRosta(date);
-        LOGGER.info("rosta: {}", rosta);
+        LOGGER.debug("rosta: {}", rosta);
 
         mapGridBeans(rosta);
         populateGrids();

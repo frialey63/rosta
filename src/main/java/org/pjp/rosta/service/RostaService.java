@@ -51,6 +51,8 @@ public class RostaService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
+    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {}
+
     @Autowired
     private UserRepository userRepo;
 
@@ -126,8 +128,29 @@ public class RostaService {
     }
 
     public void checkRosta() {
-        LOGGER.info("checking rosta...");
+        LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
+        Rosta rosta = buildRosta(nextMonday);
+
+        LOGGER.info("checking rosta for {}...", nextMonday);
+
+        List<MissingCover> missingCover = new ArrayList<>();
+
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+
+            if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
+                missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER));
+            }
+
+            for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
+                if (rostaDay.getUserUuids(partOfDay).size() < 2) {
+                    missingCover.add(new MissingCover(dayOfWeek, partOfDay));
+                }
+            }
+        }
+
+        LOGGER.info("missingCover = " + missingCover);
     }
 
     public Rosta buildRosta(LocalDate date) {

@@ -2,7 +2,6 @@ package org.pjp.rosta;
 
 import org.pjp.rosta.service.RostaService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -40,7 +39,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     }
 
     @Scheduled(fixedRate = 60_000)
-    @Scheduled(cron = "0 0 0 * * FRI")	// TODO set the crontab
+    @Scheduled(cron = "0 0 18 * * FRI")	// TODO set the crontab
     public void checkRosta() {
         service.checkRosta();
     }

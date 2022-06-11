@@ -11,6 +11,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 
+import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -60,8 +61,12 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
             l.getFirstSelectedItem().ifPresent(selUser -> {
                 boolean self = username.equals(selUser.getUsername());
 
+                Button updateButton = crud.getUpdateButton(selUser);
+
                 crud.getUpdateButton().setEnabled(self);
-                crud.getUpdateButton(selUser).setEnabled(self);
+                if (updateButton != null) {
+                    updateButton.setEnabled(self);
+                }
 
                 if (self) {
                     crud.getDeleteButton().setEnabled(false);
@@ -71,7 +76,9 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
                         crud.getUpdateButton().setEnabled(admin);
                         crud.getDeleteButton().setEnabled(admin);
-                        crud.getUpdateButton(selUser).setEnabled(admin);
+                        if (updateButton != null) {
+                            updateButton.setEnabled(admin);
+                        }
                     });
                 }
             });
