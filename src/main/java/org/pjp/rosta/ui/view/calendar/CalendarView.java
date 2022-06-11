@@ -82,7 +82,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
     private String pageTitle = "Calendar";
 
-    private final FullCalendar calendar = FullCalendarBuilder.create().build();
+    private FullCalendar calendar;
 
     private final Button buttonDatePicker = new Button("", VaadinIcon.CALENDAR.create());
 
@@ -108,11 +108,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         hl.setWidthFull();
 
         // Create a new calendar instance and attach it to our layout
-        calendar.setFirstDay(DayOfWeek.MONDAY);
-        calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
-        calendar.addEntryClickedListener(this::onEntryClickedEvent);
-        calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
-        calendar.addDatesRenderedListener(this);
+        calendar = createCalendar();
 
 //        String customCss = "" +
 //                ".fc {" + // marks today with red
@@ -121,28 +117,37 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 //        calendar.addCustomStyles(customCss);
 
         setSizeFull();
-
-        calendar.setHeightByParent();
         setFlexGrow(1, calendar);
 
         Span helpText = new Span("Click on a day to enter voluntary day, holiday and/or absence; click on week number to access shift pattern (employees only).");
         helpText.getElement().getStyle().set("font-style", "italic");
 
-        setHorizontalComponentAlignment(Alignment.STRETCH, hl, calendar, helpText);
         add(hl, calendar, helpText);
+        setHorizontalComponentAlignment(Alignment.STRETCH, hl, calendar, helpText);
 
         ComponentUtil.addListener(UI.getCurrent(), DrawerToggleEvent.class, event -> {
-            calendar.render();	// FIXME does not work
+            remove(calendar, helpText);
+            calendar = createCalendar();
+
+            setSizeFull();
+            setFlexGrow(1, calendar);
+
+            add(calendar, helpText);
+            setHorizontalComponentAlignment(Alignment.STRETCH, calendar, helpText);
         });
     }
 
-    private void updateMonthReadout(HasText label, LocalDate date) {
-        if (date.getDayOfMonth() != 1) {
-            date = date.with(TemporalAdjusters.firstDayOfNextMonth());
-        }
+    private FullCalendar createCalendar() {
+        calendar = FullCalendarBuilder.create().build();
+        calendar.setHeightByParent();
+        calendar.setFirstDay(DayOfWeek.MONDAY);
+        
+        calendar.addTimeslotClickedListener(this::onTimeslotClickedEvent);
+        calendar.addEntryClickedListener(this::onEntryClickedEvent);
+        calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
+        calendar.addDatesRenderedListener(this);
 
-        String text = date.format(FORMATTER.withLocale(calendar.getLocale()));
-        label.setText(text);
+        return calendar;
     }
 
     private MenuBar createMenuBar() {
@@ -168,6 +173,15 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         menuBar.addItem("Today", e -> calendar.today());
 
         return menuBar;
+    }
+
+    private void updateMonthReadout(HasText label, LocalDate date) {
+        if (date.getDayOfMonth() != 1) {
+            date = date.with(TemporalAdjusters.firstDayOfNextMonth());
+        }
+
+        String text = date.format(FORMATTER.withLocale(calendar.getLocale()));
+        label.setText(text);
     }
 
     @Override

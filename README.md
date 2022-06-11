@@ -10,9 +10,6 @@ Security
 Email
 - weekly detection of days with insufficient staff and send emails to volunteers
 
-Bugs
-- calendar refresh when menu button clicked on main layout
-
 Calendar
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 
