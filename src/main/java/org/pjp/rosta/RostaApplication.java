@@ -2,12 +2,15 @@ package org.pjp.rosta;
 
 import org.pjp.rosta.service.RostaService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
 import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.page.AppShellConfigurator;
@@ -15,6 +18,7 @@ import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 
 @EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
+@EnableScheduling
 @SpringBootApplication
 @Theme(value = "ocimport")
 @PWA(name = "RAF Manston History Museum Rosta", shortName = "Rosta", offlineResources = {})
@@ -35,4 +39,9 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
         service.initData();
     }
 
+    @Scheduled(fixedRate = 60_000)
+    @Scheduled(cron = "0 0 0 * * FRI")	// TODO set the crontab
+    public void checkRosta() {
+        service.checkRosta();
+    }
 }

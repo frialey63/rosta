@@ -125,6 +125,11 @@ public class RostaService {
         }
     }
 
+    public void checkRosta() {
+        LOGGER.info("checking rosta...");
+
+    }
+
     public Rosta buildRosta(LocalDate date) {
         assert date.getDayOfWeek() == DayOfWeek.MONDAY;
 
