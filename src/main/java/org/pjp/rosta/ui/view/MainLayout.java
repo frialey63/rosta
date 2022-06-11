@@ -122,14 +122,11 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
-        return new MenuItemInfo[]{ //
-                new MenuItemInfo("Rota", "la la-globe", RostaView.class), //
-
-                new MenuItemInfo("Calendar", "la la-globe", CalendarView.class), //
-
-                new MenuItemInfo("User Mgmt", "la la-globe", UserView.class), //
-
-                new MenuItemInfo("About", "la la-file", AboutView.class), //
+        return new MenuItemInfo[]{
+                new MenuItemInfo("Rota", "la la-globe", RostaView.class),
+                new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
+                new MenuItemInfo("User Mgmt", "la la-globe", UserView.class),
+                new MenuItemInfo("About", "la la-file", AboutView.class),
         };
     }
 
