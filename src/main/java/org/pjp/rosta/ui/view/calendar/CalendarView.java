@@ -4,6 +4,7 @@ import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -33,7 +34,7 @@ import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ClickEvent;
-//.import com.vaadin.componentfactory.EnhancedDialog;
+import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.button.Button;
@@ -209,6 +210,15 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                 calendar.addEntry(entry);
             });
         });
+
+//        Entry entry = new Entry();
+//        entry.setStart(LocalDate.of(2022, 6, 9));
+//        entry.setColor(new String("#00ff00"));
+//        entry.setAllDay(true);
+//        entry.setRenderingMode(RenderingMode.BACKGROUND);
+//
+//        calendar.addEntry(entry);
+
     }
 
     private void onMySummary(ClickEvent<Button> event) {
@@ -224,7 +234,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
             dialog = new SummaryDialog(employee, days);
             dialog.setHeader("My Summary for " + today.getYear());
-            dialog.setFooter(new Button("Cancel", this::onCancel));
+            dialog.setFooter(getDialogFooter());
             dialog.setHeight("80%");
             dialog.setWidth("40%");
             dialog.open();
@@ -244,12 +254,12 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                 rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
                     dialog = new ShiftDialog(shift);
                     dialog.setHeader("View Shift");
-                    dialog.setFooter(new Button("Cancel", this::onCancel));
+                    dialog.setFooter(getDialogFooter());
                     dialog.open();
                 }, () -> {
                     dialog = new EnhancedDialog();
                     dialog.setHeader("No Shift");
-                    dialog.setFooter(new Button("Cancel", this::onCancel));
+                    dialog.setFooter(getDialogFooter());
                     dialog.open();
                 });
             } else {
@@ -303,7 +313,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
             if (!startDate.isBefore(LocalDate.now())) {
                 dialog = new DeleteDialog(event.getEntry());
                 dialog.setHeader("Delete");
-                dialog.setFooter(new CompactHorizontalLayout(new Button("Delete", this::onDelete), new Button("Cancel", this::onCancel)));
+                dialog.setFooter(getDialogFooter(false, true));
                 dialog.open();
             }
         });
@@ -318,7 +328,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
                 dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
                 dialog.setHeader(header);
-                dialog.setFooter(new HorizontalLayout(new Button("Save", this::onCreate), new Button("Cancel", this::onCancel)));
+                dialog.setFooter(getDialogFooter(true, false));
                 dialog.open();
             }
         });
@@ -367,4 +377,32 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     private void onCancel(ClickEvent<Button> event) {
         dialog.close();
     }
+
+    private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
+        Span filler = new Span();
+
+        List<Component> children = new ArrayList<>();
+        children.add(filler);
+
+        if (save) {
+            children.add(new Button("Save", this::onCreate));
+        }
+
+        if (delete) {
+            children.add(new Button("Delete", this::onDelete));
+        }
+
+        children.add(new Button("Cancel", this::onCancel));
+
+        HorizontalLayout footer = new CompactHorizontalLayout(children.toArray(new Component[0]));
+        footer.setAlignItems(Alignment.STRETCH);
+        footer.setFlexGrow(1, filler);
+
+        return footer;
+    }
+
+    private HorizontalLayout getDialogFooter() {
+        return getDialogFooter(false, false);
+    }
+
 }
