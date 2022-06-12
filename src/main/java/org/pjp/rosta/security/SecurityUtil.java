@@ -10,7 +10,7 @@ import com.vaadin.flow.component.UI;
 import com.vaadin.flow.server.VaadinServletRequest;
 
 @Component
-public class SecurityService {
+public class SecurityUtil {
 
     private static final String LOGOUT_SUCCESS_URL = "/";
 

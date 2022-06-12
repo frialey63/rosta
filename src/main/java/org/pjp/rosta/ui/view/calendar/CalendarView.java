@@ -17,7 +17,7 @@ import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.SecurityService;
+import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
@@ -92,7 +92,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     private EnhancedDialog dialog;
 
     @Autowired
-    private SecurityService securityService;
+    private SecurityUtil securityUtil;
 
     @Autowired
     private UserService userService;
@@ -144,7 +144,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     }
 
     private String getUsername() {
-        return securityService.getAuthenticatedUser().getUsername();
+        return securityUtil.getAuthenticatedUser().getUsername();
     }
 
     private FullCalendar createCalendar() {

@@ -1,7 +1,7 @@
 package org.pjp.rosta.ui.view;
 
 
-import org.pjp.rosta.security.SecurityService;
+import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
 import org.pjp.rosta.ui.view.rosta.RostaView;
@@ -79,10 +79,10 @@ public class MainLayout extends AppLayout {
 
     private H1 viewTitle;
 
-    private SecurityService securityService;
+    private SecurityUtil securityUtil;
 
-    public MainLayout(@Autowired SecurityService securityService) {
-        this.securityService = securityService;
+    public MainLayout(@Autowired SecurityUtil securityUtil) {
+        this.securityUtil = securityUtil;
 
         setPrimarySection(Section.DRAWER);
         addToNavbar(true, createHeaderContent());
@@ -103,10 +103,10 @@ public class MainLayout extends AppLayout {
 
         HorizontalLayout header;
 
-        if (securityService.getAuthenticatedUser() != null) {
+        if (securityUtil.getAuthenticatedUser() != null) {
             Span filler = new Span();
 
-            Button logout = new Button("Logout", click -> securityService.logout());
+            Button logout = new Button("Logout", click -> securityUtil.logout());
             header = new CompactHorizontalLayout(toggle, viewTitle, filler, logout);
             header.setFlexGrow(1, filler);
         } else {

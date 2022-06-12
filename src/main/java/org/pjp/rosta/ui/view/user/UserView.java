@@ -3,7 +3,7 @@ package org.pjp.rosta.ui.view.user;
 import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.SecurityService;
+import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
@@ -31,7 +31,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
     private final GridCrud<User> crud = new GridCrud<>(User.class);
 
     @Autowired
-    private SecurityService securityService;
+    private SecurityUtil securityUtil;
 
     @Autowired
     private UserService userService;
@@ -97,7 +97,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
     }
 
     private String getUsername() {
-        return securityService.getAuthenticatedUser().getUsername();
+        return securityUtil.getAuthenticatedUser().getUsername();
     }
 
     @Override
