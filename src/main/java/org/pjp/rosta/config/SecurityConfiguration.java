@@ -1,15 +1,10 @@
 package org.pjp.rosta.config;
 
 import org.pjp.rosta.ui.view.login.LoginView;
-import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.builders.WebSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import com.vaadin.flow.spring.security.VaadinWebSecurityConfigurerAdapter;
 
@@ -26,9 +21,9 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
         // ignoring public views annotated with @AnonymousAllowed,
         // restricting access to other views/endpoints, and enabling
         // ViewAccessChecker authorization.
+
         // You can add any possible extra configurations of your own
         // here (the following is just an example):
-
         // http.rememberMe().alwaysRemember(false);
 
         super.configure(http);
@@ -54,34 +49,4 @@ public class SecurityConfiguration extends VaadinWebSecurityConfigurerAdapter {
         super.configure(web);
     }
 
-    /**
-     * Demo UserDetailService which only provide two hardcoded
-     * in memory users and their roles.
-     * NOTE: This should not be used in real world applications.
-     */
-    @Bean
-    @Override
-    public UserDetailsService userDetailsService() {
-        UserDetails user =
-                User.withUsername("fred")
-                        .password("{noop}password")
-                        .roles("USER")
-                        .build();
-//        UserDetails bill =
-//                User.withUsername("fred")
-//                        .password("{noop}password")
-//                        .roles("USER")
-//                        .build();
-//        UserDetails anne =
-//                User.withUsername("anne")
-//                        .password("{noop}password")
-//                        .roles("USER")
-//                        .build();
-        UserDetails admin =
-                User.withUsername("admin")
-                        .password("{noop}password")
-                        .roles("ADMIN")
-                        .build();
-        return new InMemoryUserDetailsManager(user, admin);
-    }
 }

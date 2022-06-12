@@ -17,6 +17,8 @@ public class User implements Comparable<User> {
     @NotNull
     private String password;
 
+    private boolean enabled;
+
     @NotNull
     private String name;
 
@@ -30,11 +32,12 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String username, @NotNull String password, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
+    public User(String uuid, @NotNull String username, @NotNull String password, boolean enabled, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
         super();
         this.uuid = uuid;
         this.username = username;
         this.password = password;
+        this.enabled = enabled;
         this.name = name;
         this.email = email;
         this.employee = employee;
@@ -63,6 +66,14 @@ public class User implements Comparable<User> {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public boolean isEnabled() {
+        return enabled;
+    }
+
+    public void setEnabled(boolean enabled) {
+        this.enabled = enabled;
     }
 
     public String getName() {
@@ -106,6 +117,8 @@ public class User implements Comparable<User> {
         builder.append(username);
         builder.append(", password=");
         builder.append(password);
+        builder.append(", enabled=");
+        builder.append(enabled);
         builder.append(", name=");
         builder.append(name);
         builder.append(", email=");

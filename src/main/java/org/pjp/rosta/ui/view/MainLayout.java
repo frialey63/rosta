@@ -1,7 +1,7 @@
 package org.pjp.rosta.ui.view;
 
 
-import org.pjp.rosta.service.SecurityService;
+import org.pjp.rosta.security.SecurityService;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
 import org.pjp.rosta.ui.view.rosta.RostaView;

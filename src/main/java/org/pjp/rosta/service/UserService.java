@@ -41,7 +41,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", "password", "Admin", "admin@gmail.com", false, true);
+        User user = new User(id, "admin", "{noop}password", true, "Admin", "admin@gmail.com", false, true);
         userRepository.save(user);
     }
 

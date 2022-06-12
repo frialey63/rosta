@@ -98,9 +98,11 @@ public class RostaService {
 
         LocalDate date = LocalDate.of(2022, 5, 16);
 
+        // TODO encode passwords using bcrypt and store with {bcrypt} prefix
+
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", "password", "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
+            var user = new User(id, "fred", "{noop}password", true, "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -119,7 +121,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", "password", "Bill Smith", "bill@gmail.com", true, false);
+            var user = new User(id, "bill", "{noop}password", false, "Bill Smith", "bill@gmail.com", true, false);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -138,7 +140,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", "password", "Anne Boleyn", "anne@gmail.com", false, false);
+            var user = new User(id, "anne", "{noop}password", true, "Anne Boleyn", "anne@gmail.com", false, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);

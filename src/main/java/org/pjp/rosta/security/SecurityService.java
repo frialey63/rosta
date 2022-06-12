@@ -1,4 +1,4 @@
-package org.pjp.rosta.service;
+package org.pjp.rosta.security;
 
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;

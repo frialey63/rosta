@@ -3,7 +3,7 @@ package org.pjp.rosta.ui.view.user;
 import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.service.SecurityService;
+import org.pjp.rosta.security.SecurityService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
@@ -38,7 +38,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     public UserView() {
         // grid configuration
-        crud.getGrid().setColumns("username", "name", "email", "employee", "admin");
+        crud.getGrid().setColumns("username", "name", "enabled", "email", "employee", "admin");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
@@ -46,8 +46,8 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "employee", "admin");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "enabled", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "enabled", "email", "employee", "admin");
 
         // logic configuration
         crud.setOperations(
