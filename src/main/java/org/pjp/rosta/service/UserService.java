@@ -71,14 +71,14 @@ public class UserService {
                 throw new LimitReached();
             }
 
-            userRepository.findByUsername(user.getName()).ifPresent(u -> {
+            userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
                 throw new ExistingUser();
             });
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
-                String name = user.getName();
+                String username = user.getUsername();
 
-                if (!existingUser.getName().equals(name) && userRepository.findByUsername(name).isPresent()) {
+                if (!existingUser.getUsername().equals(username) && userRepository.findByUsername(username).isPresent()) {
                     throw new ExistingUser();
                 }
             });

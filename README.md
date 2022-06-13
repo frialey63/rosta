@@ -3,9 +3,6 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 
-User Mgmt
-- admin only
-
 Profile
 
 Settings

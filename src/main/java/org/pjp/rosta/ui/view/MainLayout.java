@@ -4,6 +4,7 @@ package org.pjp.rosta.ui.view;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
+import org.pjp.rosta.ui.view.profile.ProfileView;
 import org.pjp.rosta.ui.view.rosta.RostaView;
 import org.pjp.rosta.ui.view.user.UserView;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -146,10 +147,12 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
+        boolean admin = securityUtil.getAuthenticatedUser().getAuthorities().stream().filter(ga -> "ROLE_ADMIN".equals(ga.getAuthority())).findFirst().isPresent();
+
         return new MenuItemInfo[]{
                 new MenuItemInfo("Rota", "la la-globe", RostaView.class),
                 new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
-                new MenuItemInfo("User Mgmt", "la la-globe", UserView.class),
+                admin ? new MenuItemInfo("User Mgmt", "la la-globe", UserView.class) : new MenuItemInfo("Profile", "la la-globe", ProfileView.class),
                 new MenuItemInfo("About", "la la-file", AboutView.class),
         };
     }
