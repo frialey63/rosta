@@ -38,7 +38,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
     public UserView() {
         // grid configuration
-        crud.getGrid().setColumns("username", "name", "enabled", "email", "employee", "admin");
+        crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
@@ -46,8 +46,8 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "name", "enabled", "email", "employee", "admin");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "enabled", "email", "employee", "admin");
+        crud.getCrudFormFactory().setVisibleProperties("username", "admin", "name", "enabled", "email", "notifications", "employee");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "admin", "name", "enabled", "email", "notifications", "employee");
 
         // logic configuration
         crud.setOperations(

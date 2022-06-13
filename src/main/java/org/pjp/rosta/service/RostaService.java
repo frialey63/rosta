@@ -43,6 +43,7 @@ import org.pjp.rosta.repository.VolunteerDayRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.stereotype.Service;
@@ -65,6 +66,9 @@ public class RostaService {
             return dayOfWeek + " " + partOfDay;
         }
     }
+
+    @Value("${check.rosta.include.opener}")
+    private boolean checkRostaIncludeOpener;
 
     @Autowired
     private UserRepository userRepo;
@@ -101,8 +105,14 @@ public class RostaService {
         // TODO encode passwords using bcrypt and store with {bcrypt} prefix
 
         {
+            String id = UUID.randomUUID().toString();
+            User user = new User(id, "admin", true, "Admin", "{noop}password", true, "admin@gmail.com", false, false);
+            userRepo.save(user);
+        }
+
+        {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", "{noop}password", true, "Fred Bloggs", "fred@gmail.com", true, true);		// FIXME remove admin for Fred
+            var user = new User(id, "fred", false, "Fred Bloggs", "{noop}password", true, "fred@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -121,7 +131,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", "{noop}password", false, "Bill Smith", "bill@gmail.com", true, false);
+            var user = new User(id, "bill", false, "Bill Smith", "{noop}password", false, "bill@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -140,7 +150,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", "{noop}password", true, "Anne Boleyn", "anne@gmail.com", false, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", "{noop}password", true, "anne@gmail.com", true, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
@@ -160,8 +170,10 @@ public class RostaService {
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
 
-            if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
-                missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER));
+            if (checkRostaIncludeOpener) {
+                if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
+                    missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER));
+                }
             }
 
             for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
@@ -185,7 +197,7 @@ public class RostaService {
                 String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
 
                 userRepo.findByEmployee(false).forEach(user -> {
-                    if (user.getEmail() != null) {
+                    if (user.isNotifications()) {
                         String text = String.format(templateStr, user.getName()) + missingCoverStr;
 
                         try {

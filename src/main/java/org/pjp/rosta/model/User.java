@@ -14,34 +14,38 @@ public class User implements Comparable<User> {
     @NotNull
     private String username;
 
+    private boolean admin;
+
+    @NotNull
+    private String name;
+
     @NotNull
     private String password;
 
     private boolean enabled;
 
     @NotNull
-    private String name;
-
     private String email;
 
-    private boolean employee;
+    private boolean notifications;
 
-    private boolean admin;
+    private boolean employee;
 
     public User() {
         super();
     }
 
-    public User(String uuid, @NotNull String username, @NotNull String password, boolean enabled, @NotNull String name, @NotNull String email, boolean employee, boolean admin) {
+    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
         super();
         this.uuid = uuid;
         this.username = username;
+        this.admin = admin;
+        this.name = name;
         this.password = password;
         this.enabled = enabled;
-        this.name = name;
         this.email = email;
+        this.notifications = notifications;
         this.employee = employee;
-        this.admin = admin;
     }
 
     public String getUuid() {
@@ -60,6 +64,22 @@ public class User implements Comparable<User> {
         this.username = username;
     }
 
+    public boolean isAdmin() {
+        return admin;
+    }
+
+    public void setAdmin(boolean admin) {
+        this.admin = admin;
+    }
+
+    public String getName() {
+        return name;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
     public String getPassword() {
         return password;
     }
@@ -76,20 +96,20 @@ public class User implements Comparable<User> {
         this.enabled = enabled;
     }
 
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
     public String getEmail() {
         return email;
     }
 
     public void setEmail(String email) {
         this.email = email;
+    }
+
+    public boolean isNotifications() {
+        return notifications;
+    }
+
+    public void setNotifications(boolean notifications) {
+        this.notifications = notifications;
     }
 
     public boolean isEmployee() {
@@ -100,14 +120,6 @@ public class User implements Comparable<User> {
         this.employee = employee;
     }
 
-    public boolean isAdmin() {
-        return admin;
-    }
-
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
-    }
-
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -115,18 +127,20 @@ public class User implements Comparable<User> {
         builder.append(uuid);
         builder.append(", username=");
         builder.append(username);
+        builder.append(", admin=");
+        builder.append(admin);
+        builder.append(", name=");
+        builder.append(name);
         builder.append(", password=");
         builder.append(password);
         builder.append(", enabled=");
         builder.append(enabled);
-        builder.append(", name=");
-        builder.append(name);
         builder.append(", email=");
         builder.append(email);
+        builder.append(", notifications=");
+        builder.append(notifications);
         builder.append(", employee=");
         builder.append(employee);
-        builder.append(", admin=");
-        builder.append(admin);
         builder.append("]");
         return builder.toString();
     }
