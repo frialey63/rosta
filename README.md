@@ -3,6 +3,13 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 
+User Mgmt
+- admin only
+
+Profile
+
+Settings
+
 Security
 - login and session management
 
@@ -20,19 +27,11 @@ Security
     https://github.com/anton-johansson/vaadin-recaptcha
     https://github.com/OWASP/passfault
 
-User Mgmt
-- admin only
-
-Profile
-
-Settings
-
 Calendar
+- investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 
 Refactor "rosta" to roster
-
-Investigate EntryProvider for calendar
 
 Deployment to PI
 
