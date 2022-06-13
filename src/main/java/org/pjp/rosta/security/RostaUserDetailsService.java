@@ -30,6 +30,6 @@ public class RostaUserDetailsService implements UserDetailsService {
             throw new DisabledException(username);
         }
 
-        return new UserPrincipal(user);
+        return new RostaUserPrincipal(user);
     }
 }

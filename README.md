@@ -12,7 +12,7 @@ Security
 
     https://vaadin.com/docs/latest/flow/security/enabling-security
     https://www.baeldung.com/spring-security-authentication-with-a-database
-- password (first-time change, expiry, lock-out, reset)
+- password encryption
 
     https://www.baeldung.com/spring-security-5-default-password-encoder
     https://www.concretepage.com/spring-5/spring-security-5-default-password-encoder
@@ -23,6 +23,7 @@ Security
     https://github.com/vaadin/vaadin-form-example
     https://github.com/anton-johansson/vaadin-recaptcha
     https://github.com/OWASP/passfault
+- password management: first-time change, expiry, lock-out
 
 Calendar
 - investigate use of EntryProvider

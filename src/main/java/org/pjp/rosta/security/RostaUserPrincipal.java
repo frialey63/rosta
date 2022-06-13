@@ -8,13 +8,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-public class UserPrincipal implements UserDetails {
+public class RostaUserPrincipal implements UserDetails {
 
     private static final long serialVersionUID = -7468120881753238347L;
 
     private final User user;
 
-    public UserPrincipal(User user) {
+    public RostaUserPrincipal(User user) {
         super();
         this.user = user;
     }
@@ -32,6 +32,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getUsername() {
         return user.getUsername();
+    }
+
+    public void setUsername(String username) {
+        user.setUsername(username);
     }
 
     @Override

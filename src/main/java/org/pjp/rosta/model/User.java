@@ -1,6 +1,8 @@
 package org.pjp.rosta.model;
 
 import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Pattern;
+import javax.validation.constraints.Size;
 
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
@@ -11,19 +13,24 @@ public class User implements Comparable<User> {
     @Id
     private String uuid;
 
+    @Size(min = 4, max = 20)
     @NotNull
     private String username;
 
     private boolean admin;
 
+    @Size(max = 50)
     @NotNull
     private String name;
 
+    @Size(min = 8, max = 20)
     @NotNull
     private String password;
 
     private boolean enabled;
 
+    @Size(max = 50)
+    @Pattern(regexp=".+@.+\\.[a-z]+")
     @NotNull
     private String email;
 
