@@ -42,8 +42,8 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "admin", "name", "enabled", "email", "notifications", "employee");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "admin", "name", "enabled", "email", "notifications", "employee");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee");
 
         // logic configuration
         crud.setOperations(
