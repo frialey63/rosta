@@ -83,6 +83,14 @@ public class ProfileView extends VerticalLayout implements AfterNavigationObserv
         });
         Button reset = new Button("Reset", e -> binder.readBean(user));
 
+        binder.addStatusChangeListener(event -> {
+            boolean isValid = event.getBinder().isValid();
+            boolean hasChanges = event.getBinder().hasChanges();
+
+            save.setEnabled(hasChanges && isValid);
+            reset.setEnabled(hasChanges);
+        });
+
         HorizontalLayout controls = new CompactHorizontalLayout(save, reset);
         controls.setJustifyContentMode(JustifyContentMode.CENTER);
         controls.setWidthFull();
