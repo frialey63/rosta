@@ -14,12 +14,14 @@ public class User implements Comparable<User> {
     private String uuid;
 
     @Size(min = 4, max = 20)
+    @Pattern(regexp="[a-z0-9]+")
     @NotNull
     private String username;
 
     private boolean admin;
 
     @Size(max = 50)
+    @Pattern(regexp="[A-Za-z ]+")
     @NotNull
     private String name;
 
