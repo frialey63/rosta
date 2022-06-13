@@ -1,5 +1,7 @@
 package org.pjp.rosta.ui.view.about;
 
+import javax.annotation.security.PermitAll;
+
 import org.pjp.rosta.ui.view.MainLayout;
 import org.springframework.beans.factory.annotation.Value;
 
@@ -11,9 +13,8 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
-import com.vaadin.flow.server.auth.AnonymousAllowed;
 
-@AnonymousAllowed
+@PermitAll
 @PageTitle("About")
 @Route(value = "about", layout = MainLayout.class)
 public class AboutView extends VerticalLayout implements AfterNavigationObserver {
