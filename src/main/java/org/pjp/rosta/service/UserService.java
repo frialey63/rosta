@@ -8,6 +8,8 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -40,8 +42,10 @@ public class UserService {
     public void initData() {
         userRepository.deleteAll();
 
+        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", "{noop}password", true, "admin@gmail.com", false, false);
+        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + passwordEncoder.encode("password"), true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 
