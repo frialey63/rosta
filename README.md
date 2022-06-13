@@ -3,10 +3,6 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 
-Profile
-
-Settings
-
 Security
 - login and session management
 
@@ -24,6 +20,8 @@ Security
     https://github.com/anton-johansson/vaadin-recaptcha
     https://github.com/OWASP/passfault
 - password management: first-time change, expiry, lock-out
+
+Settings
 
 Calendar
 - investigate use of EntryProvider
