@@ -4,6 +4,7 @@ package org.pjp.rosta.ui.view;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
+import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
 import org.pjp.rosta.ui.view.rosta.ShopRotaView;
 import org.pjp.rosta.ui.view.user.UserManagementView;
@@ -149,10 +150,20 @@ public class MainLayout extends AppLayout {
     private MenuItemInfo[] createMenuItems() {
         boolean admin = securityUtil.getAuthenticatedUser().getAuthorities().stream().filter(ga -> "ROLE_ADMIN".equals(ga.getAuthority())).findFirst().isPresent();
 
-        return new MenuItemInfo[]{
+        if (admin) {
+            return new MenuItemInfo[] {
+                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
+                    new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
+                    new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class),
+                    new MenuItemInfo("About", "la la-file", AboutView.class),
+            };
+        }
+
+        return new MenuItemInfo[] {
                 new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
                 new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
-                admin ? new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class) : new MenuItemInfo("Profile", "la la-globe", ProfileView.class),
+                new MenuItemInfo("Profile", "la la-globe", ProfileView.class),
+                new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
                 new MenuItemInfo("About", "la la-file", AboutView.class),
         };
     }

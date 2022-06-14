@@ -17,6 +17,8 @@ public class UserService {
 
     public static final int USERS_COUNT_LIMIT = 1000;
 
+    public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
     public static class LimitReached extends RuntimeException {
         private static final long serialVersionUID = 8079202795333924415L;
     }
@@ -42,10 +44,8 @@ public class UserService {
     public void initData() {
         userRepository.deleteAll();
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + passwordEncoder.encode("password"), true, "admin@gmail.com", false, false);
+        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 

@@ -62,6 +62,8 @@ public class RostaService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
+    private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
     private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {
         @Override
         public String toString() {
@@ -104,17 +106,15 @@ public class RostaService {
 
         LocalDate date = LocalDate.of(2022, 5, 16);
 
-        PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "admin", true, "Admin", "{bcrypt}" + passwordEncoder.encode("password"), true, "admin@gmail.com", false, false);
+            User user = new User(id, "admin", true, "Admin", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), true, "admin@gmail.com", false, false);
             userRepo.save(user);
         }
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", "{bcrypt}" + passwordEncoder.encode("password"), true, "fred@gmail.com", true, true);
+            var user = new User(id, "fred", false, "Fred Bloggs", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), true, "fred@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -133,7 +133,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", "{bcrypt}" + passwordEncoder.encode("password"), false, "bill@gmail.com", true, true);
+            var user = new User(id, "bill", false, "Bill Smith", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), false, "bill@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -152,7 +152,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", "{bcrypt}" + passwordEncoder.encode("password"), true, "anne@gmail.com", true, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), true, "anne@gmail.com", true, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);

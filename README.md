@@ -12,13 +12,15 @@ Security
 
     https://www.baeldung.com/spring-security-5-default-password-encoder
     https://www.concretepage.com/spring-5/spring-security-5-default-password-encoder
-- signup and password reset
+- change password
+- reset password (generate & email)
+- signup (recapcha)
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-    https://vaadin.com/docs/v14/ds/components/password-field
     https://github.com/vaadin/vaadin-form-example
     https://github.com/anton-johansson/vaadin-recaptcha
     https://github.com/nulab/zxcvbn4j#using-this-library
+    https://crunchify.com/java-generate-strong-random-password-securerandom/
 - password management: first-time change, expiry, lock-out
 
 Settings
