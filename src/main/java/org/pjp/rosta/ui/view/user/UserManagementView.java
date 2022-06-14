@@ -23,7 +23,7 @@ import com.vaadin.flow.router.Route;
 @RolesAllowed("ADMIN")
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
-public class UserView extends VerticalLayout implements AfterNavigationObserver {
+public class UserManagementView extends VerticalLayout implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -8981630272855085797L;
 
@@ -32,7 +32,7 @@ public class UserView extends VerticalLayout implements AfterNavigationObserver 
     @Autowired
     private UserService userService;
 
-    public UserView() {
+    public UserManagementView() {
 
         // grid configuration
         crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee");

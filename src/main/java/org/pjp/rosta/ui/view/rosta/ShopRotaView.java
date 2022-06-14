@@ -46,10 +46,10 @@ import com.vaadin.flow.server.StreamResource;
 import com.vaadin.flow.shared.Registration;
 
 @PermitAll
-@PageTitle("The Shop Rota")
+@PageTitle("Shop Rota")
 @Route(value = "rota", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class RostaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
+public class ShopRotaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
     static class GridBean {
         private String day;
@@ -117,7 +117,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
 
     private static final long serialVersionUID = 3386437553156944523L;
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RostaView.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(ShopRotaView.class);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd_MMMM_yyyy");
 
@@ -151,7 +151,7 @@ public class RostaView extends VerticalLayout implements AfterNavigationObserver
     private RostaService rostaService;
 
     @SuppressWarnings("unchecked")
-    public RostaView() {
+    public ShopRotaView() {
         registration = datePicker.addValueChangeListener(this);
 
         Span filler = new Span();

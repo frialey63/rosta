@@ -8,8 +8,8 @@ import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@Route("login")
 @PageTitle("Login")
+@Route("login")
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 4838429459481914860L;
