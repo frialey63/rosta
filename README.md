@@ -18,7 +18,7 @@ Security
     https://vaadin.com/docs/v14/ds/components/password-field
     https://github.com/vaadin/vaadin-form-example
     https://github.com/anton-johansson/vaadin-recaptcha
-    https://github.com/OWASP/passfault
+    https://github.com/nulab/zxcvbn4j#using-this-library
 - password management: first-time change, expiry, lock-out
 
 Settings
@@ -26,6 +26,9 @@ Settings
 Calendar
 - investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
+
+Styling
+- buttons
 
 Refactor "rosta" to roster
 

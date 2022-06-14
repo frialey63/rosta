@@ -278,7 +278,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
             LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
             if (date.isBefore(nowMonday)) {
-                rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
+                rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                     dialog = new ShiftDialog(shift);
                     dialog.setHeader("View Shift");
                     dialog.setFooter(getDialogFooter());
@@ -311,7 +311,7 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                 footer.setAlignItems(Alignment.STRETCH);
                 footer.setFlexGrow(1, filler);
 
-                rostaService.getShiftForUser(dateSunday, user).ifPresentOrElse(shift -> {
+                rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                     dialog = new ShiftDialog(date, shift);
                     dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
                     dialog.setFooter(footer);

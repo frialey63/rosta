@@ -231,42 +231,44 @@ public class RostaService {
 
             String userUuid = user.getUuid();
 
-            getShiftForUser(rostaEndDate, user).ifPresent(shift -> {
-                LOGGER.debug("shift: {}", shift);
+            if (user.isEmployee()) {
+                getShiftForUser(userUuid, rostaEndDate).ifPresent(shift -> {
+                    LOGGER.debug("shift: {}", shift);
 
-                shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
-                    RostaDay rostaDay = rosta.getRostaDay(shiftDay.getDayOfWeek());
-                    rostaDay.addUserUuid(shiftDay, userUuid);
+                    shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
+                        RostaDay rostaDay = rosta.getRostaDay(shiftDay.getDayOfWeek());
+                        rostaDay.addUserUuid(shiftDay, userUuid);
+                    });
                 });
-            });
 
-            volunteerDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(volunteerDay -> {
-                LOGGER.debug("volunteerDay: {}", volunteerDay);
+                holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
+                    LOGGER.debug("holiday: {}", holiday);
 
-                RostaDay rostaDay = rosta.getRostaDay(volunteerDay.getDate().getDayOfWeek());
-                rostaDay.addUserUuid(volunteerDay, userUuid);
-            });
+                    RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
+                    rostaDay.removeUserUuid(holiday, userUuid);
+                });
 
-            holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
-                LOGGER.debug("holiday: {}", holiday);
+                absenceDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(absenceDay -> {
+                    LOGGER.debug("absenceDay: {}", absenceDay);
 
-                RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
-                rostaDay.removeUserUuid(holiday, userUuid);
-            });
+                    RostaDay rostaDay = rosta.getRostaDay(absenceDay.getDate().getDayOfWeek());
+                    rostaDay.removeUserUuid(absenceDay, userUuid);
+                });
+            } else {
+                volunteerDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(volunteerDay -> {
+                    LOGGER.debug("volunteerDay: {}", volunteerDay);
 
-            absenceDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(absenceDay -> {
-                LOGGER.debug("absenceDay: {}", absenceDay);
-
-                RostaDay rostaDay = rosta.getRostaDay(absenceDay.getDate().getDayOfWeek());
-                rostaDay.removeUserUuid(absenceDay, userUuid);
-            });
+                    RostaDay rostaDay = rosta.getRostaDay(volunteerDay.getDate().getDayOfWeek());
+                    rostaDay.addUserUuid(volunteerDay, userUuid);
+                });
+            }
         });
 
         return rosta;
     }
 
-    public Optional<Shift> getShiftForUser(LocalDate date, User user) {
-        return shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(user.getUuid(), date);
+    public Optional<Shift> getShiftForUser(String userUuid, LocalDate date) {
+        return shiftRepo.findFirstByUserUuidAndFromDateBeforeOrderByFromDateDesc(userUuid, date);
     }
 
     public Optional<Shift> getShift(String shiftUuid) {
