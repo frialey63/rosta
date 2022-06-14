@@ -3,6 +3,8 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 
+Logging
+
 Security
 - login and session management
 
@@ -13,27 +15,27 @@ Security
     https://www.baeldung.com/spring-security-5-default-password-encoder
     https://www.concretepage.com/spring-5/spring-security-5-default-password-encoder
 - change password
+
+    https://github.com/nulab/zxcvbn4j#using-this-library
 - reset password (generate & email)
+
+    https://crunchify.com/java-generate-strong-random-password-securerandom/
 - signup (recapcha)
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-    https://github.com/vaadin/vaadin-form-example
     https://github.com/anton-johansson/vaadin-recaptcha
-    https://github.com/nulab/zxcvbn4j#using-this-library
-    https://crunchify.com/java-generate-strong-random-password-securerandom/
 - password management: first-time change, expiry, lock-out
-- auditting
+- auditing
 
 Settings
+- tbd
 
 Calendar
 - investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 
-Logging
-
 Styling
-- buttons
+- buttons, etc.
 
 Refactor "rosta" to roster
 
