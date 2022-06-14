@@ -22,12 +22,15 @@ Security
     https://github.com/nulab/zxcvbn4j#using-this-library
     https://crunchify.com/java-generate-strong-random-password-securerandom/
 - password management: first-time change, expiry, lock-out
+- auditting
 
 Settings
 
 Calendar
 - investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
+
+Logging
 
 Styling
 - buttons

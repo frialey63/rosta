@@ -7,6 +7,9 @@ import java.util.UUID;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
+import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -14,6 +17,8 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
     public static final int USERS_COUNT_LIMIT = 1000;
 
@@ -35,10 +40,13 @@ public class UserService {
 
     private final ShiftRepository shiftRepository;
 
+    private EmailService emailService;
+
     @Autowired
-    public UserService(UserRepository userRepository, ShiftRepository shiftRepository) {
+    public UserService(UserRepository userRepository, ShiftRepository shiftRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.shiftRepository = shiftRepository;
+        this.emailService = emailService;
     }
 
     public void initData() {
@@ -95,4 +103,20 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public void forgotPassword(String username) {
+        userRepository.findByUsername(username).ifPresent(user -> {
+            CrunchifyRandomPasswordGenerator passwordGenerator = new CrunchifyRandomPasswordGenerator(5);
+
+            String newPassword = passwordGenerator.generatePassword(8);
+
+            try {
+                emailService.sendSimpleMessage(user.getEmail(), "The information that you requested", newPassword);
+
+                user.setPassword(newPassword);
+                userRepository.save(user);
+            } catch (Exception e) {
+                LOGGER.warn("failed to send email to address "+ user.getEmail());
+            }
+        });
+    }
 }
