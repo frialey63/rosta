@@ -38,6 +38,8 @@ public class ProfileView extends VerticalLayout implements AfterNavigationObserv
 
     private final TextField email = new TextField("Email");
 
+    private final Checkbox employee = new Checkbox("Employee");
+
     private final Checkbox notifications = new Checkbox("Notifications");
 
     private final Binder<User> binder = new BeanValidationBinder<>(User.class);
@@ -58,7 +60,7 @@ public class ProfileView extends VerticalLayout implements AfterNavigationObserv
         binder.bindInstanceFields(this);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(username, name, email, notifications);
+        formLayout.add(username, name, email, employee, notifications);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new ResponsiveStep("0", 1),
