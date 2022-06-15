@@ -81,6 +81,23 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         throw new IllegalStateException();
     }
 
+    private static class MutableLocalDate {
+        private LocalDate date;
+
+        public MutableLocalDate(LocalDate date) {
+            super();
+            this.date = date;
+        }
+
+        public LocalDate get() {
+            return date;
+        }
+
+        public void plusOneDay() {
+            date = date.plusDays(1);
+        }
+    }
+
     private Optional<User> optUser;
 
     private String pageTitle = "Calendar";
@@ -90,6 +107,8 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
     private final Button buttonDatePicker = new Button("", VaadinIcon.CALENDAR.create());
 
     private EnhancedDialog dialog;
+
+    private DatesRenderedEvent datesRenderedEvent;
 
     @Autowired
     private SecurityUtil securityUtil;
@@ -210,6 +229,8 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
 
     @Override
     public void onComponentEvent(DatesRenderedEvent event) {
+        this.datesRenderedEvent = event;
+
         LocalDate start = event.getStart();
         LocalDate end = event.getEnd();
 
@@ -220,6 +241,34 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         calendar.removeAllEntries();
 
         optUser.ifPresent(user -> {
+            if (user.isEmployee()) {
+                LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+
+                while (monday.isBefore(end)) {
+                    LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                    MutableLocalDate date = new MutableLocalDate(monday);
+
+                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                        shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
+                           if (shiftDay.isWorking()) {
+                               Entry entry = new Entry();
+                                entry.setStart(date.get());
+                                entry.setColor(ShiftDay.getColour());
+                                entry.setAllDay(true);
+                                //entry.setTitle("TODO");
+                                entry.setRenderingMode(RenderingMode.BACKGROUND);
+
+                                calendar.addEntry(entry);
+                            }
+
+                           date.plusOneDay();
+                        });
+                    });
+
+                    monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+                }
+            }
+
             rostaService.getDays(user, Set.of(DayType.values()), start, end).forEach(day -> {
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -237,15 +286,6 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                 calendar.addEntry(entry);
             });
         });
-
-//        Entry entry = new Entry();
-//        entry.setStart(LocalDate.of(2022, 6, 9));
-//        entry.setColor(new String("#00ff00"));
-//        entry.setAllDay(true);
-//        entry.setRenderingMode(RenderingMode.BACKGROUND);
-//
-//        calendar.addEntry(entry);
-
     }
 
     private void onMySummary(ClickEvent<Button> event) {
@@ -306,6 +346,8 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                     rostaService.saveShift(shift);
 
                     dialog.close();
+
+                    onComponentEvent(datesRenderedEvent);
 
                 }), new Button("Cancel", this::onCancel));
                 footer.setAlignItems(Alignment.STRETCH);
