@@ -28,7 +28,8 @@ Security
 - auditing
 
 Settings
-- tbd
+- schedule cron
+- include opening
 
 Calendar
 - reconsider display of shift and volunteer days using background events

@@ -59,8 +59,6 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
                 .executeJs("return document.getElementById('vaadinLoginUsername').value;")
                 .then(String.class, username -> {
                     if (Strings.isNotBlank(username)) {
-                        LOGGER.info("forgot password for {}", username);
-
                         if (userService.forgotPassword(username)) {
                             EnhancedDialog dialog = new EnhancedDialog();
                             dialog.setHeader("Forgot Password");

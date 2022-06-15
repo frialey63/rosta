@@ -64,6 +64,27 @@ public class RostaService {
 
     private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
+    private static void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
+        for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
+            if (bookmarkName.equals(bookmark.getName())) {
+                XWPFRun newRun = para.insertNewRun(0);
+                newRun.setText(insertion);
+            }
+        }
+    }
+
+    @SuppressWarnings("unused")
+    private static void findAndReplace(XWPFParagraph para, String search, String replacement) {
+        for (XWPFRun run : para.getRuns()) {
+            String text = run.getText(0);
+
+            if ((text != null) && text.contains(search)) {
+                text = text.replace(search, replacement);
+                run.setText(text, 0);
+            }
+        }
+    }
+
     private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {
         @Override
         public String toString() {
@@ -94,10 +115,6 @@ public class RostaService {
 
     @Autowired
     private ResourceLoader resourceLoader;
-
-    public RostaService() {
-        super();
-    }
 
     public void initData() {
         userRepo.deleteAll();
@@ -173,6 +190,8 @@ public class RostaService {
             RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
 
             if (checkRostaIncludeOpener) {
+                LOGGER.debug("including the opener in rosta checks");
+
                 if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
                     missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER));
                 }
@@ -313,27 +332,6 @@ public class RostaService {
 
                     insertAtBookmark(para, bookmark, users[i].getName());
                 }
-            }
-        }
-    }
-
-    private void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
-        for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
-            if (bookmarkName.equals(bookmark.getName())) {
-                XWPFRun newRun = para.insertNewRun(0);
-                newRun.setText(insertion);
-            }
-        }
-    }
-
-    @SuppressWarnings("unused")
-    private void findAndReplace(XWPFParagraph para, String search, String replacement) {
-        for (XWPFRun run : para.getRuns()) {
-            String text = run.getText(0);
-
-            if ((text != null) && text.contains(search)) {
-                text = text.replace(search, replacement);
-                run.setText(text, 0);
             }
         }
     }

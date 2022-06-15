@@ -1,5 +1,7 @@
 package org.pjp.rosta.security;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.core.context.SecurityContext;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -12,21 +14,28 @@ import com.vaadin.flow.server.VaadinServletRequest;
 @Component
 public class SecurityUtil {
 
+    private static final Logger LOGGER = LoggerFactory.getLogger(SecurityUtil.class);
+
     private static final String LOGOUT_SUCCESS_URL = "/";
 
     public UserDetails getAuthenticatedUser() {
         SecurityContext context = SecurityContextHolder.getContext();
         Object principal = context.getAuthentication().getPrincipal();
 
-        if (principal instanceof UserDetails) {
-            return (UserDetails) principal;
+        if (principal instanceof UserDetails userDetails) {
+            LOGGER.debug("authenticated user {}", userDetails);
+            return userDetails;
         }
 
         // Anonymous or no authentication.
+        LOGGER.debug("anonymous or no authentication");
+
         return null;
     }
 
     public void logout() {
+        LOGGER.debug("logout {}", LOGOUT_SUCCESS_URL);
+
         UI.getCurrent().getPage().setLocation(LOGOUT_SUCCESS_URL);
 
         SecurityContextLogoutHandler logoutHandler = new SecurityContextLogoutHandler();

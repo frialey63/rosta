@@ -24,10 +24,6 @@ public class UserService {
 
     public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    public static class LimitReached extends RuntimeException {
-        private static final long serialVersionUID = 8079202795333924415L;
-    }
-
     public static class ExistingUser extends RuntimeException {
         private static final long serialVersionUID = 78294508656273838L;
     }
@@ -75,11 +71,8 @@ public class UserService {
 
     public User save(User user) {
         if (user.getUuid() == null) {
-            if (countAll() >= USERS_COUNT_LIMIT) {
-                throw new LimitReached();
-            }
-
             userRepository.findByUsername(user.getUsername()).ifPresent(u -> {
+                LOGGER.debug("existing user {}", user.getUsername());
                 throw new ExistingUser();
             });
         } else {
@@ -87,11 +80,13 @@ public class UserService {
                 String username = user.getUsername();
 
                 if (!existingUser.getUsername().equals(username) && userRepository.findByUsername(username).isPresent()) {
+                    LOGGER.debug("existing user {} for username change", user.getUsername());
                     throw new ExistingUser();
                 }
             });
         }
 
+        LOGGER.debug("saving user {}", user);
         return userRepository.save(user);
     }
 
@@ -105,6 +100,8 @@ public class UserService {
 
     public boolean forgotPassword(String username) {
         boolean result = false;
+
+        LOGGER.info("forgot password for {}", username);
 
         Optional<User> optUser = userRepository.findByUsername(username);
 
@@ -125,6 +122,8 @@ public class UserService {
             } catch (Exception e) {
                 LOGGER.warn("failed to send email to address "+ user.getEmail());
             }
+        } else {
+            LOGGER.debug("failed to lookup user {}", username);
         }
 
         return result;
