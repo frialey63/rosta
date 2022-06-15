@@ -80,7 +80,7 @@ public class ProfileView extends VerticalLayout implements AfterNavigationObserv
                      ((RostaUserPrincipal) securityUtil.getAuthenticatedUser()).setUsername(user.getUsername());
                  }
              } catch (ValidationException ex) {
-                 // TODO
+                 // nothing to do
              }
         });
         Button reset = new Button("Reset", e -> binder.readBean(user));

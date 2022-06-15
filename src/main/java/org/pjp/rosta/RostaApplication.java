@@ -20,7 +20,7 @@ import com.vaadin.flow.theme.Theme;
 @EnableScheduling
 @SpringBootApplication
 @Theme(value = "ocimport")
-@PWA(name = "RAF Manston History Museum Rosta", shortName = "Rosta", offlineResources = {})
+@PWA(name = "RAF Manston History Museum Shop Rota", shortName = "Rota", offlineResources = {})
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 public class RostaApplication extends SpringBootServletInitializer implements AppShellConfigurator, ApplicationRunner {
 
@@ -38,8 +38,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
         service.initData();
     }
 
-    @Scheduled(fixedRate = 60_000, initialDelay = 10_000)
-    @Scheduled(cron = "0 0 18 * * FRI")	// TODO set the crontab
+    @Scheduled(cron = "${check.rosta.cron}")
     public void checkRosta() {
         service.checkRosta();
     }

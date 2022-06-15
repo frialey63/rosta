@@ -30,6 +30,7 @@ Security
 Settings
 - schedule cron
 - include opening
+- email server
 
 Calendar
 - reconsider display of shift and volunteer days using background events

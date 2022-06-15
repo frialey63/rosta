@@ -370,7 +370,6 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
         entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
 
-
         entry.setDurationEditable(false);
         entry.setEditable(false);
         entry.setDurationEditable(false);

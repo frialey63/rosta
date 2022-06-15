@@ -159,7 +159,7 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
                  binder.writeBean(passwordBean);
                  userService.changePassword(user, passwordBean.getPassword());
              } catch (ValidationException ex) {
-                 // TODO
+                 // nothing to do
              }
         });
         Button reset = new Button("Reset", e -> binder.readBean(passwordBean));
