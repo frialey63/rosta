@@ -31,6 +31,7 @@ Settings
 - tbd
 
 Calendar
+- reconsider display of shift and volunteer days using background events
 - investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 

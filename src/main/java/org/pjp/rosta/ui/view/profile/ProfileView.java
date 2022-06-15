@@ -38,9 +38,9 @@ public class ProfileView extends VerticalLayout implements AfterNavigationObserv
 
     private final TextField email = new TextField("Email");
 
-    private final Checkbox employee = new Checkbox("Employee");
+    private final Checkbox employee = new Checkbox("Employee (shift pattern, holidays & absences)");
 
-    private final Checkbox notifications = new Checkbox("Notifications");
+    private final Checkbox notifications = new Checkbox("Notifications for missing cover");
 
     private final Binder<User> binder = new BeanValidationBinder<>(User.class);
 

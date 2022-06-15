@@ -103,8 +103,14 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public void forgotPassword(String username) {
-        userRepository.findByUsername(username).ifPresent(user -> {
+    public boolean forgotPassword(String username) {
+        boolean result = false;
+
+        Optional<User> optUser = userRepository.findByUsername(username);
+
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+
             CrunchifyRandomPasswordGenerator passwordGenerator = new CrunchifyRandomPasswordGenerator(5);
 
             String newPassword = passwordGenerator.generatePassword(8);
@@ -114,9 +120,13 @@ public class UserService {
 
                 user.setPassword(newPassword);
                 userRepository.save(user);
+
+                result = true;
             } catch (Exception e) {
                 LOGGER.warn("failed to send email to address "+ user.getEmail());
             }
-        });
+        }
+
+        return result;
     }
 }
