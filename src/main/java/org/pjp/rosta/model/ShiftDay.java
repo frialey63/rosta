@@ -4,10 +4,6 @@ import java.time.DayOfWeek;
 
 public class ShiftDay implements PartOfDayWithOpener {
 
-    public static String getColour() {
-        return "#33ff33";
-    }
-
     private DayOfWeek dayOfWeek;
 
     private boolean opener;
@@ -67,6 +63,10 @@ public class ShiftDay implements PartOfDayWithOpener {
         return morning && afternoon;
     }
 
+    public boolean isWorking() {
+        return morning || afternoon;
+    }
+
     public DayOfWeek getDayOfWeek() {
         return dayOfWeek;
     }
@@ -84,7 +84,8 @@ public class ShiftDay implements PartOfDayWithOpener {
         return builder.toString();
     }
 
-    public boolean isWorking() {
-        return morning || afternoon;
+    public String getColour() {
+        return isAllDay() ? "#33ff33" : "#55ff55";
     }
+
 }

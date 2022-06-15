@@ -253,9 +253,8 @@ public class CalendarView extends VerticalLayout implements AfterNavigationObser
                            if (shiftDay.isWorking()) {
                                Entry entry = new Entry();
                                 entry.setStart(date.get());
-                                entry.setColor(ShiftDay.getColour());
+                                entry.setColor(shiftDay.getColour());
                                 entry.setAllDay(true);
-                                //entry.setTitle("TODO");
                                 entry.setRenderingMode(RenderingMode.BACKGROUND);
 
                                 calendar.addEntry(entry);
