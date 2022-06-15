@@ -283,6 +283,8 @@ public class RostaService {
             }
         });
 
+        LOGGER.debug("rosta: {}", rosta);
+
         return rosta;
     }
 

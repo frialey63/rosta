@@ -3,8 +3,6 @@ package org.pjp.rosta.ui.view.login;
 import org.apache.logging.log4j.util.Strings;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.componentfactory.EnhancedDialog;
@@ -25,8 +23,6 @@ import com.vaadin.flow.router.Route;
 public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
     private static final long serialVersionUID = 4838429459481914860L;
-
-    private static final Logger LOGGER = LoggerFactory.getLogger(LoginView.class);
 
     private static HorizontalLayout getDialogFooter(EnhancedDialog dialog) {
         Span filler = new Span();
@@ -52,7 +48,7 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
         login.setAction("login");
         login.addLoginListener(l -> {
-            LOGGER.info("login for {}", l.getUsername());
+            userService.loggedIn(l.getUsername());
         });
         login.addForgotPasswordListener(l -> {
             UI.getCurrent().getPage()

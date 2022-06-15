@@ -20,10 +20,6 @@ public class UserService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
-    public static final int USERS_COUNT_LIMIT = 1000;
-
-    public static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
-
     public static class ExistingUser extends RuntimeException {
         private static final long serialVersionUID = 78294508656273838L;
     }
@@ -32,11 +28,13 @@ public class UserService {
         private static final long serialVersionUID = 7452108904169685125L;
     }
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     private final UserRepository userRepository;
 
     private final ShiftRepository shiftRepository;
 
-    private EmailService emailService;
+    private final EmailService emailService;
 
     @Autowired
     public UserService(UserRepository userRepository, ShiftRepository shiftRepository, EmailService emailService) {
@@ -49,7 +47,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + PASSWORD_ENCODER.encode("password"), true, "admin@gmail.com", false, false);
+        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + passwordEncoder.encode("password"), true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 
@@ -98,6 +96,10 @@ public class UserService {
         userRepository.delete(user);
     }
 
+    public void loggedIn(String username) {
+        LOGGER.info("logged-in user is {}", username);
+    }
+
     public boolean forgotPassword(String username) {
         boolean result = false;
 
@@ -127,5 +129,15 @@ public class UserService {
         }
 
         return result;
+    }
+
+    public void changePassword(User user, String newPassword) {
+        String password = "{bcrypt}" + passwordEncoder.encode(newPassword);
+
+        LOGGER.info("changing password for {} to {}", user.getUsername(), password);
+
+        user.setPassword(password);
+
+        userRepository.save(user);
     }
 }

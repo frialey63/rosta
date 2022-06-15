@@ -8,6 +8,8 @@ import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
 import org.pjp.rosta.ui.view.rosta.ShopRotaView;
 import org.pjp.rosta.ui.view.user.UserManagementView;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 
 import com.vaadin.flow.component.Component;
@@ -36,6 +38,8 @@ import com.vaadin.flow.router.RouterLink;
 public class MainLayout extends AppLayout {
 
     private static final long serialVersionUID = -4592599326178454171L;
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(MainLayout.class);
 
     /**
      * A simple navigation item component, based on ListItem element.
@@ -149,6 +153,8 @@ public class MainLayout extends AppLayout {
 
     private MenuItemInfo[] createMenuItems() {
         boolean admin = securityUtil.getAuthenticatedUser().getAuthorities().stream().filter(ga -> "ROLE_ADMIN".equals(ga.getAuthority())).findFirst().isPresent();
+
+        LOGGER.debug("creating menu items with admin = {}", admin);
 
         if (admin) {
             return new MenuItemInfo[] {

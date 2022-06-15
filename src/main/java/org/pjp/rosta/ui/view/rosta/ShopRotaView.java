@@ -196,7 +196,6 @@ public class ShopRotaView extends VerticalLayout implements AfterNavigationObser
         registration = datePicker.addValueChangeListener(this);
 
         Rosta rosta = rostaService.buildRosta(date);
-        LOGGER.debug("rosta: {}", rosta);
 
         mapGridBeans(rosta);
         populateGrids();

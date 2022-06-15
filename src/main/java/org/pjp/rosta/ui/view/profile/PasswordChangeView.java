@@ -13,8 +13,6 @@ import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
-import org.springframework.security.crypto.password.PasswordEncoder;
 
 import com.nulabinc.zxcvbn.StandardDictionaries;
 import com.nulabinc.zxcvbn.StandardKeyboards;
@@ -83,8 +81,6 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
     }
 
     private final Zxcvbn zxcvbn = new Zxcvbn();
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final PasswordField password = new PasswordField("Password");
 
@@ -161,9 +157,7 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
         Button save = new Button("Save", e -> {
              try {
                  binder.writeBean(passwordBean);
-
-                 user.setPassword("{bcrypt}" + passwordEncoder.encode(passwordBean.getPassword()));
-                 userService.save(user);
+                 userService.changePassword(user, passwordBean.getPassword());
              } catch (ValidationException ex) {
                  // TODO
              }
