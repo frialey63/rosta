@@ -2,7 +2,7 @@ package org.pjp.rosta.ui.view.profile;
 
 import java.io.IOException;
 
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
@@ -44,7 +44,7 @@ import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @CssImport(themeFor = "vaadin-progress-bar", value = "./styles/dynamically-change-progressbar-color.css")
-@RolesAllowed("USER")
+@PermitAll
 @PageTitle("Change Password")
 @Route(value = "password", layout = MainLayout.class)
 public class PasswordChangeView extends VerticalLayout implements AfterNavigationObserver {

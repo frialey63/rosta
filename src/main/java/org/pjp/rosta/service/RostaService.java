@@ -125,7 +125,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "admin@gmail.com", false, false);
+            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "admin@gmail.com", false, false);
             userRepo.save(user);
         }
 

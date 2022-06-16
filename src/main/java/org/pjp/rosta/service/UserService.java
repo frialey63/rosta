@@ -20,6 +20,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
+    static final String ADMIN = "admin";
+
     private static final int PASSWORD_LENGTH = 8;
 
     private static final int FORGOT_PASSWORD_EXPIRY_HOURS = 1;
@@ -55,7 +57,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + passwordEncoder.encode("password")), null, true, "admin@gmail.com", false, false);
+        User user = new User(id, ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), null, true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 

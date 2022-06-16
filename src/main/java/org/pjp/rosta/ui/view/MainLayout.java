@@ -158,9 +158,9 @@ public class MainLayout extends AppLayout {
 
         if (admin) {
             return new MenuItemInfo[] {
-                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
-                    new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
+                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),	// TODO remove for admin but need to dynamically set default route
                     new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class),
+                    new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
                     new MenuItemInfo("About", "la la-file", AboutView.class),
             };
         }
