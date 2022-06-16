@@ -1,5 +1,7 @@
 package org.pjp.rosta.model;
 
+import java.time.LocalDateTime;
+
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -29,6 +31,9 @@ public class User implements Comparable<User> {
     @NotNull
     private String password;
 
+    @NotNull
+    private LocalDateTime passwordExpiry;
+
     private boolean enabled;
 
     @Size(max = 50)
@@ -44,13 +49,14 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
+    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, @NotNull LocalDateTime passwordExpiry, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
         super();
         this.uuid = uuid;
         this.username = username;
         this.admin = admin;
         this.name = name;
         this.password = password;
+        this.passwordExpiry = passwordExpiry;
         this.enabled = enabled;
         this.email = email;
         this.notifications = notifications;
@@ -95,6 +101,14 @@ public class User implements Comparable<User> {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public LocalDateTime getPasswordExpiry() {
+        return passwordExpiry;
+    }
+
+    public void setPasswordExpiry(LocalDateTime passwordExpiry) {
+        this.passwordExpiry = passwordExpiry;
     }
 
     public boolean isEnabled() {
@@ -142,6 +156,8 @@ public class User implements Comparable<User> {
         builder.append(name);
         builder.append(", password=");
         builder.append(password);
+        builder.append(", passwordExpiry=");
+        builder.append(passwordExpiry);
         builder.append(", enabled=");
         builder.append(enabled);
         builder.append(", email=");

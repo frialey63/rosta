@@ -1,11 +1,13 @@
 package org.pjp.rosta.security;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.pjp.rosta.repository.UserRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.CredentialsExpiredException;
 import org.springframework.security.authentication.DisabledException;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
@@ -38,7 +40,12 @@ public class RostaUserDetailsService implements UserDetailsService {
             throw new DisabledException(username);
         }
 
-        LOGGER.debug("successfully loaded user {}", user);
+        if (LocalDateTime.now().isAfter(user.getPasswordExpiry())) {
+            LOGGER.debug("credential expired user {}", user);
+            throw new CredentialsExpiredException(username);
+        }
+
+        LOGGER.info("successfully loaded user {}", user);
 
         return new RostaUserPrincipal(user);
     }

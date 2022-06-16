@@ -1,5 +1,6 @@
 package org.pjp.rosta.service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -17,6 +18,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class UserService {
+
+    private static final int PASSWORD_LENGTH = 8;
+
+    private static final int FORGOT_PASSWORD_EXPIRY_HOURS = 12;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
@@ -48,8 +53,10 @@ public class UserService {
     public void initData() {
         userRepository.deleteAll();
 
+        LocalDateTime passwordExpiry = LocalDateTime.of(2122, 1, 1, 0, 0);
+
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", "{bcrypt}" + passwordEncoder.encode("password"), true, "admin@gmail.com", false, false);
+        User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + passwordEncoder.encode("password")), passwordExpiry, true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 
@@ -76,8 +83,12 @@ public class UserService {
                 throw new ExistingUser();
             });
 
-            String newPassword = passwordGenerator.generatePassword(8);
-            user.setPassword(newPassword);
+            String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
+            LocalDateTime passwordExpiry = LocalDateTime.of(2122, 1, 1, 0, 0);
+
+            user.setUuid(UUID.randomUUID().toString());
+            user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
+            user.setPasswordExpiry(passwordExpiry);
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String username = user.getUsername();
@@ -89,7 +100,7 @@ public class UserService {
             });
         }
 
-        LOGGER.info("saving user {}", user);
+        LOGGER.debug("saving user {}", user);
         return userRepository.save(user);
     }
 
@@ -99,10 +110,6 @@ public class UserService {
         }
 
         userRepository.delete(user);
-    }
-
-    public void loggedIn(String username) {
-        LOGGER.info("logged-in user is {}", username);
     }
 
     public boolean forgotPassword(String username) {
@@ -115,12 +122,15 @@ public class UserService {
         if (optUser.isPresent()) {
             User user = optUser.get();
 
-            String newPassword = passwordGenerator.generatePassword(8);
+            String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
+            LocalDateTime passwordExpiry = LocalDateTime.now().plusHours(FORGOT_PASSWORD_EXPIRY_HOURS);
 
             try {
                 emailService.sendSimpleMessage(user.getEmail(), "The information that you requested", newPassword);
 
-                user.setPassword(newPassword);
+                user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
+                user.setPasswordExpiry(passwordExpiry);
+
                 userRepository.save(user);
 
                 result = true;
