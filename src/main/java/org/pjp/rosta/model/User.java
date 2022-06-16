@@ -1,6 +1,6 @@
 package org.pjp.rosta.model;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
@@ -31,8 +31,7 @@ public class User implements Comparable<User> {
     @NotNull
     private String password;
 
-    @NotNull
-    private LocalDateTime passwordExpiry;
+    private Instant passwordExpiry;
 
     private boolean enabled;
 
@@ -49,7 +48,7 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, @NotNull LocalDateTime passwordExpiry, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
+    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, @NotNull Instant passwordExpiry, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
         super();
         this.uuid = uuid;
         this.username = username;
@@ -103,11 +102,11 @@ public class User implements Comparable<User> {
         this.password = password;
     }
 
-    public LocalDateTime getPasswordExpiry() {
+    public Instant getPasswordExpiry() {
         return passwordExpiry;
     }
 
-    public void setPasswordExpiry(LocalDateTime passwordExpiry) {
+    public void setPasswordExpiry(Instant passwordExpiry) {
         this.passwordExpiry = passwordExpiry;
     }
 

@@ -1,6 +1,5 @@
 package org.pjp.rosta.ui.view.login;
 
-import org.apache.logging.log4j.util.Strings;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.slf4j.Logger;
@@ -59,15 +58,20 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
             UI.getCurrent().getPage()
                 .executeJs("return document.getElementById('vaadinLoginUsername').value;")
                 .then(String.class, username -> {
-                    if (Strings.isNotBlank(username)) {
-                        if (userService.forgotPassword(username)) {
-                            EnhancedDialog dialog = new EnhancedDialog();
-                            dialog.setHeader("Forgot Password");
-                            dialog.setContent(new Span(new Paragraph("A temporary password has been sent to your email address."), new Paragraph("It is valid for 1 hour.")));
-                            dialog.setFooter(getDialogFooter(dialog));
-                            dialog.open();
-                        }
-                    }
+
+                    userService.findByUsername(username).ifPresent(user -> {
+                        int forgotPassword = userService.forgotPassword(username);
+                        String text = String.format("It is valid for %d hour.", forgotPassword);
+
+                        EnhancedDialog dialog = new EnhancedDialog();
+                        dialog.setHeader("Forgot Password");
+                        dialog.setContent(new Span(
+                                new Paragraph("A temporary password has been sent to your email address."),
+                                new Paragraph(text),
+                                new Paragraph("You must change this password after login.")));
+                        dialog.setFooter(getDialogFooter(dialog));
+                        dialog.open();
+                    });
                 });
         });
 

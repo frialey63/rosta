@@ -24,6 +24,7 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.html.Div;
 import com.vaadin.flow.component.html.Span;
+import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.progressbar.ProgressBar;
@@ -158,6 +159,8 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
              try {
                  binder.writeBean(passwordBean);
                  userService.changePassword(user, passwordBean.getPassword());
+
+                 Notification.show("Password changed");
              } catch (ValidationException ex) {
                  // nothing to do
              }

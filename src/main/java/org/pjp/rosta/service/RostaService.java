@@ -9,7 +9,6 @@ import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
@@ -123,17 +122,16 @@ public class RostaService {
         volunteerDayRepository.deleteAll();
 
         LocalDate date = LocalDate.of(2022, 5, 16);
-        LocalDateTime passwordExpiry = LocalDateTime.of(2122, 1, 1, 0, 0);
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), passwordExpiry, true, "admin@gmail.com", false, false);
+            User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "admin@gmail.com", false, false);
             userRepo.save(user);
         }
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), passwordExpiry, true, "fred@gmail.com", true, true);
+            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "fred@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -152,7 +150,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), passwordExpiry, false, "bill@gmail.com", true, true);
+            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, false, "bill@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -171,7 +169,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), passwordExpiry, true, "anne@gmail.com", true, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "anne@gmail.com", true, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
@@ -223,11 +221,7 @@ public class RostaService {
                     if (user.isNotifications()) {
                         String text = String.format(templateStr, user.getName()) + missingCoverStr;
 
-                        try {
-                            emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                        } catch (Exception e) {
-                            LOGGER.warn("failed to send email to address "+ user.getEmail());
-                        }
+                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
                     }
                 });
             } catch (IOException e) {

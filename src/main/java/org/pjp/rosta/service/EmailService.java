@@ -5,8 +5,11 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.EnableAsync;
 import org.springframework.stereotype.Service;
 
+@EnableAsync
 @Service
 public class EmailService {
 
@@ -17,8 +20,8 @@ public class EmailService {
     @Autowired
     private JavaMailSender emailSender;
 
+    @Async
     public void sendSimpleMessage(String to, String subject, String text) {
-
         LOGGER.debug("to: {}", to);
         LOGGER.debug("subject: {}", subject);
         LOGGER.debug("{}", text);
@@ -29,6 +32,10 @@ public class EmailService {
         message.setSubject(subject);
         message.setText(text);
 
-        emailSender.send(message);
+        try {
+            emailSender.send(message);
+        } catch (Exception e) {
+            LOGGER.warn("failed to send email to address {}", to);
+        }
     }
 }

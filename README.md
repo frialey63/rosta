@@ -3,6 +3,10 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## TODO Stories
 
+Password Change & Profile
+- old password matches?
+- auto redirect to change password
+
 Logging
 
 Security

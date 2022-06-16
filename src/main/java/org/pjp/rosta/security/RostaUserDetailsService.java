@@ -1,6 +1,6 @@
 package org.pjp.rosta.security;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.Optional;
 
 import org.pjp.rosta.repository.UserRepository;
@@ -40,7 +40,9 @@ public class RostaUserDetailsService implements UserDetailsService {
             throw new DisabledException(username);
         }
 
-        if (LocalDateTime.now().isAfter(user.getPasswordExpiry())) {
+        Instant passwordExpiry = user.getPasswordExpiry();
+
+        if ((passwordExpiry != null) && Instant.now().isAfter(passwordExpiry)) {
             LOGGER.debug("credential expired user {}", user);
             throw new CredentialsExpiredException(username);
         }

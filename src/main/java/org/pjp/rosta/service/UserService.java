@@ -1,6 +1,7 @@
 package org.pjp.rosta.service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
@@ -21,7 +22,7 @@ public class UserService {
 
     private static final int PASSWORD_LENGTH = 8;
 
-    private static final int FORGOT_PASSWORD_EXPIRY_HOURS = 12;
+    private static final int FORGOT_PASSWORD_EXPIRY_HOURS = 1;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(UserService.class);
 
@@ -53,10 +54,8 @@ public class UserService {
     public void initData() {
         userRepository.deleteAll();
 
-        LocalDateTime passwordExpiry = LocalDateTime.of(2122, 1, 1, 0, 0);
-
         String id = UUID.randomUUID().toString();
-        User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + passwordEncoder.encode("password")), passwordExpiry, true, "admin@gmail.com", false, false);
+        User user = new User(id, "admin", true, "Admin", ("{bcrypt}" + passwordEncoder.encode("password")), null, true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 
@@ -84,11 +83,10 @@ public class UserService {
             });
 
             String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
-            LocalDateTime passwordExpiry = LocalDateTime.of(2122, 1, 1, 0, 0);
 
             user.setUuid(UUID.randomUUID().toString());
             user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
-            user.setPasswordExpiry(passwordExpiry);
+            user.setPasswordExpiry(null);
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String username = user.getUsername();
@@ -112,9 +110,7 @@ public class UserService {
         userRepository.delete(user);
     }
 
-    public boolean forgotPassword(String username) {
-        boolean result = false;
-
+    public int forgotPassword(String username) {
         LOGGER.info("forgot password for {}", username);
 
         Optional<User> optUser = userRepository.findByUsername(username);
@@ -123,25 +119,19 @@ public class UserService {
             User user = optUser.get();
 
             String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
-            LocalDateTime passwordExpiry = LocalDateTime.now().plusHours(FORGOT_PASSWORD_EXPIRY_HOURS);
+            Instant passwordExpiry = Instant.now().plus(FORGOT_PASSWORD_EXPIRY_HOURS, ChronoUnit.HOURS);
 
-            try {
-                emailService.sendSimpleMessage(user.getEmail(), "The information that you requested", newPassword);
+            emailService.sendSimpleMessage(user.getEmail(), "The information that you requested", newPassword);
 
-                user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
-                user.setPasswordExpiry(passwordExpiry);
+            user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
+            user.setPasswordExpiry(passwordExpiry);
 
-                userRepository.save(user);
-
-                result = true;
-            } catch (Exception e) {
-                LOGGER.warn("failed to send email to address "+ user.getEmail());
-            }
+            userRepository.save(user);
         } else {
             LOGGER.debug("failed to lookup user {}", username);
         }
 
-        return result;
+        return FORGOT_PASSWORD_EXPIRY_HOURS;
     }
 
     public void changePassword(User user, String newPassword) {
