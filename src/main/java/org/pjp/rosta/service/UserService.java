@@ -28,6 +28,8 @@ public class UserService {
         private static final long serialVersionUID = 7452108904169685125L;
     }
 
+    private final CrunchifyRandomPasswordGenerator passwordGenerator = new CrunchifyRandomPasswordGenerator(5);
+
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     private final UserRepository userRepository;
@@ -73,6 +75,9 @@ public class UserService {
                 LOGGER.debug("existing user {}", user.getUsername());
                 throw new ExistingUser();
             });
+
+            String newPassword = passwordGenerator.generatePassword(8);
+            user.setPassword(newPassword);
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String username = user.getUsername();
@@ -84,7 +89,7 @@ public class UserService {
             });
         }
 
-        LOGGER.debug("saving user {}", user);
+        LOGGER.info("saving user {}", user);
         return userRepository.save(user);
     }
 
@@ -109,8 +114,6 @@ public class UserService {
 
         if (optUser.isPresent()) {
             User user = optUser.get();
-
-            CrunchifyRandomPasswordGenerator passwordGenerator = new CrunchifyRandomPasswordGenerator(5);
 
             String newPassword = passwordGenerator.generatePassword(8);
 
