@@ -51,7 +51,7 @@ import com.vaadin.flow.shared.Registration;
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ShopRotaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
-    static class GridBean {
+    private static class GridBean {
         private String day;
         private String opener;
         private String morning;
@@ -59,13 +59,6 @@ public class ShopRotaView extends VerticalLayout implements AfterNavigationObser
 
         public GridBean() {
             super();
-        }
-
-        public GridBean(String opener, String morning, String afternoon) {
-            super();
-            this.opener = opener;
-            this.morning = morning;
-            this.afternoon = afternoon;
         }
 
         public void set(PartOfDay partOfDay, String str) {
@@ -86,6 +79,7 @@ public class ShopRotaView extends VerticalLayout implements AfterNavigationObser
             return day;
         }
 
+        @SuppressWarnings("unused")
         public void setDay(String day) {
             this.day = day;
         }

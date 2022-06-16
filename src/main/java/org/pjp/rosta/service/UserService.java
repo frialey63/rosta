@@ -134,14 +134,20 @@ public class UserService {
         return FORGOT_PASSWORD_EXPIRY_HOURS;
     }
 
-    public void changePassword(User user, String newPassword) {
-        String password = "{bcrypt}" + passwordEncoder.encode(newPassword);
+    public boolean changePassword(User user, String oldPassword, String password) {
+        boolean result = false;
 
-        LOGGER.info("changing password for {} to {}", user.getUsername(), password);
+        if (passwordEncoder.matches(oldPassword, user.getPassword().replaceFirst("\\{bcrypt\\}", ""))) {
+            LOGGER.info("changing password for {}", user.getUsername());
 
-        user.setPassword(password);
-        user.setPasswordExpiry(null);
+            user.setPassword("{bcrypt}" + passwordEncoder.encode(password));
+            user.setPasswordExpiry(null);
 
-        userRepository.save(user);
+            userRepository.save(user);
+
+            result = true;
+        }
+
+        return result;
     }
 }

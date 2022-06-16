@@ -3,6 +3,8 @@ package org.pjp.rosta.ui.view.profile;
 import java.io.IOException;
 
 import javax.annotation.security.RolesAllowed;
+import javax.validation.constraints.NotNull;
+import javax.validation.constraints.Size;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.SecurityUtil;
@@ -52,8 +54,23 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
     private static final Logger LOGGER = LoggerFactory.getLogger(PasswordChangeView.class);
 
     public static class PasswordBean {
+        @Size(min = 8, max = 20)
+        @NotNull
+        private String oldPassword;
+
+        @Size(min = 8, max = 20)
+        @NotNull
         private String password;
+
         private String confirmPassword;
+
+        public String getOldPassword() {
+            return oldPassword;
+        }
+
+        public void setOldPassword(String oldPassword) {
+            this.oldPassword = oldPassword;
+        }
 
         public String getPassword() {
             return password;
@@ -82,6 +99,8 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
     }
 
     private final Zxcvbn zxcvbn = new Zxcvbn();
+
+    private final PasswordField oldPassword = new PasswordField("Old Password");
 
     private final PasswordField password = new PasswordField("Password");
 
@@ -147,20 +166,27 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
             binder.validate();
         });
 
+        HorizontalLayout oldPassword = getOldPassword();
+
         FormLayout formLayout = new FormLayout();
-        formLayout.add(password, confirmPassword);
+        formLayout.add(oldPassword, password, confirmPassword);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new ResponsiveStep("0", 1),
                 // Use two columns, if layout's width exceeds 500px
                 new ResponsiveStep("500px", 2));
+        formLayout.setColspan(oldPassword, 2);
 
         Button save = new Button("Save", e -> {
              try {
                  binder.writeBean(passwordBean);
-                 userService.changePassword(user, passwordBean.getPassword());
 
-                 Notification.show("Password changed");
+                 if (userService.changePassword(user, passwordBean.getOldPassword(), passwordBean.getPassword())) {
+                     Notification.show("Password changed");
+                 } else {
+                     Notification.show("Password not changed, check old password");
+                 }
+
              } catch (ValidationException ex) {
                  // nothing to do
              }
@@ -184,6 +210,15 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
         add(formLayout, strengthBar, errorMessageField, controls);
     }
 
+    private HorizontalLayout getOldPassword() {
+        Span filler = new Span();
+        setFlexGrow(1, filler);
+
+        HorizontalLayout hl = new CompactHorizontalLayout(oldPassword, filler);
+        oldPassword.setWidth("50%");
+        return hl;
+    }
+
     private VerticalLayout getStrengthBar() {
         Div strengthBarLabel = new Div();
         strengthBarLabel.setText("Password strength");
@@ -191,9 +226,9 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
         strengthBarIndicator.setMin(0);
         strengthBarIndicator.setMax(4);
 
-        VerticalLayout strengthBar = new CompactVerticalLayout(strengthBarLabel, strengthBarIndicator);
-        strengthBar.setWidth("50%");
-        return strengthBar;
+        VerticalLayout vl = new CompactVerticalLayout(strengthBarLabel, strengthBarIndicator);
+        vl.setWidth("50%");
+        return vl;
     }
 
     @Override
@@ -213,14 +248,11 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
      * <p>
      * 1) Password is at least 8 characters long
      * <p>
-     * 2) Values in both fields match each other
+     * 2) Password is sufficiently strong
+     * <p>
+     * 3) Values in both fields match each other
      */
     private ValidationResult passwordValidator(String pass1, ValueContext ctx) {
-        /*
-         * Just a simple length check. A real version should check for password
-         * complexity as well!
-         */
-
         if (pass1 == null || pass1.length() < 8) {
             return ValidationResult.error("Password should be at least 8 characters long");
         }

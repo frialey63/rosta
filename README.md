@@ -5,7 +5,6 @@ Application for managing the museum's rota of volunteers and employees.
 
 Password Change & Profile
 - old password matches?
-- auto redirect to change password
 
 Logging
 

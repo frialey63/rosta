@@ -76,7 +76,7 @@ class ShiftDialog extends EnhancedDialog {
         }
     }
 
-    static class MyCheckbox extends Checkbox {
+    private static class MyCheckbox extends Checkbox {
         private static final long serialVersionUID = -2439486105879875636L;
 
         public MyCheckbox(boolean initialValue, boolean enabled, ValueChangeListener<ComponentValueChangeEvent<Checkbox, Boolean>> listener) {
