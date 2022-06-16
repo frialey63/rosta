@@ -86,7 +86,7 @@ public class UserService {
 
             user.setUuid(UUID.randomUUID().toString());
             user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
-            user.setPasswordExpiry(null);
+            user.setPasswordExpiry(null);	// in this scenario it is necessary for the user to perform "forgot password" process
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String username = user.getUsername();
