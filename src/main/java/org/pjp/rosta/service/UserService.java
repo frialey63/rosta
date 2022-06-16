@@ -140,6 +140,7 @@ public class UserService {
         LOGGER.info("changing password for {} to {}", user.getUsername(), password);
 
         user.setPassword(password);
+        user.setPasswordExpiry(null);
 
         userRepository.save(user);
     }
