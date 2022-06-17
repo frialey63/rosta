@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.view.event;
+package org.pjp.rosta.ui.event;
 
 import com.vaadin.flow.component.ComponentEvent;
 import com.vaadin.flow.component.applayout.DrawerToggle;

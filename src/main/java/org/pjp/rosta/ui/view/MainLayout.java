@@ -2,9 +2,9 @@ package org.pjp.rosta.ui.view;
 
 
 import org.pjp.rosta.security.SecurityUtil;
+import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
-import org.pjp.rosta.ui.view.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
 import org.pjp.rosta.ui.view.rosta.ShopRotaView;
