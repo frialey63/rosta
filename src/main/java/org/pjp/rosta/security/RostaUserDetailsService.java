@@ -29,21 +29,21 @@ public class RostaUserDetailsService implements UserDetailsService {
         Optional<org.pjp.rosta.model.User> optUser = userRepository.findByUsername(username);
 
         if (optUser.isEmpty()) {
-            LOGGER.debug("non-existent user {}", username);
+            LOGGER.warn("non-existent user {}", username);
             throw new UsernameNotFoundException(username);
         }
 
         org.pjp.rosta.model.User user = optUser.get();
 
         if (!user.isEnabled()) {
-            LOGGER.debug("disabled user {}", user);
+            LOGGER.warn("disabled user {}", user);
             throw new DisabledException(username);
         }
 
         Instant passwordExpiry = user.getPasswordExpiry();
 
         if ((passwordExpiry != null) && Instant.now().isAfter(passwordExpiry)) {
-            LOGGER.debug("credential expired user {}", user);
+            LOGGER.warn("credential expired user {}", user);
             throw new CredentialsExpiredException(username);
         }
 
