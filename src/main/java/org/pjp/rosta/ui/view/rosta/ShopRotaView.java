@@ -19,9 +19,7 @@ import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -143,12 +141,6 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
     private Map<DayOfWeek, Grid<GridBean>> grids = new HashMap<>();
 
     private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
-
-    @Autowired
-    private SecurityUtil securityUtil;
-
-    @Autowired
-    private UserService userService;
 
     @Autowired
     private RostaService rostaService;
