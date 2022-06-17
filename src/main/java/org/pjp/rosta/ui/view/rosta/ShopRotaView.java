@@ -19,9 +19,12 @@ import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rosta;
 import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,6 +42,8 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEnterEvent;
+import com.vaadin.flow.router.BeforeEnterObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.router.RouteAlias;
@@ -49,7 +54,7 @@ import com.vaadin.flow.shared.Registration;
 @PageTitle("Shop Rota")
 @Route(value = "rota", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
-public class ShopRotaView extends VerticalLayout implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
+public class ShopRotaView extends VerticalLayout implements BeforeEnterObserver, AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
     private static class GridBean {
         private String day;
@@ -142,6 +147,12 @@ public class ShopRotaView extends VerticalLayout implements AfterNavigationObser
     private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
 
     @Autowired
+    private SecurityUtil securityUtil;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
     private RostaService rostaService;
 
     @SuppressWarnings("unchecked")
@@ -174,6 +185,17 @@ public class ShopRotaView extends VerticalLayout implements AfterNavigationObser
         setMargin(true);
         setPadding(false);
         setSizeFull();
+    }
+
+    @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        String username = securityUtil.getAuthenticatedUser().getUsername();
+
+        userService.findByUsername(username).ifPresent(user -> {
+            if (user.isPasswordChange()) {
+                event.rerouteTo(PasswordChangeView.class);
+            }
+        });
     }
 
     @Override

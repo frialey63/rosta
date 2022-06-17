@@ -126,6 +126,7 @@ public class UserService {
             emailService.sendSimpleMessage(user.getEmail(), "The information that you requested", newPassword);
 
             user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
+            user.setPasswordChange(true);
             user.setPasswordExpiry(passwordExpiry);
 
             userRepository.save(user);
@@ -143,6 +144,7 @@ public class UserService {
             LOGGER.info("changing password for {}", user.getUsername());
 
             user.setPassword("{bcrypt}" + passwordEncoder.encode(password));
+            user.setPasswordChange(false);
             user.setPasswordExpiry(null);
 
             userRepository.save(user);

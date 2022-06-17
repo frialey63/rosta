@@ -31,6 +31,8 @@ public class User implements Comparable<User> {
     @NotNull
     private String password;
 
+    private boolean passwordChange;
+
     private Instant passwordExpiry;
 
     private boolean enabled;
@@ -102,6 +104,14 @@ public class User implements Comparable<User> {
         this.password = password;
     }
 
+    public boolean isPasswordChange() {
+        return passwordChange;
+    }
+
+    public void setPasswordChange(boolean passwordChange) {
+        this.passwordChange = passwordChange;
+    }
+
     public Instant getPasswordExpiry() {
         return passwordExpiry;
     }
@@ -155,6 +165,8 @@ public class User implements Comparable<User> {
         builder.append(name);
         builder.append(", password=");
         builder.append(password);
+        builder.append(", passwordChange=");
+        builder.append(passwordChange);
         builder.append(", passwordExpiry=");
         builder.append(passwordExpiry);
         builder.append(", enabled=");
