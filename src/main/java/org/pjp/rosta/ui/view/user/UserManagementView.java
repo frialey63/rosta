@@ -6,6 +6,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.service.UserService.UserInUsage;
+import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.crudui.crud.CrudOperation;
@@ -14,7 +15,6 @@ import org.vaadin.crudui.crud.impl.GridCrud;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -23,7 +23,7 @@ import com.vaadin.flow.router.Route;
 @RolesAllowed("ADMIN")
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
-public class UserManagementView extends VerticalLayout implements AfterNavigationObserver {
+public class UserManagementView extends AbstractView implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -8981630272855085797L;
 

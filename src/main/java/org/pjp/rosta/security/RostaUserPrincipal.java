@@ -58,4 +58,12 @@ public class RostaUserPrincipal implements UserDetails {
         return user.isEnabled();
     }
 
+    public boolean isPasswordChange() {
+        return user.isPasswordChange();
+    }
+
+    public void setPasswordChange(boolean passwordChange) {
+        user.setPasswordChange(passwordChange);
+    }
+
 }

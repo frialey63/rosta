@@ -6,6 +6,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.RostaUserPrincipal;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
+import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +17,6 @@ import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.Binder;
@@ -29,7 +29,7 @@ import com.vaadin.flow.router.Route;
 @RolesAllowed("USER")
 @PageTitle("Profile")
 @Route(value = "profile", layout = MainLayout.class)
-public class ProfileView extends VerticalLayout implements AfterNavigationObserver {
+public class ProfileView extends AbstractView implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -2024122079440962290L;
 

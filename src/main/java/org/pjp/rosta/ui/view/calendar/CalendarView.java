@@ -21,6 +21,7 @@ import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
+import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
@@ -49,7 +50,6 @@ import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
-import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -57,7 +57,7 @@ import com.vaadin.flow.router.Route;
 
 @RolesAllowed("USER")
 @Route(value = "calendar", layout = MainLayout.class)
-public class CalendarView extends VerticalLayout implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
+public class CalendarView extends AbstractView implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
 
     private static final long serialVersionUID = -4423320972580039035L;
 

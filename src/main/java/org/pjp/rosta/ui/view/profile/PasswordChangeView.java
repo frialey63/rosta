@@ -7,6 +7,7 @@ import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Size;
 
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.security.RostaUserPrincipal;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
@@ -182,6 +183,7 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
                  binder.writeBean(passwordBean);
 
                  if (userService.changePassword(user, passwordBean.getOldPassword(), passwordBean.getPassword())) {
+                     ((RostaUserPrincipal) securityUtil.getAuthenticatedUser()).setPasswordChange(false);
                      Notification.show("Password changed");
                  } else {
                      Notification.show("Password not changed, check old password");
