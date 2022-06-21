@@ -2,6 +2,7 @@ package org.pjp.rosta.model;
 
 import java.time.Instant;
 
+import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
 import javax.validation.constraints.Pattern;
 import javax.validation.constraints.Size;
@@ -38,7 +39,7 @@ public class User implements Comparable<User> {
     private boolean enabled;
 
     @Size(max = 50)
-    @Pattern(regexp=".+@.+\\.[a-z]+")
+    @Email
     @NotNull
     private String email;
 
