@@ -10,6 +10,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
+import org.pjp.rosta.ui.view.register.UserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -153,5 +154,9 @@ public class UserService {
         }
 
         return result;
+    }
+
+    public void registerUser(UserBean userBean) {
+        LOGGER.info("registered user {}", userBean);
     }
 }
