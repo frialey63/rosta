@@ -125,13 +125,13 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "admin@gmail.com", false, false);
+            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "admin@gmail.com", false, false);
             userRepo.save(user);
         }
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "fred@gmail.com", true, true);
+            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -150,7 +150,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, false, "bill@gmail.com", true, true);
+            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -169,7 +169,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), null, true, "anne@gmail.com", true, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);

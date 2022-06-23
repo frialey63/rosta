@@ -58,7 +58,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), null, true, "admin@gmail.com", false, false);
+        User user = new User(id, ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false);
         userRepository.save(user);
     }
 
@@ -157,6 +157,20 @@ public class UserService {
     }
 
     public void registerUser(UserBean userBean) {
-        LOGGER.info("registered user {}", userBean);
+        LOGGER.info("registering user {}", userBean);
+
+        String name = userBean.getFirstName() + " " + userBean.getLastName();
+        String username = userBean.getEmail().split("\\@")[0];
+
+        String password = "{bcrypt}" + passwordEncoder.encode(userBean.getPassword());
+        Instant passwordExpiry = Instant.now().plus(FORGOT_PASSWORD_EXPIRY_HOURS, ChronoUnit.HOURS);
+
+        User user = new User(UUID.randomUUID().toString(), username, false, name, password, true, userBean.getEmail(), true, userBean.isEmployee());
+        user.setPasswordChange(true);
+        user.setPasswordExpiry(passwordExpiry);
+
+        userRepository.save(user);
+
+        LOGGER.info("user registered as {}", user);
     }
 }

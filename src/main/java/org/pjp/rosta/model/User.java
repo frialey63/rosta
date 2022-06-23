@@ -51,14 +51,13 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, @NotNull Instant passwordExpiry, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
+    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
         super();
         this.uuid = uuid;
         this.username = username;
         this.admin = admin;
         this.name = name;
         this.password = password;
-        this.passwordExpiry = passwordExpiry;
         this.enabled = enabled;
         this.email = email;
         this.notifications = notifications;
