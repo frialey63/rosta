@@ -20,10 +20,9 @@ Security
 - reset password (generate & email)
 
     https://crunchify.com/java-generate-strong-random-password-securerandom/
-- signup (recapcha)
+- signup
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-    https://github.com/anton-johansson/vaadin-recaptcha
 - password management: first-time change, expiry, lock-out
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
