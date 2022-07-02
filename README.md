@@ -1,9 +1,54 @@
 # rosta
 Application for managing the museum's rota of volunteers and employees.
 
-## TODO Stories
+## Deployment
+
+SSL
+
+Backup of the Mongo DB
+
+
+## Sprint Stories
+
+remove opener concept
+
+evening work periods
+
+identify users as "keyholder"
+    check at least one keyholder per day
+
+management reports of periods worked, holidays, absences, etc.
+
+checks of the rota should notify Directors
+
+notifications by SMS as well as by email?
+
+planning of events
+
+planning of tasks
+
+
+## Backlog Stories
+
+QA
 
 Logging
+
+Settings
+- schedule cron
+- email server
+
+Calendar
+- investigate use of EntryProvider
+- bank holidays (https://www.gov.uk/bank-holidays.json)
+
+Styling
+- buttons, etc.
+
+Refactor "rosta" to roster
+
+
+## Notes on Security
 
 Security
 - login and session management
@@ -28,24 +73,3 @@ Security
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
 
-Settings
-- schedule cron
-- include opening
-- email server
-
-Calendar
-- investigate use of EntryProvider
-- bank holidays (https://www.gov.uk/bank-holidays.json)
-
-Styling
-- buttons, etc.
-
-Refactor "rosta" to roster
-
-Deployment to PI
-
-SSL
-
-Backup of the Mongo DB
-
-QA
