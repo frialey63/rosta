@@ -39,6 +39,7 @@ Settings
 - email server
 
 Calendar
+- display half days as half fills on the calendar
 - investigate use of EntryProvider
 - bank holidays (https://www.gov.uk/bank-holidays.json)
 
