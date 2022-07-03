@@ -44,7 +44,6 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.core.io.Resource;
 import org.springframework.core.io.ResourceLoader;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -54,7 +53,11 @@ import org.springframework.util.FileCopyUtils;
 @Service
 public class RostaService {
 
-    private static final String TEMPLATE = "classpath:email-template.txt";
+    private static final String EMAIL_TEMPLATE = "classpath:email-template.txt";
+
+    private static final String DIRECTOR_TEMPLATE = "classpath:director-template.txt";
+
+    private static final String DIRECTOR_OK_TEMPLATE = "classpath:director-ok-template.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
@@ -63,6 +66,10 @@ public class RostaService {
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
     private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
+    private static String capitalise(String str) {
+        return str.substring(0, 1).toUpperCase() + str.substring(1);
+    }
 
     private static void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
         for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
@@ -94,6 +101,9 @@ public class RostaService {
 
     @Value("${check.rosta.include.opener}")
     private boolean checkRostaIncludeOpener;
+
+    @Value("${check.rosta.director.email}")
+    private String checkRostaDirectorEmail;
 
     @Autowired
     private UserRepository userRepo;
@@ -214,11 +224,11 @@ public class RostaService {
         if (!missingCover.isEmpty()) {
             LOGGER.info("found missing cover in rota, sending emails to all volunteers");
 
-            Resource resource = resourceLoader.getResource(TEMPLATE);
+            String missingCoverStr = missingCover.stream().map(MissingCover::toString).collect(Collectors.joining("\n"));
+            List<String> notified = new ArrayList<>();
 
-            try (InputStream inputStream = resource.getInputStream()) {
+            try (InputStream inputStream = resourceLoader.getResource(EMAIL_TEMPLATE).getInputStream()) {
                 String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
-                String missingCoverStr = missingCover.stream().map(mc -> mc.toString()).collect(Collectors.joining("\n"));
 
                 String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
 
@@ -227,10 +237,41 @@ public class RostaService {
                         String text = String.format(templateStr, user.getName()) + missingCoverStr;
 
                         emailService.sendSimpleMessage(user.getEmail(), subject, text);
+
+                        notified.add(user.getName());
                     }
                 });
             } catch (IOException e) {
-                LOGGER.error("failed to read email-template.txt from classpath resources", e);
+                LOGGER.error("failed to read email template from classpath resources", e);
+            }
+
+            try (InputStream inputStream = resourceLoader.getResource(DIRECTOR_TEMPLATE).getInputStream()) {
+                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+                String subject = "Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
+                String notifiedStr = notified.stream().collect(Collectors.joining(", "));
+
+                for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+                    String text = String.format(templateStr, capitalise(directorEmail.split("@")[0]), notifiedStr) + missingCoverStr;
+
+                    emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
+                }
+            } catch (IOException e) {
+                LOGGER.error("failed to read email template from classpath resources", e);
+            }
+        } else {
+            try (InputStream inputStream = resourceLoader.getResource(DIRECTOR_OK_TEMPLATE).getInputStream()) {
+                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+                String subject = "Shop Volunteers (OK) - Week of " + nextMonday.format(FORMATTER);
+
+                for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+                    String text = String.format(templateStr, capitalise(directorEmail.split("@")[0]));
+
+                    emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
+                }
+            } catch (IOException e) {
+                LOGGER.error("failed to read email template from classpath resources", e);
             }
         }
     }

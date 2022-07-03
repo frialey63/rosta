@@ -1,0 +1,7 @@
+Good evening %s,
+
+This is the RAF Manston Museum Shop contacting you.
+
+The staffing of the shop is OK for next week.
+
+Best regards.

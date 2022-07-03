@@ -9,8 +9,6 @@ Backup of the Mongo DB
 
 ## Sprint 1 Stories
 
-checks of the rota should notify Directors
-
 remove opener concept
 
 evening work periods
@@ -29,6 +27,8 @@ planning of tasks
 
 identify users as "keyholder"
     check at least one keyholder per day
+
+checks of the rota should notify Directors
 
 ## Backlog Stories
 

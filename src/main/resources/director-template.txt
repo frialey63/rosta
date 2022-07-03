@@ -1,0 +1,10 @@
+Good evening %s,
+
+This is the RAF Manston Museum Shop contacting you.
+
+We are currently short staffed in the shop next week, see list of periods below.
+
+Requests for assistance have been emailed to these volunteers: %s
+
+Best regards.
+---
