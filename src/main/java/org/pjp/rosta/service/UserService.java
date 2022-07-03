@@ -58,7 +58,7 @@ public class UserService {
         userRepository.deleteAll();
 
         String id = UUID.randomUUID().toString();
-        User user = new User(id, ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false);
+        User user = new User(id, ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false, false);
         userRepository.save(user);
     }
 
@@ -165,7 +165,7 @@ public class UserService {
         String password = "{bcrypt}" + passwordEncoder.encode(userBean.getPassword());
         Instant passwordExpiry = Instant.now().plus(FORGOT_PASSWORD_EXPIRY_HOURS, ChronoUnit.HOURS);
 
-        User user = new User(UUID.randomUUID().toString(), username, false, name, password, true, userBean.getEmail(), true, userBean.isEmployee());
+        User user = new User(UUID.randomUUID().toString(), username, false, name, password, true, userBean.getEmail(), true, userBean.isEmployee(), false);
         user.setPasswordChange(true);
         user.setPasswordExpiry(passwordExpiry);
 

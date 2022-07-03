@@ -85,10 +85,10 @@ public class RostaService {
         }
     }
 
-    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay) {
+    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay, int count, boolean keyholder) {
         @Override
         public String toString() {
-            return dayOfWeek + " " + partOfDay;
+            return String.format("%-9s %-9s %d %s", dayOfWeek, partOfDay, count, (keyholder ? "" : "(no key-holder)"));
         }
     }
 
@@ -125,13 +125,13 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "admin@gmail.com", false, false);
+            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "admin@gmail.com", false, false, false);
             userRepo.save(user);
         }
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true);
+            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -150,7 +150,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true);
+            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -169,7 +169,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
@@ -193,13 +193,18 @@ public class RostaService {
                 LOGGER.debug("including the opener in rosta checks");
 
                 if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
-                    missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER));
+                    missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER, 0, false));
                 }
             }
 
             for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
-                if (rostaDay.getUserUuids(partOfDay).size() < 2) {
-                    missingCover.add(new MissingCover(dayOfWeek, partOfDay));
+                Set<String> userUuids = rostaDay.getUserUuids(partOfDay);
+
+                int count = userUuids.size();
+                boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid).get()).filter(user -> user.isKeyholder()).findFirst().isPresent();
+
+                if ((count < 2) || !keyholder) {
+                    missingCover.add(new MissingCover(dayOfWeek, partOfDay, count, keyholder));
                 }
             }
         }
@@ -328,7 +333,7 @@ public class RostaService {
                 for (int i = 0; i < users.length; i++) {
                     String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
 
-                    insertAtBookmark(para, bookmark, users[i].getName());
+                    insertAtBookmark(para, bookmark, users[i].getDisplayName());
                 }
             }
         }

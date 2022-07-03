@@ -47,11 +47,13 @@ public class User implements Comparable<User> {
 
     private boolean employee;
 
+    private boolean keyholder;
+
     public User() {
         super();
     }
 
-    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee) {
+    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee, boolean keyholder) {
         super();
         this.uuid = uuid;
         this.username = username;
@@ -62,6 +64,7 @@ public class User implements Comparable<User> {
         this.email = email;
         this.notifications = notifications;
         this.employee = employee;
+        this.keyholder = keyholder;
     }
 
     public String getUuid() {
@@ -152,6 +155,14 @@ public class User implements Comparable<User> {
         this.employee = employee;
     }
 
+    public boolean isKeyholder() {
+        return keyholder;
+    }
+
+    public void setKeyholder(boolean keyholder) {
+        this.keyholder = keyholder;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
@@ -177,6 +188,8 @@ public class User implements Comparable<User> {
         builder.append(notifications);
         builder.append(", employee=");
         builder.append(employee);
+        builder.append(", keyholder=");
+        builder.append(keyholder);
         builder.append("]");
         return builder.toString();
     }
@@ -190,6 +203,10 @@ public class User implements Comparable<User> {
         }
 
         return username.compareTo(other.getUsername());
+    }
+
+    public String getDisplayName() {
+        return name + (keyholder ? "*" : "");
     }
 
 }

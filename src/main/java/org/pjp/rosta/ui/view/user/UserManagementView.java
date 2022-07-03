@@ -35,7 +35,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     public UserManagementView() {
 
         // grid configuration
-        crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee");
+        crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee", "keyholder");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
@@ -44,8 +44,8 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
         crud.getCrudFormFactory().setShowNotifications(false);
 
         // logic configuration

@@ -52,6 +52,8 @@ import com.vaadin.flow.shared.Registration;
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ShopRotaView extends AbstractView implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
 
+    private static final int MAX_USERS_IN_PERIOD = 4;
+
     private static class GridBean {
         private String day;
         private String opener;
@@ -232,8 +234,8 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
             for (PartOfDay partOfDay : PartOfDay.values()) {
                 User[] users = rostaService.getUsers(rostaDay, partOfDay);
 
-                for (int i = 0; i < Math.min(4, users.length); i++) {
-                    gridBeans.get(i).set(partOfDay, users[i].getName());
+                for (int i = 0; i < Math.min(MAX_USERS_IN_PERIOD, users.length); i++) {
+                    gridBeans.get(i).set(partOfDay, users[i].getDisplayName());
                 }
             }
 

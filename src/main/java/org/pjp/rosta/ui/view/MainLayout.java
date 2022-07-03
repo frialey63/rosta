@@ -5,9 +5,11 @@ import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
+import org.pjp.rosta.ui.view.maninfo.ManagementInformationView;
 import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
 import org.pjp.rosta.ui.view.rosta.ShopRotaView;
+import org.pjp.rosta.ui.view.settings.SettingsView;
 import org.pjp.rosta.ui.view.user.UserManagementView;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -159,8 +161,10 @@ public class MainLayout extends AppLayout {
 
         if (admin) {
             return new MenuItemInfo[] {
-                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),	// TODO remove for admin but need to dynamically set default route
+                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
+                    new MenuItemInfo("Mgmt Info", "la la-globe", ManagementInformationView.class),
                     new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class),
+                    new MenuItemInfo("Settings", "la la-globe", SettingsView.class),
                     new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
                     new MenuItemInfo("About", "la la-file", AboutView.class),
             };
