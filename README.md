@@ -7,19 +7,17 @@ SSL
 
 Backup of the Mongo DB
 
+## Sprint 1 Stories
 
-## Sprint Stories
+checks of the rota should notify Directors
 
 remove opener concept
 
 evening work periods
 
-identify users as "keyholder"
-    check at least one keyholder per day
+## Sprint 2 Stories
 
 management reports of periods worked, holidays, absences, etc.
-
-checks of the rota should notify Directors
 
 notifications by SMS as well as by email?
 
@@ -27,6 +25,10 @@ planning of events
 
 planning of tasks
 
+## Done
+
+identify users as "keyholder"
+    check at least one keyholder per day
 
 ## Backlog Stories
 
@@ -47,7 +49,6 @@ Styling
 - buttons, etc.
 
 Refactor "rosta" to roster
-
 
 ## Notes on Security
 
@@ -73,4 +74,3 @@ Security
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
-
