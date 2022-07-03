@@ -201,7 +201,7 @@ public class RostaService {
                 Set<String> userUuids = rostaDay.getUserUuids(partOfDay);
 
                 int count = userUuids.size();
-                boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid).get()).filter(user -> user.isKeyholder()).findFirst().isPresent();
+                boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid)).flatMap(Optional::stream).filter(User::isKeyholder).findFirst().isPresent();
 
                 if ((count < 2) || !keyholder) {
                     missingCover.add(new MissingCover(dayOfWeek, partOfDay, count, keyholder));
