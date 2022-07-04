@@ -71,6 +71,10 @@ public class RostaService {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
 
+    private static String nameFromEmail(String email) {
+        return email.split("@")[0].split("\\.")[0];
+    }
+
     private static void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
         for (CTBookmark bookmark : para.getCTP().getBookmarkStartList()) {
             if (bookmarkName.equals(bookmark.getName())) {
@@ -252,7 +256,7 @@ public class RostaService {
                 String notifiedStr = notified.stream().collect(Collectors.joining(", "));
 
                 for (String directorEmail : checkRostaDirectorEmail.split(",")) {
-                    String text = String.format(templateStr, capitalise(directorEmail.split("@")[0]), notifiedStr) + missingCoverStr;
+                    String text = String.format(templateStr, capitalise(nameFromEmail(directorEmail)), notifiedStr) + missingCoverStr;
 
                     emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
                 }
