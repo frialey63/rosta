@@ -7,23 +7,25 @@ SSL
 
 Backup of the Mongo DB
 
-## Sprint 1 Stories
-
-remove opener concept
-
-evening work periods
-
 ## Sprint 2 Stories
 
 management reports of periods worked, holidays, absences, etc.
 
+## Sprint 3 Stories
+
 notifications by SMS as well as by email?
+
+## Sprint 4 Stories
 
 planning of events
 
 planning of tasks
 
 ## Done
+
+remove opener concept
+
+evening work periods
 
 identify users as "keyholder"
     check at least one keyholder per day
