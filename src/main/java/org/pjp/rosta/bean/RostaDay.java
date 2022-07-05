@@ -39,8 +39,7 @@ public class RostaDay {
             afternoonUserUuids.add(userUuid);
         }
 
-        Boolean evening = partOfDay.isEvening();
-        if ((evening != null) && evening) {
+        if (Boolean.TRUE == partOfDay.isEvening()) {
             eveningUserUuids.add(userUuid);
         }
     }
@@ -54,8 +53,7 @@ public class RostaDay {
             afternoonUserUuids.remove(userUuid);
         }
 
-        Boolean evening = partOfDay.isEvening();
-        if ((evening != null) && evening) {
+        if (Boolean.TRUE == partOfDay.isEvening()) {
             eveningUserUuids.remove(userUuid);
         }
     }

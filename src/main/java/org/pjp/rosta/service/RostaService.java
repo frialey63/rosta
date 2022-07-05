@@ -61,7 +61,7 @@ public class RostaService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
-    private static final String TEMPLATE_DOCX = "data/rosta-template-2.docx";
+    private static final String TEMPLATE_DOCX = "data/rosta-template-3.docx";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
