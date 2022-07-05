@@ -29,23 +29,49 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
     private final Checkbox afternoon = new Checkbox("Afternoon", true);
 
+    private final Checkbox evening = new Checkbox("Evening", true);
+
     public CreateDialog(boolean employee, LocalDate date, String userUuid) {
         super();
         this.employee = employee;
         this.date = date;
         this.userUuid = userUuid;
 
-        morning.addValueChangeListener(l -> {
-            if (!l.getValue() && !afternoon.getValue()) {
-                afternoon.setValue(true);
-            }
-        });
+        if (employee) {
+            morning.addValueChangeListener(l -> {
+                if (!l.getValue() && !afternoon.getValue()) {
+                    afternoon.setValue(true);
+                }
+            });
 
-        afternoon.addValueChangeListener(l -> {
-            if (!l.getValue() && !morning.getValue()) {
-                morning.setValue(true);
-            }
-        });
+            afternoon.addValueChangeListener(l -> {
+                if (!l.getValue() && !morning.getValue()) {
+                    morning.setValue(true);
+                }
+            });
+        } else {
+            morning.addValueChangeListener(l -> {
+                if (!l.getValue() && !afternoon.getValue() && !evening.getValue()) {
+                    afternoon.setValue(true);
+                    evening.setValue(true);
+                }
+            });
+
+            afternoon.addValueChangeListener(l -> {
+                if (!l.getValue() && !morning.getValue() && !evening.getValue()) {
+                    morning.setValue(true);
+                    evening.setValue(true);
+                }
+            });
+
+            evening.addValueChangeListener(l -> {
+                if (!l.getValue() && !morning.getValue() && !afternoon.getValue()) {
+                    morning.setValue(true);
+                    afternoon.setValue(true);
+                }
+            });
+        }
+
 
         setContent(getContent());
     }
@@ -66,6 +92,9 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
             content = new CompactVerticalLayout(dayType, separator, subPanel);
         } else {
+            subPanel.add(evening);
+            subPanel.setHorizontalComponentAlignment(Alignment.START, evening);
+
             content = subPanel;
         }
 
@@ -84,12 +113,30 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         return date;
     }
 
+    @Override
     public boolean isMorning() {
         return morning.getValue();
     }
 
+    @Override
     public boolean isAfternoon() {
         return afternoon.getValue();
+    }
+
+    @Override
+    public Boolean isEvening() {
+        return employee ? null : evening.getValue();
+    }
+
+    @Override
+    public boolean isAllDay() {
+        boolean allDay = isMorning() && isAfternoon();
+
+        if (!employee) {
+            allDay = allDay && isEvening();
+        }
+
+        return allDay;
     }
 
     public String getUserUuid() {

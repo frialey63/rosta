@@ -21,6 +21,11 @@ public final class AbsenceDay extends AbstractDay {
     }
 
     @Override
+    public Boolean isEvening() {
+        return null;
+    }
+
+    @Override
     public String getColour() {
         return "#ff3333";
     }

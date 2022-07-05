@@ -6,4 +6,8 @@ public interface PartOfDay {
 
     boolean isAfternoon();
 
+    Boolean isEvening();
+
+    boolean isAllDay();
+
 }

@@ -25,22 +25,19 @@ class ShiftDialog extends EnhancedDialog {
     static class ShiftEntry {
         private DayOfWeek dayOfWeek;
 
-        private boolean opener;
-
         private boolean morning;
 
         private boolean afternoon;
 
-        public ShiftEntry(DayOfWeek dayOfWeek, boolean opener, boolean morning, boolean afternoon) {
+        public ShiftEntry(DayOfWeek dayOfWeek, boolean morning, boolean afternoon) {
             super();
             this.dayOfWeek = dayOfWeek;
-            this.opener = opener;
             this.morning = morning;
             this.afternoon = afternoon;
         }
 
         public ShiftEntry(DayOfWeek dayOfWeek) {
-            this(dayOfWeek, true, true, true);
+            this(dayOfWeek, true, true);
         }
 
         public DayOfWeek getDayOfWeek() {
@@ -49,14 +46,6 @@ class ShiftDialog extends EnhancedDialog {
 
         public void setDayOfWeek(DayOfWeek dayOfWeek) {
             this.dayOfWeek = dayOfWeek;
-        }
-
-        public boolean isOpener() {
-            return opener;
-        }
-
-        public void setOpener(boolean opener) {
-            this.opener = opener;
         }
 
         public boolean isMorning() {
@@ -108,7 +97,7 @@ class ShiftDialog extends EnhancedDialog {
     public ShiftDialog(Shift shift) {
         super();
         this.date = shift.getFromDate();
-        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isOpener(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
         shiftUuid = null;
 
         setContent(getContent(false));
@@ -117,7 +106,7 @@ class ShiftDialog extends EnhancedDialog {
     public ShiftDialog(LocalDate date, Shift shift) {
         super();
         this.date = date;
-        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isOpener(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
+        this.entries = shift.getShiftDayStream().map(shiftDay -> new ShiftEntry(shiftDay.getDayOfWeek(), shiftDay.isMorning(), shiftDay.isAfternoon())).collect(Collectors.toList());
         this.shiftUuid = date.equals(shift.getFromDate()) ? shift.getUuid() : null;
 
         setContent(getContent(true));
@@ -146,7 +135,6 @@ class ShiftDialog extends EnhancedDialog {
         grid.setWidthFull();
 
         grid.addColumn(ShiftEntry::getDayOfWeek).setHeader("Day");
-        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isOpener(), enabled, l -> rostaEntry.setOpener(l.getValue())))).setHeader("Opener");
         grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isMorning(), enabled, l -> rostaEntry.setMorning(l.getValue())))).setHeader("Morning");
         grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isAfternoon(), enabled, l -> rostaEntry.setAfternoon(l.getValue())))).setHeader("Afternoon");
 

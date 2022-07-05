@@ -7,24 +7,22 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-import org.pjp.rosta.model.PartOfDayWithOpener;
-
 public class RostaDay {
 
     private final DayOfWeek dayofWeek;
-
-    private final Set<String> openerUserUuids = new HashSet<>();
 
     private final Set<String> morningUserUuids = new HashSet<>();
 
     private final Set<String> afternoonUserUuids = new HashSet<>();
 
+    private final Set<String> eveningUserUuids = new HashSet<>();
+
     private Map<PartOfDay, Set<String>> map = new HashMap<>();
 
     {
-        map.put(PartOfDay.OPENER, openerUserUuids);
         map.put(PartOfDay.MORNING, morningUserUuids);
         map.put(PartOfDay.AFTERNOON, afternoonUserUuids);
+        map.put(PartOfDay.EVENING, eveningUserUuids);
     }
 
     public RostaDay(DayOfWeek dayofWeek) {
@@ -33,12 +31,6 @@ public class RostaDay {
     }
 
     public void addUserUuid(org.pjp.rosta.model.PartOfDay partOfDay, String userUuid) {
-        if (partOfDay instanceof PartOfDayWithOpener withOpener) {
-            if (withOpener.isOpener()) {
-                openerUserUuids.add(userUuid);
-            }
-        }
-
         if (partOfDay.isMorning()) {
             morningUserUuids.add(userUuid);
         }
@@ -46,21 +38,25 @@ public class RostaDay {
         if (partOfDay.isAfternoon()) {
             afternoonUserUuids.add(userUuid);
         }
+
+        Boolean evening = partOfDay.isEvening();
+        if ((evening != null) && evening) {
+            eveningUserUuids.add(userUuid);
+        }
     }
 
     public void removeUserUuid(org.pjp.rosta.model.PartOfDay partOfDay, String userUuid) {
-        if (partOfDay instanceof PartOfDayWithOpener withOpener) {
-            if (withOpener.isOpener()) {
-                openerUserUuids.remove(userUuid);
-            }
-        }
-
         if (partOfDay.isMorning()) {
             morningUserUuids.remove(userUuid);
         }
 
         if (partOfDay.isAfternoon()) {
             afternoonUserUuids.remove(userUuid);
+        }
+
+        Boolean evening = partOfDay.isEvening();
+        if ((evening != null) && evening) {
+            eveningUserUuids.remove(userUuid);
         }
     }
 
@@ -73,12 +69,12 @@ public class RostaDay {
         StringBuilder builder = new StringBuilder();
         builder.append("RostaDay [dayofWeek=");
         builder.append(dayofWeek);
-        builder.append(", openerUserUuids=");
-        builder.append(openerUserUuids);
         builder.append(", morningUserUuids=");
         builder.append(morningUserUuids);
         builder.append(", afternoonUserUuids=");
         builder.append(afternoonUserUuids);
+        builder.append(", eveningUserUuids=");
+        builder.append(eveningUserUuids);
         builder.append("]");
         return builder.toString();
     }

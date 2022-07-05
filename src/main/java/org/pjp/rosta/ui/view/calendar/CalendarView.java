@@ -70,15 +70,37 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     static final String KEY_DAY_CLASS = "dayClass";
 
     private static String getTitle(PartOfDay partOfDay) {
-        if (partOfDay.isMorning() && partOfDay.isAfternoon()) {
-            return "All Day";
-        } else if (partOfDay.isMorning()) {
-            return "Morning";
-        } else if (partOfDay.isAfternoon()) {
-            return "Afternoon";
-        }
+        if (partOfDay.isEvening() == null) {
+            if (partOfDay.isAllDay()) {
+                return "All Day";
+            } else if (partOfDay.isMorning()) {
+                return "Morning";
+            } else if (partOfDay.isAfternoon()) {
+                return "Afternoon";
+            }
 
-        throw new IllegalStateException();
+            throw new IllegalStateException();
+        } else {
+            if (partOfDay.isAllDay()) {
+                return "All Day";
+            } else {
+                List<String> str = new ArrayList<>();
+
+                if (partOfDay.isMorning()) {
+                    str.add("Morning");
+                }
+
+                if (partOfDay.isAfternoon()) {
+                    str.add("Afternoon");
+                }
+
+                if (partOfDay.isEvening()) {
+                    str.add("Evening");
+                }
+
+                return String.join(" & ", str);
+            }
+        }
     }
 
     private static class MutableLocalDate {
@@ -337,7 +359,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                     shiftDialog.getEntries().forEach(entry -> {
                         ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
-                        shiftDay.setOpener(entry.isOpener());
                         shiftDay.setMorning(entry.isMorning());
                         shiftDay.setAfternoon(entry.isAfternoon());
                     });

@@ -46,7 +46,7 @@ class SummaryDialog extends EnhancedDialog {
                 text.append(day.toString());
                 text.append('\n');
 
-                dayCounter += day.isAllDay() ? 1 : 0.5;
+                dayCounter += day.getPartCount();
             });
             text.append("Total = " + dayCounter + " days");
             text.append('\n');
@@ -61,7 +61,7 @@ class SummaryDialog extends EnhancedDialog {
                 text.append(day.toString());
                 text.append('\n');
 
-                dayCounter += day.isAllDay() ? 1 : 0.5;
+                dayCounter += day.getPartCount();
             });
             text.append("Total = " + dayCounter + " days");
             text.append('\n');
@@ -75,7 +75,7 @@ class SummaryDialog extends EnhancedDialog {
                 text.append(day.toString());
                 text.append('\n');
 
-                dayCounter += day.isAllDay() ? 1 : 0.5;
+                dayCounter += day.getPartCount();
             });
             text.append("Total = " + dayCounter + " days");
             text.append('\n');

@@ -103,9 +103,6 @@ public class RostaService {
         }
     }
 
-    @Value("${check.rosta.include.opener}")
-    private boolean checkRostaIncludeOpener;
-
     @Value("${check.rosta.director.email}")
     private String checkRostaDirectorEmail;
 
@@ -186,7 +183,7 @@ public class RostaService {
             var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
             userRepo.save(user);
 
-            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, id);
+            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
     }
@@ -202,14 +199,6 @@ public class RostaService {
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
             RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
-
-            if (checkRostaIncludeOpener) {
-                LOGGER.debug("including the opener in rosta checks");
-
-                if (rostaDay.getUserUuids(PartOfDay.OPENER).size() == 0) {
-                    missingCover.add(new MissingCover(dayOfWeek, PartOfDay.OPENER, 0, false));
-                }
-            }
 
             for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
                 Set<String> userUuids = rostaDay.getUserUuids(partOfDay);

@@ -21,6 +21,11 @@ public final class Holiday extends AbstractDay {
     }
 
     @Override
+    public Boolean isEvening() {
+        return null;
+    }
+
+    @Override
     public String getColour() {
         return "#3333ff";
     }

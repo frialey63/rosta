@@ -24,7 +24,7 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
         };
     }
 
-    private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("E dd MMMM");
+    static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("E dd MMMM");
 
     @Id
     private String uuid;
@@ -70,6 +70,20 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
 
     public boolean isAllDay() {
         return morning && afternoon;
+    }
+
+    public float getPartCount() {
+        float count = 0;
+
+        if (morning) {
+            count += 0.5;
+        }
+
+        if (afternoon) {
+            count += 0.5;
+        }
+
+        return count;
     }
 
     public String getUserUuid() {
