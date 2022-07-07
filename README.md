@@ -10,7 +10,10 @@ Backup of the Mongo DB
 ## Sprint 2 Stories
 
 management reports of periods worked, holidays, absences, etc.
+
 CSV export for Excel analysis
+
+employee may also volunteer?
 
 ## Sprint 3 Stories
 
