@@ -66,6 +66,11 @@
             <version>4.1.2</version>
         </dependency>
         <dependency>
+           <groupId>org.vaadin.stefan</groupId>
+           <artifactId>html-table</artifactId>
+           <version>1.2.0</version>
+        </dependency>
+        <dependency>
            <groupId>org.vaadin.olli</groupId>
            <artifactId>file-download-wrapper</artifactId>
            <version>4.0.0</version>
