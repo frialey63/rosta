@@ -16,6 +16,7 @@ evening work periods
 ## Sprint 2 Stories
 
 management reports of periods worked, holidays, absences, etc.
+CSV export for Excel analysis
 
 notifications by SMS as well as by email?
 

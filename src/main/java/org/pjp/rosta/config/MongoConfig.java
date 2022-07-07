@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.Collections;
 
 import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
 
 import com.mongodb.ConnectionString;
@@ -11,6 +12,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
+@Profile("docker")
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
@@ -31,6 +33,6 @@ public class MongoConfig extends AbstractMongoClientConfiguration {
 
     @Override
     public Collection<String> getMappingBasePackages() {
-        return Collections.singleton("org.pjp.model");
+        return Collections.singleton("org.pjp.rosta.model");
     }
 }

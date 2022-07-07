@@ -130,7 +130,7 @@ public class RostaService {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public void initData() {
+    public void testData() {
         userRepo.deleteAll();
         shiftRepo.deleteAll();
         volunteerDayRepository.deleteAll();
