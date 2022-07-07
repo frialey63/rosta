@@ -28,7 +28,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     private static final long serialVersionUID = 4107623244717405998L;
 
-    @Value("${spring.profiles.active}")
+    @Value("${spring.profiles.active:default}")
     private String activeProfile;
 
     @Autowired
