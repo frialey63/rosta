@@ -167,7 +167,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         setFlexGrow(1, calendar);
 
         Span helpText = new Span("Click on a day to enter voluntary day, holiday and/or absence; click on week number to access shift pattern (employees only).");
-        helpText.getElement().getStyle().set("font-style", "italic");
+        helpText.getStyle().set("font-style", "italic");
 
         add(hl, calendar, helpText);
         setHorizontalComponentAlignment(Alignment.STRETCH, hl, calendar, helpText);
@@ -207,8 +207,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         // simulate the date picker light that we can use in polymer
         DatePicker gotoDate = new DatePicker();
         gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
-        gotoDate.getElement().getStyle().set("visibility", "hidden");
-        gotoDate.getElement().getStyle().set("position", "fixed");
+        gotoDate.getStyle().set("visibility", "hidden");
+        gotoDate.getStyle().set("position", "fixed");
         gotoDate.setWidth("0px");
         gotoDate.setHeight("0px");
         gotoDate.setWeekNumbersVisible(true);

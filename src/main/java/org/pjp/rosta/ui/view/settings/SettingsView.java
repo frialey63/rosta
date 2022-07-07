@@ -8,7 +8,9 @@ import org.springframework.beans.factory.annotation.Value;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableRow;
 
-import com.vaadin.flow.component.html.H1;
+import com.vaadin.flow.component.html.H2;
+import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -32,7 +34,7 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
     public SettingsView() {
         setSpacing(false);
 
-        add(new H1("Settings for Notifications"));
+        add(new H2("Notification Settings"));
 
         table = new Table();
         table.getElement().setAttribute("border", "1px solid black");
@@ -44,10 +46,15 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
 
         add(table);
 
+        Span helpText = new Span("These settings can be modified by your System Administrator.");
+        helpText.getStyle().set("font-style", "italic");
+
+        add(new Paragraph(), helpText);
+        setHorizontalComponentAlignment(Alignment.STRETCH, helpText);
+
         setSizeFull();
-        setJustifyContentMode(JustifyContentMode.CENTER);
+        setJustifyContentMode(JustifyContentMode.START);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
-        getStyle().set("text-align", "center");
     }
 
     @Override

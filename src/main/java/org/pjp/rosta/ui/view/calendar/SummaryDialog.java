@@ -83,7 +83,7 @@ class SummaryDialog extends EnhancedDialog {
 
         TextArea textArea = new TextArea();
         textArea.setValue(text.toString());
-        textArea.getElement().getStyle().set("font-family", "Courier");
+        textArea.getStyle().set("font-family", "Courier");
 
         VerticalLayout content = new VerticalLayout(textArea);
         content.setHorizontalComponentAlignment(Alignment.STRETCH, textArea);
