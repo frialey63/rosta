@@ -1,7 +1,9 @@
 package org.pjp.rosta;
 
 import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
 import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
@@ -26,8 +28,14 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     private static final long serialVersionUID = 4107623244717405998L;
 
+    @Value("${spring.profiles.active}")
+    private String activeProfile;
+
     @Autowired
-    private RostaService service;
+    private UserService userService;
+
+    @Autowired
+    private RostaService rostaService;
 
     public static void main(String[] args) {
         SpringApplication.run(RostaApplication.class, args);
@@ -35,11 +43,16 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        service.initData();
+        if ("docker".equals(activeProfile)) {
+            rostaService.testData();
+            return;
+        }
+
+        userService.initData();
     }
 
     @Scheduled(cron = "${check.rosta.cron}")
     public void checkRosta() {
-        service.checkRosta();
+        rostaService.checkRosta();
     }
 }
