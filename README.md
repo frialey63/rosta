@@ -4,6 +4,8 @@ Application for managing the museum's rota of volunteers and employees.
 ## Deployment
 
 SSL
+    https://www.thomasvitale.com/https-spring-boot-ssl-certificate/
+    https://www.baeldung.com/spring-boot-https-self-signed-certificate
 
 Backup of the Mongo DB
 
