@@ -16,4 +16,7 @@ public interface HolidayRepository extends MongoRepository<Holiday, String> {
     @Query(value = "{'userUuid':{ $eq: ?0}, 'date':{ $gte: ?1, $lte: ?2}}")
     List<Holiday> findAllByUserUuidAndDateBetween(String userUuid, LocalDate dateStart, LocalDate dateEnd);
 
+    @Query(value = "{'date':{ $gte: ?0, $lte: ?1}}")
+    List<Holiday> findAllByDateBetween(LocalDate dateStart, LocalDate dateEnd);
+
 }

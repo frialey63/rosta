@@ -130,6 +130,8 @@ public class RostaService {
     public void testData() {
         userRepo.deleteAll();
         shiftRepo.deleteAll();
+        absenceDayRepository.deleteAll();
+        holidayRepository.deleteAll();
         volunteerDayRepository.deleteAll();
 
         LocalDate date = LocalDate.of(2022, 5, 16);
@@ -154,16 +156,19 @@ public class RostaService {
 //
 //            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
 //            shiftRepo.save(shift);
-//
-//            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
-//            holidayRepository.save(holiday);
+
+            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
+            holidayRepository.save(holiday);
+
+            holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 7, 28), true, true, id);
+            holidayRepository.save(holiday);
         }
 
-//        {
-//            var id = UUID.randomUUID().toString();
-//            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
-//            userRepo.save(user);
-//
+        {
+            var id = UUID.randomUUID().toString();
+            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
+            userRepo.save(user);
+
 //            var shift = new Shift(UUID.randomUUID().toString(), date, id);
 //            shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
 //            shiftRepo.save(shift);
@@ -173,10 +178,16 @@ public class RostaService {
 //
 //            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
 //            shiftRepo.save(shift);
-//
-//            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
-//            holidayRepository.save(holiday);
-//        }
+
+            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
+            holidayRepository.save(holiday);
+
+            holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 7, 28), true, true, id);
+            holidayRepository.save(holiday);
+
+            holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 7, 29), true, true, id);
+            holidayRepository.save(holiday);
+        }
 
         {
             var id = UUID.randomUUID().toString();
@@ -184,6 +195,9 @@ public class RostaService {
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
+            volunteerDayRepository.save(VolunteerDay);
+
+            VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), LocalDate.of(2022, 7, 14), true, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
     }
@@ -388,6 +402,22 @@ public class RostaService {
         }
         if (dayTypes.contains(DayType.VOLUNTARY)) {
             result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
+        }
+
+        return result;
+    }
+
+    public List<AbstractDay> getDays(Set<DayType> dayTypes, LocalDate dateStart, LocalDate dateEnd) {
+        List<AbstractDay> result = new ArrayList<>();
+
+        if (dayTypes.contains(DayType.ABSENCE)) {
+            result.addAll(absenceDayRepository.findAllByDateBetween(dateStart, dateEnd));
+        }
+        if (dayTypes.contains(DayType.HOLIDAY)) {
+            result.addAll(holidayRepository.findAllByDateBetween(dateStart, dateEnd));
+        }
+        if (dayTypes.contains(DayType.VOLUNTARY)) {
+            result.addAll(volunteerDayRepository.findAllByDateBetween(dateStart, dateEnd));
         }
 
         return result;

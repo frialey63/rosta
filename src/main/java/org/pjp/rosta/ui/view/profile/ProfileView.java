@@ -40,7 +40,7 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     private final TextField email = new TextField("Email");
 
-    private final Checkbox employee = new Checkbox("Employee (shift pattern, holidays & absences)");
+    private final Checkbox employee = new Checkbox("Employee (Leave unchecked for volunteer)");
 
     private final Checkbox notifications = new Checkbox("Notifications for missing cover");
 

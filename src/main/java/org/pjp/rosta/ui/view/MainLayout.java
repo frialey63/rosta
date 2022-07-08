@@ -163,10 +163,11 @@ public class MainLayout extends AppLayout {
         if (admin) {
             return new MenuItemInfo[] {
                     new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
+                    new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
                     new MenuItemInfo("Mgmt Info", "la la-globe", ManagementInformationView.class),
                     new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class),
-                    new MenuItemInfo("Settings", "la la-globe", SettingsView.class),
                     new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
+                    new MenuItemInfo("Settings", "la la-globe", SettingsView.class),
                     new MenuItemInfo("About", "la la-file", AboutView.class),
             };
         }

@@ -2,7 +2,10 @@ package org.pjp.rosta.service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -72,6 +75,14 @@ public class UserService {
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
+    }
+
+    public Map<String, User> getAllNonAdmin() {
+        Map<String, User> map = new HashMap<>();
+
+        findAll().stream().filter(user -> !user.isAdmin()).forEach(user -> map.put(user.getUuid(), user));
+
+        return Collections.unmodifiableMap(map);
     }
 
     public User save(User user) {

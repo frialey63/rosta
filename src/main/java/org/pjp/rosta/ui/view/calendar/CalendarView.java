@@ -6,10 +6,11 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
@@ -56,7 +57,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
-@RolesAllowed("USER")
+@PermitAll
 @Route(value = "calendar", layout = MainLayout.class)
 public class CalendarView extends AbstractView implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
 
@@ -129,6 +130,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private final Button buttonDatePicker = new Button("", VaadinIcon.CALENDAR.create());
 
+    private final Button mySummary = new Button("My Summary", this::onMySummary);
+
     private EnhancedDialog dialog;
 
     private DatesRenderedEvent datesRenderedEvent;
@@ -147,8 +150,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         Span filler = new Span();
         setFlexGrow(1, filler);
-
-        Button mySummary = new Button("My Summary", this::onMySummary);
 
         HorizontalLayout hl = new CompactHorizontalLayout(menuBar, filler, mySummary);
         hl.setVerticalComponentAlignment(Alignment.CENTER, menuBar, filler, mySummary);
@@ -239,6 +240,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         optUser = userService.findByUsername(getUsername());
+
+        optUser.ifPresent(user -> {
+            if (user.isAdmin()) {
+                mySummary.setEnabled(false);
+            }
+        });
     }
 
     @Override
@@ -264,49 +271,78 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         calendar.removeAllEntries();
 
         optUser.ifPresent(user -> {
-            if (user.isEmployee()) {
-                LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+            if (user.isAdmin()) {
+                Map<String, User> userMap = userService.getAllNonAdmin();
 
-                while (monday.isBefore(end)) {
-                    LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-                    MutableLocalDate date = new MutableLocalDate(monday);
+                rostaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
+                    User entryUser = userMap.get(day.getUserUuid());
 
-                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
-                        shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
-                           if (shiftDay.isWorking()) {
-                               Entry entry = new Entry();
-                                entry.setStart(date.get());
-                                entry.setColor(shiftDay.getColour());
-                                entry.setAllDay(true);
-                                entry.setRenderingMode(RenderingMode.BACKGROUND);
+                    if (entryUser != null) {
+                        String title = entryUser.getDisplayName() + " - " + getTitle(day);
 
-                                calendar.addEntry(entry);
-                            }
+                        Entry entry = new Entry();
+                        entry.setCustomProperty(KEY_UUID, day.getUuid());
+                        entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+                        entry.setStart(day.getDate());
+                        entry.setColor(day.getColour());
+                        entry.setAllDay(true);
+                        entry.setTitle(title);	// TODO centre align the text in the entry on the calendar
+                        entry.setRenderingMode(RenderingMode.BLOCK);
 
-                           date.plusOneDay();
+                        entry.setDurationEditable(false);
+                        entry.setEditable(false);
+                        entry.setDurationEditable(false);
+
+                        calendar.addEntry(entry);
+                    }
+                });
+            } else {
+                if (user.isEmployee()) {
+                    LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+
+                    while (monday.isBefore(end)) {
+                        LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                        MutableLocalDate date = new MutableLocalDate(monday);
+
+                        rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                            shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
+                               if (shiftDay.isWorking()) {
+                                   Entry entry = new Entry();
+                                    entry.setStart(date.get());
+                                    entry.setColor(shiftDay.getColour());
+                                    entry.setAllDay(true);
+                                    entry.setRenderingMode(RenderingMode.BACKGROUND);
+
+                                    calendar.addEntry(entry);
+                                }
+
+                               date.plusOneDay();
+                            });
                         });
-                    });
 
-                    monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+                        monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+                    }
                 }
+
+                Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
+
+                rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
+                    Entry entry = new Entry();
+                    entry.setCustomProperty(KEY_UUID, day.getUuid());
+                    entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+                    entry.setStart(day.getDate());
+                    entry.setColor(day.getColour());
+                    entry.setAllDay(true);
+                    entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
+                    entry.setRenderingMode(RenderingMode.BLOCK);
+
+                    entry.setDurationEditable(false);
+                    entry.setEditable(false);
+                    entry.setDurationEditable(false);
+
+                    calendar.addEntry(entry);
+                });
             }
-
-            rostaService.getDays(user, Set.of(DayType.values()), start, end).forEach(day -> {
-                Entry entry = new Entry();
-                entry.setCustomProperty(KEY_UUID, day.getUuid());
-                entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                entry.setStart(day.getDate());
-                entry.setColor(day.getColour());
-                entry.setAllDay(true);
-                entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
-                entry.setRenderingMode(RenderingMode.BLOCK);
-
-                entry.setDurationEditable(false);
-                entry.setEditable(false);
-                entry.setDurationEditable(false);
-
-                calendar.addEntry(entry);
-            });
         });
     }
 
@@ -332,59 +368,61 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         optUser.ifPresent(user -> {
-            LocalDate date = event.getDate();
+            if (!user.isAdmin()) {
+                LocalDate date = event.getDate();
 
-            assert date.getDayOfWeek() == DayOfWeek.MONDAY;
+                assert date.getDayOfWeek() == DayOfWeek.MONDAY;
 
-            LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
-            LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+                LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-            if (date.isBefore(nowMonday)) {
-                rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
-                    dialog = new ShiftDialog(shift);
-                    dialog.setHeader("View Shift");
-                    dialog.setFooter(getDialogFooter());
-                    dialog.open();
-                }, () -> {
-                    dialog = new EnhancedDialog();
-                    dialog.setHeader("No Shift");
-                    dialog.setFooter(getDialogFooter());
-                    dialog.open();
-                });
-            } else {
-                Span filler = new Span();
-                CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
-                    ShiftDialog shiftDialog = (ShiftDialog) dialog;
-
-                    Shift shift = shiftDialog.isEdit() ? rostaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
-
-                    shiftDialog.getEntries().forEach(entry -> {
-                        ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
-                        shiftDay.setMorning(entry.isMorning());
-                        shiftDay.setAfternoon(entry.isAfternoon());
+                if (date.isBefore(nowMonday)) {
+                    rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
+                        dialog = new ShiftDialog(shift);
+                        dialog.setHeader("View Shift");
+                        dialog.setFooter(getDialogFooter());
+                        dialog.open();
+                    }, () -> {
+                        dialog = new EnhancedDialog();
+                        dialog.setHeader("No Shift");
+                        dialog.setFooter(getDialogFooter());
+                        dialog.open();
                     });
+                } else {
+                    Span filler = new Span();
+                    CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
+                        ShiftDialog shiftDialog = (ShiftDialog) dialog;
 
-                    rostaService.saveShift(shift);
+                        Shift shift = shiftDialog.isEdit() ? rostaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
 
-                    dialog.close();
+                        shiftDialog.getEntries().forEach(entry -> {
+                            ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
+                            shiftDay.setMorning(entry.isMorning());
+                            shiftDay.setAfternoon(entry.isAfternoon());
+                        });
 
-                    onComponentEvent(datesRenderedEvent);
+                        rostaService.saveShift(shift);
 
-                }), new Button("Cancel", this::onCancel));
-                footer.setAlignItems(Alignment.STRETCH);
-                footer.setFlexGrow(1, filler);
+                        dialog.close();
 
-                rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
-                    dialog = new ShiftDialog(date, shift);
-                    dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
-                    dialog.setFooter(footer);
-                    dialog.open();
-                }, () -> {
-                    dialog = new ShiftDialog(date);
-                    dialog.setHeader("New Shift");
-                    dialog.setFooter(footer);
-                    dialog.open();
-                });
+                        onComponentEvent(datesRenderedEvent);
+
+                    }), new Button("Cancel", this::onCancel));
+                    footer.setAlignItems(Alignment.STRETCH);
+                    footer.setFlexGrow(1, filler);
+
+                    rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
+                        dialog = new ShiftDialog(date, shift);
+                        dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
+                        dialog.setFooter(footer);
+                        dialog.open();
+                    }, () -> {
+                        dialog = new ShiftDialog(date);
+                        dialog.setHeader("New Shift");
+                        dialog.setFooter(footer);
+                        dialog.open();
+                    });
+                }
             }
         });
     }

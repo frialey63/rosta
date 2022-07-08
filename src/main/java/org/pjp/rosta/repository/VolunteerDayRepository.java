@@ -16,4 +16,7 @@ public interface VolunteerDayRepository extends MongoRepository<VolunteerDay, St
     @Query(value = "{'userUuid':{ $eq: ?0}, 'date':{ $gte: ?1, $lte: ?2}}")
     List<VolunteerDay> findAllByUserUuidAndDateBetween(String userUuid, LocalDate dateStart, LocalDate dateEnd);
 
+    @Query(value = "{'date':{ $gte: ?0, $lte: ?1}}")
+    List<VolunteerDay> findAllByDateBetween(LocalDate dateStart, LocalDate dateEnd);
+
 }

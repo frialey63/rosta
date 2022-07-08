@@ -47,7 +47,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     public ManagementInformationView() {
         setSpacing(false);
 
-        H2 h2 = new H2("Management Information");
+        H2 h2 = new H2("Management Information (TBC)");
         add(h2);
         setHorizontalComponentAlignment(Alignment.CENTER, h2);
 
