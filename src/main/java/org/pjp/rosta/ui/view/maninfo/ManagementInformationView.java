@@ -15,15 +15,18 @@ import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
 @PermitAll
 @PageTitle("Management Information")
 @Route(value = "maninfo", layout = MainLayout.class)
-public class ManagementInformationView extends AbstractView implements ComponentEventListener<ClickEvent<Button>> {
+public class ManagementInformationView extends AbstractView implements AfterNavigationObserver, ComponentEventListener<ClickEvent<Button>> {
 
-    private enum UserType { ALL, EMPLOYEE, VOLUNTEER }
+    private enum UserType { ALL, EMPLOYEE, VOLUNTEER, SPECIFIC }
 
     private enum RangeType { YEAR, MONTH, CUSTOM }
 
@@ -32,6 +35,8 @@ public class ManagementInformationView extends AbstractView implements Component
     private final RadioButtonGroup<UserType> userType = new RadioButtonGroup<>();
 
     private final RadioButtonGroup<RangeType> rangeType = new RadioButtonGroup<>();
+
+    private final Select<String> selectUser = new Select<>();
 
     private final DatePicker startDate = new DatePicker("Start Date");
     private final DatePicker endDate = new DatePicker("End Date");
@@ -68,6 +73,10 @@ public class ManagementInformationView extends AbstractView implements Component
         rangeType.setValue(RangeType.YEAR);
 
         detailsRow = table.addRow();
+        detailsRow.addDataCell().setText("Specific User:");
+        detailsRow.addDataCell().add(selectUser);
+
+        detailsRow = table.addRow();
         detailsRow.addDataCell().setText("Range Criteria:");
         detailsRow.addDataCell().add(rangeType);
 
@@ -97,6 +106,11 @@ public class ManagementInformationView extends AbstractView implements Component
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.START);
         setDefaultHorizontalComponentAlignment(Alignment.START);
+    }
+
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
+
     }
 
     @Override
