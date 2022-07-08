@@ -15,8 +15,6 @@ management reports of periods worked, holidays, absences, etc.
 
 CSV export for Excel analysis
 
-employee may also volunteer?
-
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?
