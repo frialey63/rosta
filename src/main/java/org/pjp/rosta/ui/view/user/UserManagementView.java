@@ -27,6 +27,8 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     private static final long serialVersionUID = -8981630272855085797L;
 
+    private static final boolean SHOW_NOTIFICATIONS = true;
+
     private final GridCrud<User> crud = new GridCrud<>(User.class);
 
     @Autowired
@@ -40,13 +42,13 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
         crud.addUpdateButtonColumn();
-        crud.setShowNotifications(false);
+        crud.setShowNotifications(SHOW_NOTIFICATIONS);
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
         crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
-        crud.getCrudFormFactory().setShowNotifications(false);
+        crud.getCrudFormFactory().setShowNotifications(SHOW_NOTIFICATIONS);
 
         // logic configuration
         crud.setOperations(

@@ -156,7 +156,7 @@ public class UserService {
         return result;
     }
 
-    public void registerUser(UserBean userBean) {
+    public String registerUser(UserBean userBean) {
         LOGGER.info("registering user {}", userBean);
 
         String name = userBean.getFirstName() + " " + userBean.getLastName();
@@ -172,5 +172,7 @@ public class UserService {
         userRepository.save(user);
 
         LOGGER.info("user registered as {}", user);
+
+        return username;
     }
 }

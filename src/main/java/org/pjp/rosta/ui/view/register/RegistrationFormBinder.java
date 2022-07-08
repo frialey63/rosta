@@ -4,6 +4,7 @@ import org.pjp.rosta.service.UserService;
 
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.Notification.Position;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
 import com.vaadin.flow.data.binder.ValidationException;
@@ -66,10 +67,10 @@ public class RegistrationFormBinder {
                 binder.writeBean(userBean);
 
                 // Typically, you would here call backend to store the bean
-                userService.registerUser(userBean);
+                String username = userService.registerUser(userBean);
 
                 // Show success message if everything went well
-                showSuccess(userBean);
+                showSuccess(userBean, username);
 
                 UI.getCurrent().navigate("login");
 
@@ -118,8 +119,9 @@ public class RegistrationFormBinder {
     /**
      * We call this method when form submission has succeeded
      */
-    private void showSuccess(UserBean userBean) {
-        Notification notification = Notification.show("Data saved, welcome " + userBean.getFirstName());
+    private void showSuccess(UserBean userBean, String username) {
+        Notification notification = Notification.show("Data saved, welcome " + userBean.getFirstName() + ". You may now login using the username of " + username, 60_000, Position.BOTTOM_START);
+
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }
 }

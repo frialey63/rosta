@@ -6,6 +6,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.RostaUserPrincipal;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
+import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -84,6 +85,9 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
                  }
              } catch (ValidationException ex) {
                  // nothing to do
+             } catch (ExistingUser ex) {
+                 Notification.show("Unable to save profile, check username for uniqueness");
+                 populateUser();
              }
         });
         Button reset = new Button("Reset", e -> binder.readBean(user));
@@ -105,6 +109,10 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        populateUser();
+    }
+
+    private void populateUser() {
         String username = securityUtil.getAuthenticatedUser().getUsername();
 
         userService.findByUsername(username).ifPresent(user -> {
