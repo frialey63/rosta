@@ -5,6 +5,7 @@ import javax.annotation.security.PermitAll;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.pjp.rosta.ui.view.MyDatePicker;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableRow;
 
@@ -38,8 +39,8 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private final Select<String> selectUser = new Select<>();
 
-    private final DatePicker startDate = new DatePicker("Start Date");
-    private final DatePicker endDate = new DatePicker("End Date");
+    private final DatePicker startDate = new MyDatePicker("Start Date");
+    private final DatePicker endDate = new MyDatePicker("End Date");
 
     private Table results;
 

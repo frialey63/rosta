@@ -24,6 +24,7 @@ import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.pjp.rosta.ui.view.MyDatePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -205,7 +206,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         MenuBar menuBar = new MenuBar();
 
         // simulate the date picker light that we can use in polymer
-        DatePicker gotoDate = new DatePicker();
+        DatePicker gotoDate = new MyDatePicker();
         gotoDate.addValueChangeListener(event1 -> calendar.gotoDate(event1.getValue()));
         gotoDate.getStyle().set("visibility", "hidden");
         gotoDate.getStyle().set("position", "fixed");

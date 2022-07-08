@@ -36,8 +36,12 @@ class ShiftDialog extends EnhancedDialog {
             this.afternoon = afternoon;
         }
 
+        public ShiftEntry(DayOfWeek dayOfWeek, boolean allDay) {
+            this(dayOfWeek, allDay, allDay);
+        }
+
         public ShiftEntry(DayOfWeek dayOfWeek) {
-            this(dayOfWeek, true, true);
+            this(dayOfWeek, !isWeekend(dayOfWeek));
         }
 
         public DayOfWeek getDayOfWeek() {
@@ -73,6 +77,10 @@ class ShiftDialog extends EnhancedDialog {
             setValue(initialValue);
             setEnabled(enabled);
         }
+    }
+
+    private static boolean isWeekend(DayOfWeek dayOfWeek) {
+        return (dayOfWeek == DayOfWeek.SATURDAY) || (dayOfWeek == DayOfWeek.SUNDAY);
     }
 
     private static final long serialVersionUID = -4941020550845994051L;

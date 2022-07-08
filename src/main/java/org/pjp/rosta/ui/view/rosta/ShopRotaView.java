@@ -23,6 +23,7 @@ import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.pjp.rosta.ui.view.MyDatePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -132,7 +133,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
 
     private final Span labelSpan = new Span("Week beginning:");
 
-    private final DatePicker datePicker = new DatePicker();
+    private final DatePicker datePicker = new MyDatePicker();
 
     private Registration registration;
 
