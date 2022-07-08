@@ -45,8 +45,10 @@ import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -444,14 +446,23 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
 
-            if (!hasExistingEntry(startDate)) {
-                if (!startDate.isBefore(LocalDate.now())) {
-                    String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
+            if (!startDate.isBefore(LocalDate.now())) {
+                if (user.isAdmin()) {
+                    String header = "Add Holiday or Absence";
 
-                    dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
+                    dialog = new CreateDialog(startDate, user.getUuid());
                     dialog.setHeader(header);
-                    dialog.setFooter(getDialogFooter(true, false));
+                    dialog.setFooter(getDialogFooter(true, true, false));
                     dialog.open();
+                } else {
+                    if (!hasExistingEntry(startDate)) {
+                        String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
+
+                        dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
+                        dialog.setHeader(header);
+                        dialog.setFooter(getDialogFooter(true, false));
+                        dialog.open();
+                    }
                 }
             }
         });
@@ -504,11 +515,27 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         dialog.close();
     }
 
-    private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
+    private void onSwitch(ComponentValueChangeEvent<Checkbox, Boolean> event) {
+        boolean employee = event.getValue();
+
+        String header = String.format("Add %s", (employee ? "Holiday or Absence" : "Volunteer Day"));
+
+        dialog.setHeader(header);
+        ((CreateDialog) dialog).reconfigure(employee);
+    }
+
+    private HorizontalLayout getDialogFooter(boolean employeeCheckbox, boolean save, boolean delete) {
         Span filler = new Span();
 
         List<Component> children = new ArrayList<>();
         children.add(filler);
+
+        if (employeeCheckbox) {
+            Checkbox employee = new Checkbox("Employee", true);
+            employee.addValueChangeListener(this::onSwitch);
+
+            children.add(employee);
+        }
 
         if (save) {
             children.add(new Button("Save", this::onCreate));
@@ -522,13 +549,18 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         HorizontalLayout footer = new CompactHorizontalLayout(children.toArray(new Component[0]));
         footer.setAlignItems(Alignment.STRETCH);
+        footer.setVerticalComponentAlignment(Alignment.CENTER, children.toArray(new Component[0]));
         footer.setFlexGrow(1, filler);
 
         return footer;
     }
 
+    private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
+        return getDialogFooter(false, save, delete);
+    }
+
     private HorizontalLayout getDialogFooter() {
-        return getDialogFooter(false, false);
+        return getDialogFooter(false, false, false);
     }
 
 }

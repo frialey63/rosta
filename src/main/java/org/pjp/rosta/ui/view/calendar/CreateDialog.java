@@ -17,7 +17,7 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 class CreateDialog extends EnhancedDialog implements PartOfDay {
     private static final long serialVersionUID = -6123213676333349968L;
 
-    private final boolean employee;
+    private boolean employee;
 
     private final LocalDate date;
 
@@ -37,6 +37,31 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         this.date = date;
         this.userUuid = userUuid;
 
+        addCheckboxListeners(employee);
+
+        setContent(getContent());
+    }
+
+    public CreateDialog(LocalDate date, String userUuid) {
+        super();
+        this.employee = true;
+        this.date = date;
+        this.userUuid = userUuid;
+
+        addCheckboxListeners(employee);
+
+        setContent(getContent());
+    }
+
+    public void reconfigure(boolean employee) {
+        this.employee = employee;
+
+        addCheckboxListeners(employee);
+
+        setContent(getContent());
+    }
+
+    private void addCheckboxListeners(boolean employee) {
         if (employee) {
             morning.addValueChangeListener(l -> {
                 if (!l.getValue() && !afternoon.getValue()) {
@@ -71,9 +96,6 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
                 }
             });
         }
-
-
-        setContent(getContent());
     }
 
     private Component getContent() {
