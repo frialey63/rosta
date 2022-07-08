@@ -1,2 +1,2 @@
 @echo off
-java -jar rosta-0.0.1-SNAPSHOT.jar
+java -jar rosta-0.1.0-SNAPSHOT.jar
