@@ -29,6 +29,8 @@ planning of tasks
 
 ## Done
 
+the admin user should be able to add/delete days in the calendar on behalf of other users
+
 remove opener concept
 
 evening work periods
