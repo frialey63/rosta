@@ -413,4 +413,23 @@ public class RostaService {
     public void saveShift(Shift shift) {
         shiftRepo.save(shift);
     }
+
+    public void deleteUser(User user) {
+        if (user.isEmployee()) {
+            List<String> uuids = holidayRepository.findAllByUserUuid(user.getUuid()).stream().map(AbstractDay::getUuid).collect(Collectors.toList());
+            holidayRepository.deleteAllById(uuids);
+
+            uuids = absenceDayRepository.findAllByUserUuid(user.getUuid()).stream().map(AbstractDay::getUuid).collect(Collectors.toList());
+            absenceDayRepository.deleteAllById(uuids);
+
+            uuids = shiftRepo.findAllByUserUuid(user.getUuid()).stream().map(Shift::getUuid).collect(Collectors.toList());
+            shiftRepo.deleteAllById(uuids);;
+
+        } else {
+            List<String> uuids = volunteerDayRepository.findAllByUserUuid(user.getUuid()).stream().map(AbstractDay::getUuid).collect(Collectors.toList());
+            volunteerDayRepository.deleteAllById(uuids);
+        }
+
+        userRepo.delete(user);
+    }
 }

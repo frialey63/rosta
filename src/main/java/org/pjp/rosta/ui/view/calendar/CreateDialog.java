@@ -29,7 +29,7 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
     private final Checkbox afternoon = new Checkbox("Afternoon", true);
 
-    private final Checkbox evening = new Checkbox("Evening", true);
+    private final Checkbox evening = new Checkbox("Evening", false);
 
     public CreateDialog(boolean employee, LocalDate date, String userUuid) {
         super();

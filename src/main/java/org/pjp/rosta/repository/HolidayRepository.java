@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface HolidayRepository extends MongoRepository<Holiday, String> {
 
+    List<Holiday> findAllByUserUuid(String userUuid);
+
     @Query(value = "{'userUuid':{ $eq: ?0}, 'date':{ $gte: ?1, $lte: ?2}}")
     List<Holiday> findAllByUserUuidAndDateBetween(String userUuid, LocalDate dateStart, LocalDate dateEnd);
 

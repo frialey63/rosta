@@ -7,7 +7,6 @@ import java.util.Optional;
 import java.util.UUID;
 
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
 import org.pjp.rosta.ui.view.register.UserBean;
@@ -43,14 +42,11 @@ public class UserService {
 
     private final UserRepository userRepository;
 
-    private final ShiftRepository shiftRepository;
-
     private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository, ShiftRepository shiftRepository, EmailService emailService) {
+    public UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
-        this.shiftRepository = shiftRepository;
         this.emailService = emailService;
     }
 
@@ -103,14 +99,6 @@ public class UserService {
 
         LOGGER.debug("saving user {}", user);
         return userRepository.save(user);
-    }
-
-    public void delete(User user) {
-        if (shiftRepository.countAllByUserUuid(user.getUuid()) > 0) {
-            throw new UserInUsage();
-        }
-
-        userRepository.delete(user);
     }
 
     public int forgotPassword(String username) {

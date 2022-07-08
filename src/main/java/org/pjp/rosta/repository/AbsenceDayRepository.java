@@ -11,6 +11,8 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface AbsenceDayRepository extends MongoRepository<AbsenceDay, String> {
 
+    List<AbsenceDay> findAllByUserUuid(String userUuid);
+
     @Query(value = "{'userUuid':{ $eq: ?0}, 'date':{ $gte: ?1, $lte: ?2}}")
     List<AbsenceDay> findAllByUserUuidAndDateBetween(String userUuid, LocalDate dateStart, LocalDate dateEnd);
 
