@@ -5,10 +5,13 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 
@@ -39,21 +42,21 @@ import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
+import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
-import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
 import com.vaadin.flow.component.menubar.MenuBar;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
+import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
@@ -450,7 +453,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 if (user.isAdmin()) {
                     String header = "Add Holiday or Absence";
 
-                    dialog = new CreateDialog(startDate, user.getUuid());
+                    dialog = new CreateDialog(startDate);
                     dialog.setHeader(header);
                     dialog.setFooter(getDialogFooter(true, true, false));
                     dialog.open();
@@ -458,7 +461,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     if (!hasExistingEntry(startDate)) {
                         String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
-                        dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
+                        dialog = new CreateDialog(startDate, user.isEmployee(), user);
                         dialog.setHeader(header);
                         dialog.setFooter(getDialogFooter(true, false));
                         dialog.open();
@@ -477,7 +480,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         LocalDate date = createDialog.getDate();
 
-        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, createDialog.getUserUuid());
+        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, createDialog.getUser().getUuid());
+
+        String title = (optUser.get().isAdmin() ? createDialog.getUser().getDisplayName() + " - " : "") + getTitle(createDialog);
 
         Entry entry = new Entry();
         entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -485,7 +490,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setStart(date);
         entry.setColor(day.getColour());
         entry.setAllDay(true);
-        entry.setTitle(getTitle(createDialog)); 	// TODO centre align the text in the entry on the calendar
+        entry.setTitle(title); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
 
         entry.setDurationEditable(false);
@@ -515,34 +520,47 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         dialog.close();
     }
 
-    private void onSwitch(ComponentValueChangeEvent<Checkbox, Boolean> event) {
-        boolean employee = event.getValue();
+    private void onUserSelect(ComponentValueChangeEvent<Select<User>, User> event) {
+        User user = event.getValue();
+        boolean employee = user.isEmployee();
 
         String header = String.format("Add %s", (employee ? "Holiday or Absence" : "Volunteer Day"));
-
         dialog.setHeader(header);
-        ((CreateDialog) dialog).reconfigure(employee);
+
+        CreateDialog createDialog = (CreateDialog) dialog;
+        createDialog.reconfigure(employee);
+        createDialog.setUser(user);
     }
 
-    private HorizontalLayout getDialogFooter(boolean employeeCheckbox, boolean save, boolean delete) {
+    private HorizontalLayout getDialogFooter(boolean userSelect, boolean save, boolean delete) {
         Span filler = new Span();
 
         List<Component> children = new ArrayList<>();
         children.add(filler);
 
-        if (employeeCheckbox) {
-            Checkbox employee = new Checkbox("Employee", true);
-            employee.addValueChangeListener(this::onSwitch);
-
-            children.add(employee);
-        }
-
+        Button saveButton = new Button("Save", this::onCreate);
         if (save) {
-            children.add(new Button("Save", this::onCreate));
+            children.add(saveButton);
         }
 
         if (delete) {
             children.add(new Button("Delete", this::onDelete));
+        }
+
+        if (userSelect) {
+            List<User> values = userService.getAllNonAdmin().values().stream().sorted().collect(Collectors.toList());
+
+            Select<User> selector = new Select<>();
+            selector.setItems(values);
+            selector.addValueChangeListener(this::onUserSelect);
+
+            if (values.isEmpty()) {
+                saveButton.setEnabled(false);
+            } else {
+                selector.setValue(values.get(0));
+            }
+
+            children.add(0, selector);
         }
 
         children.add(new Button("Cancel", this::onCancel));

@@ -4,6 +4,7 @@ import java.time.LocalDate;
 
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
+import org.pjp.rosta.model.User;
 import org.pjp.rosta.ui.util.CompactVerticalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
@@ -17,11 +18,11 @@ import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 class CreateDialog extends EnhancedDialog implements PartOfDay {
     private static final long serialVersionUID = -6123213676333349968L;
 
-    private boolean employee;
-
     private final LocalDate date;
 
-    private final String userUuid;
+    private boolean employee;
+
+    private User user;
 
     private final RadioButtonGroup<DayType> dayType = new RadioButtonGroup<>();
 
@@ -31,22 +32,21 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
     private final Checkbox evening = new Checkbox("Evening", false);
 
-    public CreateDialog(boolean employee, LocalDate date, String userUuid) {
+    public CreateDialog(LocalDate date, boolean employee, User user) {
         super();
-        this.employee = employee;
         this.date = date;
-        this.userUuid = userUuid;
+        this.employee = employee;
+        this.user = user;
 
         addCheckboxListeners(employee);
 
         setContent(getContent());
     }
 
-    public CreateDialog(LocalDate date, String userUuid) {
+    public CreateDialog(LocalDate date) {
         super();
-        this.employee = true;
         this.date = date;
-        this.userUuid = userUuid;
+        this.employee = true;
 
         addCheckboxListeners(employee);
 
@@ -123,16 +123,24 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         return content;
     }
 
-    public DayType getDayType() {
-        return employee ? dayType.getValue() : DayType.VOLUNTARY;
+    public LocalDate getDate() {
+        return date;
     }
 
     public boolean isEmployee() {
         return employee;
     }
 
-    public LocalDate getDate() {
-        return date;
+    public User getUser() {
+        return user;
+    }
+
+    public void setUser(User user) {
+        this.user = user;
+    }
+
+    public DayType getDayType() {
+        return employee ? dayType.getValue() : DayType.VOLUNTARY;
     }
 
     @Override
@@ -161,7 +169,4 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         return allDay;
     }
 
-    public String getUserUuid() {
-        return userUuid;
-    }
 }

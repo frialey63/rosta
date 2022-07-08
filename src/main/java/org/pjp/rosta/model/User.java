@@ -165,33 +165,7 @@ public class User implements Comparable<User> {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("User [uuid=");
-        builder.append(uuid);
-        builder.append(", username=");
-        builder.append(username);
-        builder.append(", admin=");
-        builder.append(admin);
-        builder.append(", name=");
-        builder.append(name);
-        builder.append(", password=");
-        builder.append(password);
-        builder.append(", passwordChange=");
-        builder.append(passwordChange);
-        builder.append(", passwordExpiry=");
-        builder.append(passwordExpiry);
-        builder.append(", enabled=");
-        builder.append(enabled);
-        builder.append(", email=");
-        builder.append(email);
-        builder.append(", notifications=");
-        builder.append(notifications);
-        builder.append(", employee=");
-        builder.append(employee);
-        builder.append(", keyholder=");
-        builder.append(keyholder);
-        builder.append("]");
-        return builder.toString();
+        return getDisplayName();
     }
 
     @Override
