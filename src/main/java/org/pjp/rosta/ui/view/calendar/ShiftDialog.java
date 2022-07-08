@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.pjp.rosta.model.Shift;
-import org.pjp.rosta.ui.view.CompactVerticalLayout;
+import org.pjp.rosta.ui.util.CompactVerticalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;

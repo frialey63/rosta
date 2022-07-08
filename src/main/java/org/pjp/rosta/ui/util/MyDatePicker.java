@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.view;
+package org.pjp.rosta.ui.util;
 
 import com.vaadin.flow.component.datepicker.DatePicker;
 

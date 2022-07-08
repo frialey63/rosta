@@ -145,38 +145,38 @@ public class RostaService {
             var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
             userRepo.save(user);
 
-            var shift = new Shift(UUID.randomUUID().toString(), date, id);
-            shift.getShiftDay(DayOfWeek.MONDAY).setMorning(false);
-            shiftRepo.save(shift);
-
-            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
-            shiftRepo.save(shift);
-
-            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
-            shiftRepo.save(shift);
-
-            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
-            holidayRepository.save(holiday);
+//            var shift = new Shift(UUID.randomUUID().toString(), date, id);
+//            shift.getShiftDay(DayOfWeek.MONDAY).setMorning(false);
+//            shiftRepo.save(shift);
+//
+//            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
+//            shiftRepo.save(shift);
+//
+//            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
+//            shiftRepo.save(shift);
+//
+//            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
+//            holidayRepository.save(holiday);
         }
 
-        {
-            var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
-            userRepo.save(user);
-
-            var shift = new Shift(UUID.randomUUID().toString(), date, id);
-            shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
-            shiftRepo.save(shift);
-
-            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
-            shiftRepo.save(shift);
-
-            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
-            shiftRepo.save(shift);
-
-            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
-            holidayRepository.save(holiday);
-        }
+//        {
+//            var id = UUID.randomUUID().toString();
+//            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
+//            userRepo.save(user);
+//
+//            var shift = new Shift(UUID.randomUUID().toString(), date, id);
+//            shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
+//            shiftRepo.save(shift);
+//
+//            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
+//            shiftRepo.save(shift);
+//
+//            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
+//            shiftRepo.save(shift);
+//
+//            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
+//            holidayRepository.save(holiday);
+//        }
 
         {
             var id = UUID.randomUUID().toString();

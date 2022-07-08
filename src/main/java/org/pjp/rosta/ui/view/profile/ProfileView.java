@@ -7,8 +7,8 @@ import org.pjp.rosta.security.RostaUserPrincipal;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
+import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.AbstractView;
-import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.springframework.beans.factory.annotation.Autowired;
 

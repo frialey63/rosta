@@ -4,7 +4,7 @@ import java.time.LocalDate;
 
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
-import org.pjp.rosta.ui.view.CompactVerticalLayout;
+import org.pjp.rosta.ui.util.CompactVerticalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;

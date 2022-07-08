@@ -2,10 +2,10 @@ package org.pjp.rosta.ui.view.maninfo;
 
 import javax.annotation.security.PermitAll;
 
+import org.pjp.rosta.ui.util.CompactHorizontalLayout;
+import org.pjp.rosta.ui.util.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
-import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
-import org.pjp.rosta.ui.view.MyDatePicker;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableRow;
 

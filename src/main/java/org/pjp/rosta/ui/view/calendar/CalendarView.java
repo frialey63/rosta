@@ -21,10 +21,10 @@ import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
+import org.pjp.rosta.ui.util.CompactHorizontalLayout;
+import org.pjp.rosta.ui.util.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
-import org.pjp.rosta.ui.view.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.MainLayout;
-import org.pjp.rosta.ui.view.MyDatePicker;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -406,15 +406,21 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
 
-            if (!startDate.isBefore(LocalDate.now())) {
-                String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
+            if (!hasExistingEntry(startDate)) {
+                if (!startDate.isBefore(LocalDate.now())) {
+                    String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
-                dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
-                dialog.setHeader(header);
-                dialog.setFooter(getDialogFooter(true, false));
-                dialog.open();
+                    dialog = new CreateDialog(user.isEmployee(), startDate, user.getUuid());
+                    dialog.setHeader(header);
+                    dialog.setFooter(getDialogFooter(true, false));
+                    dialog.open();
+                }
             }
         });
+    }
+
+    private boolean hasExistingEntry(LocalDate date) {
+        return calendar.getEntries().stream().filter(e -> e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
     }
 
     private void onCreate(ClickEvent<Button> event) {

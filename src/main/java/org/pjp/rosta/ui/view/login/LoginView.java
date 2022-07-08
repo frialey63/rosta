@@ -1,7 +1,7 @@
 package org.pjp.rosta.ui.view.login;
 
 import org.pjp.rosta.service.UserService;
-import org.pjp.rosta.ui.view.CompactHorizontalLayout;
+import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
