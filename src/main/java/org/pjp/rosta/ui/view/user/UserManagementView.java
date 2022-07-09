@@ -9,6 +9,9 @@ import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
@@ -30,7 +33,12 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     private static final boolean SHOW_NOTIFICATIONS = true;
 
+    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
     private final GridCrud<User> crud = new GridCrud<>(User.class);
+
+    @Value("${admin.manage.password:false}")
+    private boolean adminManagePassword;
 
     @Autowired
     private UserService userService;
@@ -39,7 +47,6 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     private RostaService rostaService;
 
     public UserManagementView() {
-
         // grid configuration
         crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee", "keyholder");
         crud.getGrid().setColumnReorderingAllowed(true);
@@ -64,7 +71,6 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
         crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
-        crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
         crud.getCrudFormFactory().setShowNotifications(SHOW_NOTIFICATIONS);
 
         // logic configuration
@@ -98,6 +104,12 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        if (adminManagePassword) {
+            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "password", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+        } else {
+            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+        }
+
         crud.refreshGrid();
     }
 
@@ -115,6 +127,11 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     private User addUser(UserService service, User user) {
         try {
+            if (adminManagePassword) {
+                user.setPassword("{bcrypt}" + passwordEncoder.encode(user.getPassword()));
+                user.setPasswordChange(true);
+            }
+
             return service.save(user);
         } catch (ExistingUser e) {
             throw new CrudOperationException("A user with this name already exists");

@@ -96,11 +96,14 @@ public class UserService {
                 throw new ExistingUser();
             });
 
-            String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
-
             user.setUuid(UUID.randomUUID().toString());
-            user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
-            user.setPasswordExpiry(null);	// in this scenario it is necessary for the user to perform "forgot password" process
+
+            if (user.getPassword() == null) {
+                String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
+
+                user.setPassword("{bcrypt}" + passwordEncoder.encode(newPassword));
+                user.setPasswordExpiry(null);	// in this scenario it is necessary for the user to perform "forgot password" process
+            }
         } else {
             userRepository.findById(user.getUuid()).ifPresent(existingUser -> {
                 String username = user.getUsername();
