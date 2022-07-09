@@ -9,6 +9,10 @@ SSL
 
 Backup of the Mongo DB
 
+## Bugs
+
+duplicated notifications from crudui
+
 ## Sprint 2 Stories
 
 management reports of periods worked, holidays, absences, etc.
