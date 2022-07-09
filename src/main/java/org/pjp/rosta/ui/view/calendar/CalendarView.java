@@ -458,7 +458,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     dialog.setFooter(getDialogFooter(true, true, false));
                     dialog.open();
                 } else {
-                    if (!hasExistingEntry(startDate)) {
+                    if (!hasExistingEntry(RenderingMode.BLOCK, startDate)) {
                         String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
                         dialog = new CreateDialog(startDate, user.isEmployee(), user);
@@ -471,8 +471,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
-    private boolean hasExistingEntry(LocalDate date) {
-        return calendar.getEntries().stream().filter(e -> e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
+    private boolean hasExistingEntry(RenderingMode renderingMode, LocalDate date) {
+        return calendar.getEntries().stream().filter(e -> (e.getRenderingMode() == renderingMode) && e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
     }
 
     private void onCreate(ClickEvent<Button> event) {
