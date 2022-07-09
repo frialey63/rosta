@@ -53,6 +53,8 @@ import org.springframework.util.FileCopyUtils;
 @Service
 public class RostaService {
 
+    private static final int MIN_COVER_COUNT = 2;
+
     private static final String EMAIL_TEMPLATE = "classpath:email-template.txt";
 
     private static final String DIRECTOR_TEMPLATE = "classpath:director-template.txt";
@@ -213,7 +215,7 @@ public class RostaService {
                 int count = userUuids.size();
                 boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid)).flatMap(Optional::stream).filter(User::isKeyholder).findFirst().isPresent();
 
-                if ((count < 2) || !keyholder) {
+                if ((count < MIN_COVER_COUNT) || !keyholder) {
                     missingCover.add(new MissingCover(dayOfWeek, partOfDay, count, keyholder));
                 }
             }

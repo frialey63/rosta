@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<service>
+    <id>winsw-rosta</id>
+    <name>winsw-rosta</name>
+    <description>Rosta Windows Service</description>
+    <executable>java</executable>
+    <arguments>-jar "rosta-0.1.1-SNAPSHOT.jar"</arguments>
+<!--
+    <workingdirectory>C:\myApp\work</workingdirectory>
+-->
+<!--
+    <serviceaccount>
+        <domain>YOURDOMAIN</domain>
+        <user>useraccount</user>
+        <password>Pa55w0rd</password>
+        <allowservicelogon>true</allowservicelogon>
+    </serviceaccount>
+-->
+    <priority>Normal</priority>
+    <startmode>Automatic</startmode>
+<!--
+    <depend>Eventlog</depend>
+    <depend>W32Time</depend>
+-->
+<!--
+    <logpath>%BASE%\log</logpath>
+-->
+    <logmode>rotate</logmode>
+</service>

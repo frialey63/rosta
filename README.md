@@ -5,11 +5,18 @@ Application for managing the museum's rota of volunteers and employees.
 
 run as a windows service
 
+    https://docs.spring.io/spring-boot/docs/current/reference/html/deployment.html
+    https://dzone.com/articles/spring-boot-as-a-windows-service-in-5-minutes
+    https://www.baeldung.com/spring-boot-app-as-a-service
+
 SSL
+
     https://www.thomasvitale.com/https-spring-boot-ssl-certificate/
     https://www.baeldung.com/spring-boot-https-self-signed-certificate
 
 Backup of the Mongo DB
+
+    https://www.mongodb.com/docs/manual/tutorial/backup-and-restore-tools/
 
 ## Bugs
 
@@ -24,6 +31,8 @@ CSV export for Excel analysis
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?
+
+real-time notifications of user updates to their calendars, e.g. holiday/absence/volunteer
 
 ## Sprint 4 Stories
 
@@ -40,7 +49,7 @@ remove opener concept
 evening work periods
 
 identify users as "keyholder"
-    check at least one keyholder per day
+- check at least one keyholder per day
 
 checks of the rota should notify Directors
 
