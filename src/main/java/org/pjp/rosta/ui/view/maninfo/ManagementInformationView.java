@@ -55,6 +55,9 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         table.setWidthFull();
 
         userType.setItems(UserType.values());
+        userType.addValueChangeListener(l -> {
+            selectUser.setEnabled(l.getValue() == UserType.SPECIFIC);
+        });
         userType.setValue(UserType.ALL);
 
         TableRow detailsRow = table.addRow();

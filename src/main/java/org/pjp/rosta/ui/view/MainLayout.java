@@ -162,22 +162,22 @@ public class MainLayout extends AppLayout {
 
         if (admin) {
             return new MenuItemInfo[] {
-                    new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
-                    new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
-                    new MenuItemInfo("Mgmt Info", "la la-globe", ManagementInformationView.class),
-                    new MenuItemInfo("User Mgmt", "la la-globe", UserManagementView.class),
-                    new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
-                    new MenuItemInfo("Settings", "la la-globe", SettingsView.class),
-                    new MenuItemInfo("About", "la la-file", AboutView.class),
+                    new MenuItemInfo("Rota", "la la-clipboard", ShopRotaView.class),
+                    new MenuItemInfo("Calendar", "la la-calendar", CalendarView.class),
+                    new MenuItemInfo("Mgmt Info", "la la-database", ManagementInformationView.class),
+                    new MenuItemInfo("User Mgmt", "la la-users", UserManagementView.class),
+                    new MenuItemInfo("Password", "la la-ellipsis-h", PasswordChangeView.class),
+                    new MenuItemInfo("Settings", "la la-cog", SettingsView.class),
+                    new MenuItemInfo("About", "la la-info", AboutView.class),
             };
         }
 
         return new MenuItemInfo[] {
-                new MenuItemInfo("Rota", "la la-globe", ShopRotaView.class),
-                new MenuItemInfo("Calendar", "la la-globe", CalendarView.class),
-                new MenuItemInfo("Profile", "la la-globe", ProfileView.class),
-                new MenuItemInfo("Password", "la la-globe", PasswordChangeView.class),
-                new MenuItemInfo("About", "la la-file", AboutView.class),
+                new MenuItemInfo("Rota", "la la-clipboard", ShopRotaView.class),
+                new MenuItemInfo("Calendar", "la la-calendar", CalendarView.class),
+                new MenuItemInfo("Profile", "la la-user", ProfileView.class),
+                new MenuItemInfo("Password", "la la-ellipsis-h", PasswordChangeView.class),
+                new MenuItemInfo("About", "la la-info", AboutView.class),
         };
     }
 
