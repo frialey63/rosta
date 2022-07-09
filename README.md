@@ -3,6 +3,8 @@ Application for managing the museum's rota of volunteers and employees.
 
 ## Deployment
 
+run as a windows service
+
 SSL
     https://www.thomasvitale.com/https-spring-boot-ssl-certificate/
     https://www.baeldung.com/spring-boot-https-self-signed-certificate
