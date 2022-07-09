@@ -23,6 +23,18 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
 
     private static final long serialVersionUID = -4308583634742400882L;
 
+    @Value("${spring.mail.host}")
+    private String springMailHost;
+
+    @Value("${spring.mail.port}")
+    private String springMailPort;
+
+    @Value("${spring.mail.username}")
+    private String springMailUsername;
+
+    @Value("${spring.mail.password}")
+    private String springMailPassword;
+
     @Value("${check.rosta.director.email}")
     private String checkRostaDirectorEmail;
 
@@ -59,7 +71,25 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        TableRow detailsRow = table.addRow();
+        TableRow detailsRow;
+
+        detailsRow = table.addRow();
+        detailsRow.addDataCell().setText("spring.mail.host");
+        detailsRow.addDataCell().setText(springMailHost);
+
+        detailsRow = table.addRow();
+        detailsRow.addDataCell().setText("spring.mail.port");
+        detailsRow.addDataCell().setText(springMailPort);
+
+        detailsRow = table.addRow();
+        detailsRow.addDataCell().setText("spring.mail.username");
+        detailsRow.addDataCell().setText(springMailUsername);
+
+        detailsRow = table.addRow();
+        detailsRow.addDataCell().setText("spring.mail.password");
+        detailsRow.addDataCell().setText(springMailPassword);
+
+        detailsRow = table.addRow();
         detailsRow.addDataCell().setText("check.rosta.director.email");
         detailsRow.addDataCell().setText(checkRostaDirectorEmail);
 
