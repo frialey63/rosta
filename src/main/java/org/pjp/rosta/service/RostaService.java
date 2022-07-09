@@ -59,6 +59,8 @@ public class RostaService {
 
     private static final String DIRECTOR_OK_TEMPLATE = "classpath:director-ok-template.txt";
 
+    private static final String TEST_TEMPLATE = "classpath:test-template.txt";
+
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
     private static final String TEMPLATE_DOCX = "data/rosta-template-3.docx";
@@ -105,6 +107,9 @@ public class RostaService {
 
     @Value("${check.rosta.director.email}")
     private String checkRostaDirectorEmail;
+
+    @Value("${test.email.to:none}")
+    private String testEmailTo;
 
     @Autowired
     private UserRepository userRepo;
@@ -449,5 +454,19 @@ public class RostaService {
         }
 
         userRepo.delete(user);
+    }
+
+    public void sendTestEmail() {
+        if (!"none".equals(testEmailTo)) {
+            LOGGER.info("attempting to send test email...");
+
+            try (InputStream inputStream = resourceLoader.getResource(TEST_TEMPLATE).getInputStream()) {
+                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+                emailService.sendSimpleMessage(testEmailTo, "Test Email", templateStr);
+            } catch (IOException e) {
+                LOGGER.error("failed to read email template from classpath resources", e);
+            }
+        }
     }
 }

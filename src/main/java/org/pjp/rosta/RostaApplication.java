@@ -49,6 +49,8 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
         }
 
         userService.initData();
+
+        rostaService.sendTestEmail();
     }
 
     @Scheduled(cron = "${check.rosta.cron}")
