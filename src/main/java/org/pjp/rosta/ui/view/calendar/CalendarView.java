@@ -435,8 +435,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private void onEntryClickedEvent(EntryClickedEvent event) {
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getEntry().getStartAsLocalDate();
+            LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-            if (!startDate.isBefore(LocalDate.now())) {
+            if (user.isAdmin() || !startDate.isBefore(nowMonday)) {
                 dialog = new DeleteDialog(event.getEntry());
                 dialog.setHeader("Delete");
                 dialog.setFooter(getDialogFooter(false, true));
@@ -448,24 +449,23 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private void onTimeslotClickedEvent(TimeslotClickedEvent event) {
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
+            LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-            if (!startDate.isBefore(LocalDate.now())) {
-                if (user.isAdmin()) {
-                    String header = "Add Holiday or Absence";
+            if (user.isAdmin()) {
+                String header = "Add Holiday or Absence";
 
-                    dialog = new CreateDialog(startDate);
+                dialog = new CreateDialog(startDate);
+                dialog.setHeader(header);
+                dialog.setFooter(getDialogFooter(true, true, false));
+                dialog.open();
+            } else {
+                if (!startDate.isBefore(nowMonday) && !hasExistingEntry(RenderingMode.BLOCK, startDate)) {
+                    String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
+
+                    dialog = new CreateDialog(startDate, user.isEmployee(), user);
                     dialog.setHeader(header);
-                    dialog.setFooter(getDialogFooter(true, true, false));
+                    dialog.setFooter(getDialogFooter(true, false));
                     dialog.open();
-                } else {
-                    if (!hasExistingEntry(RenderingMode.BLOCK, startDate)) {
-                        String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
-
-                        dialog = new CreateDialog(startDate, user.isEmployee(), user);
-                        dialog.setHeader(header);
-                        dialog.setFooter(getDialogFooter(true, false));
-                        dialog.open();
-                    }
                 }
             }
         });
