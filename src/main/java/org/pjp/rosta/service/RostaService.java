@@ -431,8 +431,9 @@ public class RostaService {
     }
 
     public void removeDay(String uuid) {
-        volunteerDayRepository.deleteById(uuid);
         holidayRepository.deleteById(uuid);
+        absenceDayRepository.deleteById(uuid);
+        volunteerDayRepository.deleteById(uuid);
     }
 
     public void saveShift(Shift shift) {
