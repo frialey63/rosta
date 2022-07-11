@@ -1,10 +1,19 @@
 package org.pjp.rosta.ui.view.maninfo;
 
+import java.math.BigDecimal;
+import java.text.NumberFormat;
+import java.time.LocalDate;
+import java.time.temporal.TemporalAdjusters;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 
+import org.pjp.rosta.model.AbsenceDay;
+import org.pjp.rosta.model.AbstractDay;
+import org.pjp.rosta.model.DayType;
+import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
@@ -38,41 +47,68 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private enum UserType { ALL, EMPLOYEE, VOLUNTEER, SPECIFIC }
 
-    private enum RangeType { YEAR, MONTH, CUSTOM }
+    private enum RangeType { YEAR_TO_DATE, MONTH_TO_DATE, CUSTOM }
 
     private static void buildHeaderRow(TableRow headerRow) {
         TableHeaderCell headerCell = headerRow.addHeaderCell();
         headerCell.setText("User");
         headerCell.setWidth("20%");
         headerCell = headerRow.addHeaderCell();
-        headerCell.setText("Work Periods");
+        headerCell.setText("Work");
         headerCell.setWidth("20%");
         headerCell = headerRow.addHeaderCell();
-        headerCell.setText("Holidays");
+        headerCell.setText("Holiday");
         headerCell.setWidth("20%");
         headerCell = headerRow.addHeaderCell();
-        headerCell.setText("Absences");
+        headerCell.setText("Absence");
         headerCell.setWidth("20%");
         headerCell = headerRow.addHeaderCell();
         headerCell.setText("Download");
         headerCell.setWidth("20%");
     }
 
-    private static void buildDataRow(User user, TableRow detailsRow) {
+    private static void buildDataRow(TableRow detailsRow, User user, float work, float holiday, float absence, ComponentEventListener<ClickEvent<Button>> listener) {
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(1);
+        nf.setMaximumFractionDigits(1);
+
         TableDataCell dataCell = detailsRow.addDataCell();
         dataCell.setText(user.getDisplayName());
         dataCell.getStyle().set("text-align", "center");
         dataCell = detailsRow.addDataCell();
-        dataCell.setText("999");
+        dataCell.setText(nf.format(work));
         dataCell.getStyle().set("text-align", "center");
         dataCell = detailsRow.addDataCell();
-        dataCell.setText("999");
+        dataCell.setText(nf.format(holiday));
         dataCell.getStyle().set("text-align", "center");
         dataCell = detailsRow.addDataCell();
-        dataCell.setText("999");
+        dataCell.setText(nf.format(absence));
         dataCell.getStyle().set("text-align", "center");
         dataCell = detailsRow.addDataCell();
-        dataCell.add(new Button("Download"));
+        dataCell.add(new Button("Download", listener));
+        dataCell.getStyle().set("text-align", "center");
+    }
+
+    private static void buildTotalRow(TableRow detailsRow, float work, float holiday, float absence) {
+        NumberFormat nf = NumberFormat.getInstance();
+        nf.setMinimumFractionDigits(1);
+        nf.setMaximumFractionDigits(1);
+
+        TableDataCell dataCell = detailsRow.addDataCell();
+        dataCell.setText("");
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText(nf.format(work));
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText(nf.format(holiday));
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText(nf.format(absence));
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText("");
+        dataCell.getStyle().set("text-align", "center");
     }
 
     private static final long serialVersionUID = 4484038138117594303L;
@@ -81,7 +117,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private final RadioButtonGroup<RangeType> rangeType = new RadioButtonGroup<>();
 
-    private final Select<String> selectUser = new Select<>();
+    private final Select<User> selectUser = new Select<>();
 
     private final DatePicker startDate = new MyDatePicker("Start Date");
     private final DatePicker endDate = new MyDatePicker("End Date");
@@ -124,7 +160,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
                 endDate.setEnabled(false);
             }
         });
-        rangeType.setValue(RangeType.YEAR);
+        rangeType.setValue(RangeType.YEAR_TO_DATE);
 
         detailsRow = table.addRow();
         detailsRow.addDataCell().setText("Specific User:");
@@ -161,28 +197,84 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
-        List<String> usernames = userService.findAll(null).stream().map(User::getUsername).sorted().collect(Collectors.toList());
+        List<User> users = userService.findAll(null).stream().sorted().collect(Collectors.toList());
 
-        selectUser.setItems(usernames);
-        if (usernames.size() > 0) {
-            selectUser.setValue(usernames.get(0));
+        selectUser.setItems(users);
+        if (users.size() > 0) {
+            selectUser.setValue(users.get(0));
         }
+
+        LocalDate today = LocalDate.now();
+
+        startDate.setValue(today.with(TemporalAdjusters.firstDayOfYear()));
+        endDate.setValue(today);
     }
 
     @Override
     public void onComponentEvent(ClickEvent<Button> event) {
+        LocalDate today = LocalDate.now();
+
+        LocalDate start = null;
+        LocalDate end = null;
+
+        switch (rangeType.getValue()) {
+        case YEAR_TO_DATE:
+            start = today.with(TemporalAdjusters.firstDayOfYear());
+            end = today;
+            break;
+
+        case MONTH_TO_DATE:
+            start = today.with(TemporalAdjusters.firstDayOfMonth());
+            end = today;
+            break;
+
+        case CUSTOM:
+            start = startDate.getValue();
+            end = endDate.getValue();
+            break;
+        }
+
         if (results.getRows().size() > 1) {
             results.removeAllRows();
 
-            TableRow headerRow = results.addRow();
-            buildHeaderRow(headerRow);
+            buildHeaderRow(results.addRow());
         }
 
-        findUsersByCriteria().forEach(user -> {
-            TableRow detailsRow = results.addRow();
+        float workTotal = 0;
+        float holidayTotal = 0;
+        float absenceTotal = 0;
 
-            buildDataRow(user, detailsRow);
-        });
+        for (User user : findUsersByCriteria()) {
+            boolean employee = user.isEmployee();
+            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
+            List<AbstractDay> days = rostaService.getDays(user, dayTypes, start, end);
+
+            if (employee) {
+                List<Holiday> holidays = days.stream().filter(abstractDay -> (abstractDay instanceof Holiday)).map(Holiday.class::cast).sorted().collect(Collectors.toList());
+                List<AbsenceDay> absences = days.stream().filter(abstractDay -> (abstractDay instanceof AbsenceDay)).map(AbsenceDay.class::cast).sorted().collect(Collectors.toList());
+
+                float holiday = holidays.stream().map(Holiday::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+                float absence = absences.stream().map(AbsenceDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+
+                holidayTotal += holiday;
+                absenceTotal += absence;
+
+                buildDataRow(results.addRow(), user, 0, holiday, absence, dlEvent -> {
+                    String.join("\n", holidays.stream().map(Holiday::toString).collect(Collectors.toList()));
+                    String.join("\n", absences.stream().map(AbsenceDay::toString).collect(Collectors.toList()));
+                });
+            } else {
+                float work = days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+
+                workTotal += work;
+
+                buildDataRow(results.addRow(), user, work, 0, 0, dlEvent -> {
+                    String.join("\n", days.stream().map(day -> day.toString()).collect(Collectors.toList()));
+                });
+            }
+        }
+
+        buildTotalRow(results.addRow(), workTotal, holidayTotal, absenceTotal);
     }
 
     private List<User> findUsersByCriteria() {
@@ -190,7 +282,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         case ALL -> userService.findAll(null);
         case EMPLOYEE -> userService.findAll(true);
         case VOLUNTEER -> userService.findAll(false);
-        case SPECIFIC -> userService.findByUsername(selectUser.getValue()).stream().collect(Collectors.toList());
+        case SPECIFIC -> userService.findByUsername(selectUser.getValue().getUsername()).stream().collect(Collectors.toList());
         };
     }
 
