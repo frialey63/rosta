@@ -73,8 +73,12 @@ public class UserService {
         return (int) userRepository.count();
     }
 
-    public List<User> findByNameContainingIgnoreCase(String name) {
-        return userRepository.findByNameContainingIgnoreCase(name);
+    public List<User> findAll(Boolean employee) {
+        if (employee == null) {
+            return userRepository.findAllByAdmin(false);
+        }
+
+        return userRepository.findAllByAdminAndEmployee(false, employee);
     }
 
     public Optional<User> findByUsername(String username) {

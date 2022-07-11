@@ -1,12 +1,21 @@
 package org.pjp.rosta.ui.view.maninfo;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import javax.annotation.security.PermitAll;
 
+import org.pjp.rosta.model.User;
+import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.util.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.stefan.table.Table;
+import org.vaadin.stefan.table.TableDataCell;
+import org.vaadin.stefan.table.TableHeaderCell;
 import org.vaadin.stefan.table.TableRow;
 
 import com.vaadin.flow.component.ClickEvent;
@@ -31,6 +40,41 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private enum RangeType { YEAR, MONTH, CUSTOM }
 
+    private static void buildHeaderRow(TableRow headerRow) {
+        TableHeaderCell headerCell = headerRow.addHeaderCell();
+        headerCell.setText("User");
+        headerCell.setWidth("20%");
+        headerCell = headerRow.addHeaderCell();
+        headerCell.setText("Work Periods");
+        headerCell.setWidth("20%");
+        headerCell = headerRow.addHeaderCell();
+        headerCell.setText("Holidays");
+        headerCell.setWidth("20%");
+        headerCell = headerRow.addHeaderCell();
+        headerCell.setText("Absences");
+        headerCell.setWidth("20%");
+        headerCell = headerRow.addHeaderCell();
+        headerCell.setText("Download");
+        headerCell.setWidth("20%");
+    }
+
+    private static void buildDataRow(User user, TableRow detailsRow) {
+        TableDataCell dataCell = detailsRow.addDataCell();
+        dataCell.setText(user.getDisplayName());
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText("999");
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText("999");
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.setText("999");
+        dataCell.getStyle().set("text-align", "center");
+        dataCell = detailsRow.addDataCell();
+        dataCell.add(new Button("Download"));
+    }
+
     private static final long serialVersionUID = 4484038138117594303L;
 
     private final RadioButtonGroup<UserType> userType = new RadioButtonGroup<>();
@@ -44,6 +88,12 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private Table results;
 
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private RostaService rostaService;
+
     public ManagementInformationView() {
         setSpacing(false);
 
@@ -56,7 +106,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
         userType.setItems(UserType.values());
         userType.addValueChangeListener(l -> {
-            selectUser.setEnabled(l.getValue() == UserType.SPECIFIC);
+            selectUser.setEnabled(l.getValue() == UserType.SPECIFIC && (selectUser.getValue() != null));
         });
         userType.setValue(UserType.ALL);
 
@@ -100,10 +150,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         setHorizontalComponentAlignment(Alignment.CENTER, button);
 
         TableRow headerRow = results.addRow();
-        headerRow.addHeaderCell().setText("User");
-        headerRow.addHeaderCell().setText("Work Periods");
-        headerRow.addHeaderCell().setText("Holidays");
-        headerRow.addHeaderCell().setText("Absences");
+        buildHeaderRow(headerRow);
 
         add(results);
 
@@ -114,16 +161,37 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        List<String> usernames = userService.findAll(null).stream().map(User::getUsername).sorted().collect(Collectors.toList());
 
+        selectUser.setItems(usernames);
+        if (usernames.size() > 0) {
+            selectUser.setValue(usernames.get(0));
+        }
     }
 
     @Override
     public void onComponentEvent(ClickEvent<Button> event) {
-        TableRow detailsRow = results.addRow();
-        detailsRow.addDataCell().setText("Fred Bloggs");
-        detailsRow.addDataCell().setText("999");
-        detailsRow.addDataCell().setText("999");
-        detailsRow.addDataCell().setText("999");
+        if (results.getRows().size() > 1) {
+            results.removeAllRows();
+
+            TableRow headerRow = results.addRow();
+            buildHeaderRow(headerRow);
+        }
+
+        findUsersByCriteria().forEach(user -> {
+            TableRow detailsRow = results.addRow();
+
+            buildDataRow(user, detailsRow);
+        });
+    }
+
+    private List<User> findUsersByCriteria() {
+        return switch (userType.getValue()) {
+        case ALL -> userService.findAll(null);
+        case EMPLOYEE -> userService.findAll(true);
+        case VOLUNTEER -> userService.findAll(false);
+        case SPECIFIC -> userService.findByUsername(selectUser.getValue()).stream().collect(Collectors.toList());
+        };
     }
 
 }

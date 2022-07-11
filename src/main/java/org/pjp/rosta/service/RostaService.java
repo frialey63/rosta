@@ -234,7 +234,7 @@ public class RostaService {
 
                 String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
 
-                userRepo.findByEmployee(false).forEach(user -> {
+                userRepo.findAllByAdminAndEmployee(false, false).forEach(user -> {
                     if (user.isNotifications()) {
                         String text = String.format(templateStr, user.getName()) + missingCoverStr;
 

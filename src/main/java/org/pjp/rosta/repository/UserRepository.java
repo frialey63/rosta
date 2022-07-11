@@ -10,9 +10,11 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface UserRepository extends MongoRepository<User, String> {
 
-    List<User> findByEmployee(boolean employee);
+    List<User> findAllByAdmin(boolean admin);
 
-    List<User> findByNameContainingIgnoreCase(String name);
+    List<User> findAllByAdminAndEmployee(boolean admin, boolean employee);
+
+    List<User> findAllByNameContainingIgnoreCase(String name);
 
     Optional<User> findByUsername(String username);
 
