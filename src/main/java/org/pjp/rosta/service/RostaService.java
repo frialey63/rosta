@@ -12,6 +12,7 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
@@ -77,6 +78,19 @@ public class RostaService {
 
     private static String nameFromEmail(String email) {
         return email.split("@")[0].split("\\.")[0];
+    }
+
+    static List<DayOfWeek> getDayOfWeekRange(DayOfWeek start, DayOfWeek end) {
+        List<DayOfWeek> result = new ArrayList<>();
+
+        DayOfWeek dow = start;
+
+        for (int i = dow.getValue(); i <= end.getValue(); i++) {
+            result.add(dow);
+            dow = dow.plus(1);
+        }
+
+        return Collections.unmodifiableList(result);
     }
 
     private static void insertAtBookmark(XWPFParagraph para, String bookmarkName, String insertion) {
@@ -338,6 +352,54 @@ public class RostaService {
 
     public Optional<Shift> getShift(String shiftUuid) {
         return shiftRepo.findById(shiftUuid);
+    }
+
+    public float calculateShiftWork(User user, LocalDate start, LocalDate end) {
+        class MutableFloat {
+            private float number;
+
+            public float get() {
+                return number;
+            }
+
+            public void add(float other) {
+                number += other;
+            }
+        }
+
+        MutableFloat work = new MutableFloat();
+
+        LocalDate sunday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        if (start.getDayOfWeek() != DayOfWeek.MONDAY) {
+            getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                for (DayOfWeek day : getDayOfWeekRange(start.getDayOfWeek(), DayOfWeek.SUNDAY)) {
+                    work.add(shift.getShiftDay(day).getPartCount());
+                }
+            });
+
+            sunday = sunday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        }
+
+        LocalDate lastSunday = end.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+        while (!sunday.isAfter(lastSunday)) {
+            getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                work.add(shift.getPartCount());
+            });
+
+            sunday = sunday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        }
+
+        if (end.getDayOfWeek() != DayOfWeek.SUNDAY) {
+            getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                for (DayOfWeek day : getDayOfWeekRange(DayOfWeek.MONDAY, end.getDayOfWeek())) {
+                    work.add(shift.getShiftDay(day).getPartCount());
+                }
+            });
+        }
+
+        return work.get();
     }
 
     public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
