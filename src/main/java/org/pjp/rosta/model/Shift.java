@@ -1,5 +1,6 @@
 package org.pjp.rosta.model;
 
+import java.math.BigDecimal;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Iterator;
@@ -86,6 +87,10 @@ public class Shift {
 
     public Stream<ShiftDay> getShiftDayStream() {
         return map.values().stream();
+    }
+
+    public float getPartCount() {
+        return getShiftDayStream().map(ShiftDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
     }
 
     @Override

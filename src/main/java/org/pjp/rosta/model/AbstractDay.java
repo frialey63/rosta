@@ -76,11 +76,11 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
         float count = 0;
 
         if (morning) {
-            count += 0.5;
+            count += 0.5f;
         }
 
         if (afternoon) {
-            count += 0.5;
+            count += 0.5f;
         }
 
         return count;

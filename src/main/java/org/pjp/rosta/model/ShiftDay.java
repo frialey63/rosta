@@ -65,6 +65,20 @@ public class ShiftDay implements PartOfDay {
         return dayOfWeek;
     }
 
+    public float getPartCount() {
+        float count = 0;
+
+        if (morning) {
+            count += 0.5f;
+        }
+
+        if (afternoon) {
+            count += 0.5f;
+        }
+
+        return count;
+    }
+
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();

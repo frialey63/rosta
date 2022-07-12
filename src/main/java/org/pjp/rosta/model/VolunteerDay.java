@@ -36,7 +36,7 @@ public final class VolunteerDay extends AbstractDay {
         float count = super.getPartCount();
 
         if (evening) {
-            count += 0.5;
+            count += 0.5f;
         }
 
         return count;

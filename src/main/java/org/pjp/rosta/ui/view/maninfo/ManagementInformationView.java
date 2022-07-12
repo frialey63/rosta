@@ -2,8 +2,11 @@ package org.pjp.rosta.ui.view.maninfo;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
+import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
+import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -50,6 +53,26 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     private enum UserType { ALL, EMPLOYEE, VOLUNTEER, SPECIFIC }
 
     private enum RangeType { YEAR_TO_DATE, MONTH_TO_DATE, CUSTOM }
+
+    private static class MutableFloat {
+        private float number;
+
+        public float get() {
+            return number;
+        }
+
+        public void set(float number) {
+            this.number = number;
+        }
+
+        public void add(float other) {
+            number += other;
+        }
+
+        public void sub(float other) {
+            number -= other;
+        }
+    }
 
     private static void buildHeaderRow(TableRow headerRow) {
         TableHeaderCell headerCell = headerRow.addHeaderCell();
@@ -113,6 +136,19 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         dataCell.getStyle().set("text-align", "center");
     }
 
+    private static List<DayOfWeek> getDayOfWeekRange(DayOfWeek start, DayOfWeek end) {
+        List<DayOfWeek> result = new ArrayList<>();
+
+        DayOfWeek dow = start;
+
+        while (dow.getValue() <= end.getValue()) {
+            result.add(dow);
+            dow = dow.plus(1);
+        }
+
+        return Collections.unmodifiableList(result);
+    }
+
     private static final long serialVersionUID = 4484038138117594303L;
 
     private final RadioButtonGroup<UserType> userType = new RadioButtonGroup<>();
@@ -125,6 +161,9 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     private final DatePicker endDate = new MyDatePicker("End Date");
 
     private Table results;
+
+    private LocalDate start;
+    private LocalDate end;
 
     @Autowired
     private UserService userService;
@@ -216,9 +255,6 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     public void onComponentEvent(ClickEvent<Button> event) {
         LocalDate today = LocalDate.now();
 
-        LocalDate start = null;
-        LocalDate end = null;
-
         switch (rangeType.getValue()) {
         case YEAR_TO_DATE:
             start = today.with(TemporalAdjusters.firstDayOfYear());
@@ -253,24 +289,56 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
             float holiday = 0;
             float absence = 0;
-            float work = 0;
+            MutableFloat work = new MutableFloat();
 
             if (employee) {
+                LocalDate sunday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+                if (start.getDayOfWeek() != DayOfWeek.MONDAY) {
+                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                        for (DayOfWeek day : getDayOfWeekRange(start.getDayOfWeek(), DayOfWeek.SUNDAY)) {
+                            work.add(shift.getShiftDay(day).getPartCount());
+                        }
+                    });
+
+                    sunday = sunday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                }
+
+                LocalDate lastSunday = end.with(TemporalAdjusters.previousOrSame(DayOfWeek.SUNDAY));
+
+                while (!sunday.isAfter(lastSunday)) {
+                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                        work.add(shift.getPartCount());
+                    });
+
+                    sunday = sunday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                }
+
+                if (end.getDayOfWeek() != DayOfWeek.SUNDAY) {
+                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                        for (DayOfWeek day : getDayOfWeekRange(DayOfWeek.MONDAY, end.getDayOfWeek())) {
+                            work.add(shift.getShiftDay(day).getPartCount());
+                        }
+                    });
+                }
+
                 List<Holiday> holidays = days.stream().filter(abstractDay -> (abstractDay instanceof Holiday)).map(Holiday.class::cast).sorted().collect(Collectors.toList());
                 List<AbsenceDay> absences = days.stream().filter(abstractDay -> (abstractDay instanceof AbsenceDay)).map(AbsenceDay.class::cast).sorted().collect(Collectors.toList());
 
                 holiday = holidays.stream().map(Holiday::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                 absence = absences.stream().map(AbsenceDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
 
-                holidayTotal += holiday;
-                absenceTotal += absence;
-            } else {
-                work = days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+                work.sub(holiday + absence);
 
-                workTotal += work;
+            } else {
+                work.set(days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue());
             }
 
-            buildDataRow(results.addRow(), user, work, holiday, absence, dlEvent -> {
+            workTotal += work.get();
+            holidayTotal += holiday;
+            absenceTotal += absence;
+
+            buildDataRow(results.addRow(), user, work.get(), holiday, absence, dlEvent -> {
                 EnhancedDialog dialog = new SummaryDialog(employee, days);
                 dialog.setHeader("Summary for " + rangeType.getValue());
                 dialog.setHeight("80%");

@@ -22,12 +22,6 @@ Backup of the Mongo DB
 
 duplicated notifications from crudui
 
-## Sprint 2 Stories
-
-management reports of periods worked, holidays, absences, etc.
-
-CSV export for Excel analysis
-
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?
@@ -41,6 +35,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+management reports of periods worked, holidays, absences, etc.
 
 the admin user should be able to add/delete days in the calendar on behalf of other users
 
