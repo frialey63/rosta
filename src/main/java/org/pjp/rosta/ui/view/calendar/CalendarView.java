@@ -254,7 +254,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     @Override
     public String getPageTitle() {
         userService.findByUsername(getUsername()).ifPresent(user -> {
-            pageTitle += user.isEmployee() ? " of Shifts & Holidays" : " of Volunteer Days";
+            if (user.isAdmin()) {
+                pageTitle = "Global " + pageTitle;
+            } else {
+                pageTitle += user.isEmployee() ? " of Shifts & Holidays" : " of Volunteer Days";
+            }
         });
 
         return pageTitle;
