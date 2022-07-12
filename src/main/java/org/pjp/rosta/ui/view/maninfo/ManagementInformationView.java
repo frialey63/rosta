@@ -138,7 +138,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     public ManagementInformationView() {
         setSpacing(false);
 
-        H2 h2 = new H2("Management Information (TBC)");
+        H2 h2 = new H2("Management Information");
         add(h2);
         setHorizontalComponentAlignment(Alignment.CENTER, h2);
 
@@ -276,7 +276,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
             buildDataRow(results.addRow(), user, work, holiday, absence, dlEvent -> {
                 EnhancedDialog dialog = new SummaryDialog(employee, days);
-                dialog.setHeader("Summary for " + rangeType.getValue());
+                dialog.setHeader(user.getDisplayName() + " Summary for " + rangeType.getValue());
                 dialog.setHeight("80%");
                 dialog.setWidth("40%");
                 dialog.open();
