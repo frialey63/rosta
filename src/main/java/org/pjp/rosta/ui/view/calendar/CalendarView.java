@@ -5,8 +5,6 @@ import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
-import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -364,7 +362,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             dialog = new SummaryDialog(employee, days);
             dialog.setHeader("My Summary for " + today.getYear());
-            dialog.setFooter(getDialogFooter());
             dialog.setHeight("80%");
             dialog.setWidth("40%");
             dialog.open();
@@ -385,12 +382,10 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                         dialog = new ShiftDialog(shift);
                         dialog.setHeader("View Shift");
-                        dialog.setFooter(getDialogFooter());
                         dialog.open();
                     }, () -> {
                         dialog = new EnhancedDialog();
                         dialog.setHeader("No Shift");
-                        dialog.setFooter(getDialogFooter());
                         dialog.open();
                     });
                 } else {
@@ -575,10 +570,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
         return getDialogFooter(false, save, delete);
-    }
-
-    private HorizontalLayout getDialogFooter() {
-        return getDialogFooter(false, false, false);
     }
 
 }

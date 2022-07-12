@@ -21,12 +21,14 @@ import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.util.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
+import org.pjp.rosta.ui.view.calendar.SummaryDialog;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.stefan.table.Table;
 import org.vaadin.stefan.table.TableDataCell;
 import org.vaadin.stefan.table.TableHeaderCell;
 import org.vaadin.stefan.table.TableRow;
 
+import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.button.Button;
@@ -85,7 +87,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         dataCell.setText(nf.format(absence));
         dataCell.getStyle().set("text-align", "center");
         dataCell = detailsRow.addDataCell();
-        dataCell.add(new Button("Download", listener));
+        dataCell.add(new Button("Summary", listener));
         dataCell.getStyle().set("text-align", "center");
     }
 
@@ -249,29 +251,32 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
             Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
             List<AbstractDay> days = rostaService.getDays(user, dayTypes, start, end);
 
+            float holiday = 0;
+            float absence = 0;
+            float work = 0;
+
             if (employee) {
                 List<Holiday> holidays = days.stream().filter(abstractDay -> (abstractDay instanceof Holiday)).map(Holiday.class::cast).sorted().collect(Collectors.toList());
                 List<AbsenceDay> absences = days.stream().filter(abstractDay -> (abstractDay instanceof AbsenceDay)).map(AbsenceDay.class::cast).sorted().collect(Collectors.toList());
 
-                float holiday = holidays.stream().map(Holiday::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
-                float absence = absences.stream().map(AbsenceDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+                holiday = holidays.stream().map(Holiday::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+                absence = absences.stream().map(AbsenceDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
 
                 holidayTotal += holiday;
                 absenceTotal += absence;
-
-                buildDataRow(results.addRow(), user, 0, holiday, absence, dlEvent -> {
-                    String.join("\n", holidays.stream().map(Holiday::toString).collect(Collectors.toList()));
-                    String.join("\n", absences.stream().map(AbsenceDay::toString).collect(Collectors.toList()));
-                });
             } else {
-                float work = days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
+                work = days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
 
                 workTotal += work;
-
-                buildDataRow(results.addRow(), user, work, 0, 0, dlEvent -> {
-                    String.join("\n", days.stream().map(day -> day.toString()).collect(Collectors.toList()));
-                });
             }
+
+            buildDataRow(results.addRow(), user, work, holiday, absence, dlEvent -> {
+                EnhancedDialog dialog = new SummaryDialog(employee, days);
+                dialog.setHeader("Summary for " + rangeType.getValue());
+                dialog.setHeight("80%");
+                dialog.setWidth("40%");
+                dialog.open();
+            });
         }
 
         buildTotalRow(results.addRow(), workTotal, holidayTotal, absenceTotal);

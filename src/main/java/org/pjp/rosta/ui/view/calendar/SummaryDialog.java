@@ -6,14 +6,18 @@ import java.util.stream.Collectors;
 import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
+import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;
+import com.vaadin.flow.component.button.Button;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.textfield.TextArea;
 
-class SummaryDialog extends EnhancedDialog {
+public class SummaryDialog extends EnhancedDialog {
     private static final long serialVersionUID = -7726616762573407178L;
 
     private final boolean employee;
@@ -28,6 +32,8 @@ class SummaryDialog extends EnhancedDialog {
         this.days = days;
 
         setContent(getContent());
+
+        setFooter(getFooter());
     }
 
     private Component getContent() {
@@ -90,5 +96,19 @@ class SummaryDialog extends EnhancedDialog {
 
         return content;
     }
+
+    private HorizontalLayout getFooter() {
+        Span filler = new Span();
+
+        Button button = new Button("Cancel", e -> SummaryDialog.this.close());
+
+        HorizontalLayout footer = new CompactHorizontalLayout(button);
+        footer.setAlignItems(Alignment.STRETCH);
+        footer.setVerticalComponentAlignment(Alignment.CENTER, button);
+        footer.setFlexGrow(1, filler);
+
+        return footer;
+    }
+
 
 }
