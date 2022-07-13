@@ -10,7 +10,6 @@ import org.vaadin.stefan.table.TableRow;
 
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
-import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -58,11 +57,13 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
 
         add(table);
 
-        Span helpText = new Span("These settings can be modified by your System Administrator.");
+        Paragraph helpText = new Paragraph("These settings can be modified by your System Administrator.");
         helpText.getStyle().set("font-style", "italic");
 
-        add(new Paragraph(), helpText);
-        setHorizontalComponentAlignment(Alignment.STRETCH, helpText);
+        Paragraph explainText = new Paragraph("At the specified cron (time) the app performs a rota check for the following week. If there are any periods with less than two workers or periods without a keyholder then an email is sent to all notifiable users to request assistance. A status email is (always) sent to each director.");
+
+        add(new Paragraph(), helpText, explainText);
+        setHorizontalComponentAlignment(Alignment.STRETCH, helpText, explainText);
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.START);
