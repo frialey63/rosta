@@ -1,7 +1,6 @@
 package org.pjp.rosta;
 
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -31,8 +30,8 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     @Value("${spring.profiles.active:default}")
     private String activeProfile;
 
-    @Autowired
-    private UserService userService;
+    @Value("${init.data:false}")
+    private boolean initData;
 
     @Autowired
     private RostaService rostaService;
@@ -48,7 +47,9 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
             return;
         }
 
-        userService.initData();
+        if (initData) {
+            rostaService.initData();
+        }
 
         rostaService.sendTestEmail();
     }
