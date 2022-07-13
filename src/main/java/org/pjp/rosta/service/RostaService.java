@@ -420,7 +420,7 @@ public class RostaService {
     }
 
     public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
-        try (FileInputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
+        try (InputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
             for (XWPFParagraph para : document.getParagraphs()) {
                 performParagraphInsertions(rosta, para);
             }

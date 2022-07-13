@@ -18,6 +18,17 @@ Backup of the Mongo DB
 
     https://www.mongodb.com/docs/manual/tutorial/backup-and-restore-tools/
 
+## TODO
+
+externalise the email templates
+
+externalise the keystore
+
+new data attributes for user
+
+    contact telephone number
+    next of kin
+
 ## Bugs
 
 duplicated notifications from crudui
