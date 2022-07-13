@@ -23,8 +23,6 @@ import org.springframework.stereotype.Service;
 @Service
 public class UserService {
 
-    static final String ADMIN = "admin";
-
     private static final int PASSWORD_LENGTH = 8;
 
     private static final int FORGOT_PASSWORD_EXPIRY_HOURS = 1;

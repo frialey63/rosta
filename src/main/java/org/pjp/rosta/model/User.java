@@ -13,6 +13,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public class User implements Comparable<User> {
 
+    public static final String ADMIN = "admin";
+
     @Id
     private String uuid;
 

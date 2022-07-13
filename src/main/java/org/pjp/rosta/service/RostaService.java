@@ -54,8 +54,6 @@ import org.springframework.util.FileCopyUtils;
 @Service
 public class RostaService {
 
-    static final String ADMIN = "admin";
-
     private static final int MIN_COVER_COUNT = 2;
 
     private static final String EMAIL_TEMPLATE = "classpath:email-template.txt";
@@ -121,9 +119,6 @@ public class RostaService {
         }
     }
 
-    @Value("${initial.admin.password:password}")
-    private String initialAdminPassword;
-
     @Value("${check.rosta.director.email}")
     private String checkRostaDirectorEmail;
 
@@ -131,6 +126,9 @@ public class RostaService {
     private String testEmailTo;
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+
+    @Value("${initial.admin.password:password}")
+    private String initialAdminPassword;
 
     @Autowired
     private UserRepository userRepo;
@@ -162,11 +160,9 @@ public class RostaService {
         holidayRepository.deleteAll();
         volunteerDayRepository.deleteAll();
 
-        {
-            String id = UUID.randomUUID().toString();
-            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode(initialAdminPassword)), true, "admin@gmail.com", false, false, false);
-            userRepo.save(user);
-        }
+        String id = UUID.randomUUID().toString();
+        User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode(initialAdminPassword)), true, "admin@gmail.com", false, false, false);
+        userRepo.save(user);
     }
 
     public void testData() {
@@ -178,7 +174,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, UserService.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false, false);
+            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false, false);
             userRepo.save(user);
         }
 
