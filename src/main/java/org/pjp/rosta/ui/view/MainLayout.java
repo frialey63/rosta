@@ -6,6 +6,7 @@ import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
+import org.pjp.rosta.ui.view.document.ShopDocumentView;
 import org.pjp.rosta.ui.view.maninfo.ManagementInformationView;
 import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
@@ -164,6 +165,7 @@ public class MainLayout extends AppLayout {
             return new MenuItemInfo[] {
                     new MenuItemInfo("Rota", "la la-clipboard", ShopRotaView.class),
                     new MenuItemInfo("Calendar", "la la-calendar", CalendarView.class),
+                    new MenuItemInfo("Documents", "la la-file", ShopDocumentView.class),
                     new MenuItemInfo("Mgmt Info", "la la-database", ManagementInformationView.class),
                     new MenuItemInfo("User Mgmt", "la la-users", UserManagementView.class),
                     new MenuItemInfo("Password", "la la-ellipsis-h", PasswordChangeView.class),

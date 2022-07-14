@@ -8,7 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 
 import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
@@ -42,7 +42,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@PermitAll
+@RolesAllowed("ADMIN")
 @PageTitle("Management Information")
 @Route(value = "maninfo", layout = MainLayout.class)
 public class ManagementInformationView extends AbstractView implements AfterNavigationObserver, ComponentEventListener<ClickEvent<Button>> {

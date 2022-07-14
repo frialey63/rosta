@@ -76,9 +76,9 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         // logic configuration
         crud.setOperations(
                 () -> userService.findAll(),
-                user -> addUser(userService, user),
-                user -> updateUser(userService, user),
-                user -> deleteUser(rostaService, user)
+                user -> addUser(user),
+                user -> updateUser(user),
+                user -> deleteUser(user)
         );
 
         crud.getGrid().setSelectionMode(SelectionMode.SINGLE);
@@ -113,26 +113,26 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         crud.refreshGrid();
     }
 
-    private void deleteUser(RostaService service, User user) {
-        service.deleteUser(user);
+    private void deleteUser(User user) {
+        rostaService.deleteUser(user);
     }
 
-    private User updateUser(UserService service, User user) {
+    private User updateUser(User user) {
         try {
-            return service.save(user);
+            return userService.save(user);
         } catch (ExistingUser e) {
             throw new CrudOperationException("A user with this name already exists");
         }
     }
 
-    private User addUser(UserService service, User user) {
+    private User addUser(User user) {
         try {
             if (adminManagePassword) {
                 user.setPassword("{bcrypt}" + passwordEncoder.encode(user.getPassword()));
                 user.setPasswordChange(true);
             }
 
-            return service.save(user);
+            return userService.save(user);
         } catch (ExistingUser e) {
             throw new CrudOperationException("A user with this name already exists");
         }
