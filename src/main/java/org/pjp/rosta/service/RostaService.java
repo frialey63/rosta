@@ -1,7 +1,6 @@
 package org.pjp.rosta.service;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -56,17 +55,17 @@ public class RostaService {
 
     private static final int MIN_COVER_COUNT = 2;
 
-    private static final String EMAIL_TEMPLATE = "classpath:email-template.txt";
+    private static final String EMAIL_TEMPLATE = "file:template/email-template.txt";
 
-    private static final String DIRECTOR_TEMPLATE = "classpath:director-template.txt";
+    private static final String DIRECTOR_TEMPLATE = "file:template/director-template.txt";
 
-    private static final String DIRECTOR_OK_TEMPLATE = "classpath:director-ok-template.txt";
+    private static final String DIRECTOR_OK_TEMPLATE = "file:template/director-ok-template.txt";
 
-    private static final String TEST_TEMPLATE = "classpath:test-template.txt";
+    private static final String TEST_TEMPLATE = "file:template/test-template.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
 
-    private static final String TEMPLATE_DOCX = "data/rosta-template-3.docx";
+    private static final String ROSTA_TEMPLATE_DOCX = "file:template/rosta-template.docx";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
@@ -420,7 +419,7 @@ public class RostaService {
     }
 
     public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
-        try (InputStream is = new FileInputStream(TEMPLATE_DOCX); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
+        try (InputStream is = resourceLoader.getResource(ROSTA_TEMPLATE_DOCX).getInputStream(); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
             for (XWPFParagraph para : document.getParagraphs()) {
                 performParagraphInsertions(rosta, para);
             }

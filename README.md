@@ -20,14 +20,12 @@ Backup of the Mongo DB
 
 ## TODO
 
-externalise the email templates
-
-externalise the keystore
-
 new data attributes for user
 
     contact telephone number
     next of kin
+
+shop info docs for users
 
 ## Bugs
 
