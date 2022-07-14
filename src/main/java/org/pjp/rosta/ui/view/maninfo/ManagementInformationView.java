@@ -2,11 +2,8 @@ package org.pjp.rosta.ui.view.maninfo;
 
 import java.math.BigDecimal;
 import java.text.NumberFormat;
-import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.time.temporal.TemporalAdjusters;
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
