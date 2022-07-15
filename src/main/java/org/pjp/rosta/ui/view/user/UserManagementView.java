@@ -48,7 +48,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     public UserManagementView() {
         // grid configuration
-        crud.getGrid().setColumns("username", "admin", "name", "enabled", "email", "notifications", "employee", "keyholder");
+        crud.getGrid().setColumns("username", "admin", "enabled", "notifications", "employee", "keyholder");
         crud.getGrid().setColumnReorderingAllowed(true);
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
