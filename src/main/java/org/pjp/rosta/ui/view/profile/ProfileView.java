@@ -17,6 +17,7 @@ import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
 import com.vaadin.flow.component.formlayout.FormLayout.ResponsiveStep;
 import com.vaadin.flow.component.notification.Notification;
+import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.textfield.TextField;
 import com.vaadin.flow.data.binder.BeanValidationBinder;
@@ -34,11 +35,21 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     private static final long serialVersionUID = -2024122079440962290L;
 
+    private static final int MAX_NAME_LEN = 50;
+
+    private static final int MAX_TELEPHONE_LEN = 20;
+
     private final TextField username = new TextField("Username");
 
     private final TextField name = new TextField("Name");
 
     private final TextField email = new TextField("Email");
+
+    private final TextField telephone = new TextField("Telephone");
+
+    private final TextField emergencyName = new TextField("Emergency Name");
+
+    private final TextField emergencyTelephone = new TextField("Emergency Telephone");
 
     private final Checkbox employee = new Checkbox("Employee (Leave unchecked for volunteer)");
 
@@ -56,20 +67,23 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     public ProfileView() {
         username.setMaxLength(20);
-        name.setMaxLength(50);
+        name.setMaxLength(MAX_NAME_LEN);
         email.setMaxLength(50);
+        telephone.setMaxLength(MAX_TELEPHONE_LEN);
+        emergencyName.setMaxLength(MAX_NAME_LEN);
+        emergencyTelephone.setMaxLength(MAX_TELEPHONE_LEN);
 
         binder.bindInstanceFields(this);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(username, name, email, employee, notifications);
+        formLayout.add(username, name, email, telephone, emergencyName, emergencyTelephone, employee, notifications);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new ResponsiveStep("0", 1),
                 // Use two columns, if layout's width exceeds 500px
                 new ResponsiveStep("500px", 2));
         // Stretch the username field over 2 columns
-        formLayout.setColspan(username, 2);
+        formLayout.setColspan(username, 1);
 
         Button save = new Button("Save", e -> {
              try {
@@ -86,7 +100,7 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
              } catch (ValidationException ex) {
                  // nothing to do
              } catch (ExistingUser ex) {
-                 Notification.show("Unable to save profile, check username for uniqueness");
+                 Notification.show("Unable to save profile, check username for uniqueness").addThemeVariants(NotificationVariant.LUMO_ERROR);
                  populateUser();
              }
         });

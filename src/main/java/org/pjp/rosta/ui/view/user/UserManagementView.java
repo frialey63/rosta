@@ -48,7 +48,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     public UserManagementView() {
         // grid configuration
-        crud.getGrid().setColumns("username", "admin", "enabled", "notifications", "employee", "keyholder");
+        crud.getGrid().setColumns("username", "name", "admin", "enabled", "employee", "keyholder", "notifications");
         crud.getGrid().setColumnReorderingAllowed(true);
 
         crud.setFindAllOperationVisible(false);
@@ -71,7 +71,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
         crud.getCrudFormFactory().setShowNotifications(SHOW_NOTIFICATIONS);
 
         // logic configuration
@@ -106,9 +106,11 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
         if (adminManagePassword) {
-            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "password", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD,
+                    "username", "password", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
         } else {
-            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD, "username", "name", "email", "admin", "enabled", "notifications", "employee", "keyholder");
+            crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD,
+                    "username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
         }
 
         crud.refreshGrid();

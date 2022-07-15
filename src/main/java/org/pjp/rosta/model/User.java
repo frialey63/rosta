@@ -15,6 +15,10 @@ public class User implements Comparable<User> {
 
     public static final String ADMIN = "admin";
 
+    private static boolean isNullOrBlank(String s) {
+        return (s == null) || s.isBlank();
+    }
+
     @Id
     private String uuid;
 
@@ -44,6 +48,18 @@ public class User implements Comparable<User> {
     @Email
     @NotNull
     private String email;
+
+    @Size(max = 20)
+    @Pattern(regexp="[0-9 ]+")
+    private String telephone;
+
+    @Size(max = 50)
+    @Pattern(regexp="[A-Za-z ]+")
+    private String emergencyName;
+
+    @Size(max = 20)
+    @Pattern(regexp="[0-9 ]+")
+    private String emergencyTelephone;
 
     private boolean notifications;
 
@@ -141,6 +157,30 @@ public class User implements Comparable<User> {
         this.email = email;
     }
 
+    public String getTelephone() {
+        return telephone;
+    }
+
+    public void setTelephone(String telephone) {
+        this.telephone = telephone;
+    }
+
+    public String getEmergencyName() {
+        return emergencyName;
+    }
+
+    public void setEmergencyName(String nokName) {
+        this.emergencyName = nokName;
+    }
+
+    public String getEmergencyTelephone() {
+        return emergencyTelephone;
+    }
+
+    public void setEmergencyTelephone(String nokTelephone) {
+        this.emergencyTelephone = nokTelephone;
+    }
+
     public boolean isNotifications() {
         return notifications;
     }
@@ -183,6 +223,10 @@ public class User implements Comparable<User> {
 
     public String getDisplayName() {
         return name + (keyholder ? "*" : "");
+    }
+
+    public boolean hasIncompleteProfile() {
+        return isNullOrBlank(telephone) ||isNullOrBlank(emergencyName) ||isNullOrBlank(emergencyTelephone);
     }
 
 }

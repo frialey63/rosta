@@ -21,12 +21,8 @@ Backup of the Mongo DB
 ## TODO
 
 idle notification
+
     https://vaadin.com/directory/component/idle-notification/discussions
-
-new data attributes for user
-
-    contact telephone number
-    next of kin
 
 ## Bugs
 
@@ -45,6 +41,10 @@ planning of events
 planning of tasks
 
 ## Done
+
+new data attributes for user
+- contact telephone
+- emergency name and telephone
 
 shop info docs for users
 
