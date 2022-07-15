@@ -16,6 +16,10 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
     @Autowired
     private SecurityUtil securityUtil;
 
+    protected String getUsername() {
+        return securityUtil.getAuthenticatedUser().getUsername();
+    }
+
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
         if (((RostaUserPrincipal) securityUtil.getAuthenticatedUser()).isPasswordChange()) {

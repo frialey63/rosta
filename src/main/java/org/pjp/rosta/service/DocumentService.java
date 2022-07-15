@@ -1,5 +1,6 @@
 package org.pjp.rosta.service;
 
+import java.io.File;
 import java.util.List;
 import java.util.UUID;
 
@@ -18,8 +19,18 @@ public class DocumentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentService.class);
 
+    public static final File FOLDER = new File("docs");
+
     public static class ExistingDocument extends RuntimeException {
         private static final long serialVersionUID = -1080429253717683067L;
+    }
+
+    private static void purgeFolder() {
+        for (File file : FOLDER.listFiles()) {
+            if (!file.isDirectory()) {
+                file.delete();
+            }
+        }
     }
 
     @Value("${init.data:false}")
@@ -37,7 +48,13 @@ public class DocumentService {
         if (initData) {
             LOGGER.debug("initialising documents");
             repository.deleteAll();
+            purgeFolder();
         }
+    }
+
+    public void testData() {
+        repository.deleteAll();
+        purgeFolder();
     }
 
     public List<ShopDocument> findAll() {

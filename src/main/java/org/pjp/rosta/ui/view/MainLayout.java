@@ -177,6 +177,7 @@ public class MainLayout extends AppLayout {
         return new MenuItemInfo[] {
                 new MenuItemInfo("Rota", "la la-clipboard", ShopRotaView.class),
                 new MenuItemInfo("Calendar", "la la-calendar", CalendarView.class),
+                new MenuItemInfo("Documents", "la la-file", ShopDocumentView.class),
                 new MenuItemInfo("Profile", "la la-user", ProfileView.class),
                 new MenuItemInfo("Password", "la la-ellipsis-h", PasswordChangeView.class),
                 new MenuItemInfo("About", "la la-info", AboutView.class),

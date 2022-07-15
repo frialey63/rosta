@@ -1,16 +1,21 @@
 package org.pjp.rosta.ui.view.document;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.StandardCopyOption;
 import java.util.List;
+import java.util.Optional;
 
-import javax.annotation.security.RolesAllowed;
+import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.model.ShopDocument;
+import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.DocumentService;
+import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -21,6 +26,7 @@ import org.vaadin.crudui.crud.CrudOperation;
 import org.vaadin.crudui.crud.CrudOperationException;
 import org.vaadin.crudui.crud.impl.GridCrud;
 import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
+import org.vaadin.olli.FileDownloadWrapper;
 
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
@@ -37,8 +43,9 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.server.StreamResource;
 
-@RolesAllowed("ADMIN")
+@PermitAll
 @PageTitle("Shop Documents")
 @Route(value = "document", layout = MainLayout.class)
 public class ShopDocumentView extends AbstractView implements AfterNavigationObserver {
@@ -47,7 +54,7 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
     private static final Logger LOGGER = LoggerFactory.getLogger(ShopDocumentView.class);
 
-    private static final File DOCUMENTS = new File("docs");
+    private static final File DOCUMENTS_FOLDER = DocumentService.FOLDER;
 
     private static final int MAX_FILE_SIZE_BYTES = 10 * 1024 * 1024;	// 10 MB
 
@@ -57,18 +64,43 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
     private final MemoryBuffer memoryBuffer = new MemoryBuffer();
 
+    private Optional<User> optUser;
+
     private String fileName;
 
     @Autowired
-    private DocumentService service;
+    private UserService userService;
+
+    @Autowired
+    private DocumentService documentService;
 
     public ShopDocumentView() {
         // grid configuration
         crud.getGrid().setColumns("title", "filename");
         crud.getGrid().setColumnReorderingAllowed(true);
+        crud.getGrid().addComponentColumn(doc -> {
+            FileDownloadWrapper buttonWrapper = new FileDownloadWrapper(null);
+            buttonWrapper.wrapComponent(new Button("Download"));
+
+            buttonWrapper.setResource(new StreamResource(doc.getFilename(), () -> {
+                InputStream result = null;
+
+                try {
+                    File file = new File(DOCUMENTS_FOLDER, doc.getFilename());
+
+                    result = new FileInputStream(file);
+                } catch (FileNotFoundException fnfe) {
+                    LOGGER.error("failed to locate file while attempting to download document", fnfe);
+                }
+
+                return result;
+            }));
+
+            return buttonWrapper;
+        });
+
         crud.setFindAllOperationVisible(false);
         crud.setWidth("98%");
-        crud.addUpdateButtonColumn();
         crud.setShowNotifications(SHOW_NOTIFICATIONS);
 
         crud.setCrudFormFactory(new DefaultCrudFormFactory<>(ShopDocument.class) {
@@ -105,14 +137,6 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
                         operationButton.setEnabled(true);
 
                         fileName = event.getFileName();
-
-                        try (InputStream is = memoryBuffer.getInputStream()) {
-                            File file = new File(DOCUMENTS, fileName);
-
-                            Files.copy(memoryBuffer.getInputStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
-                        } catch (IOException e) {
-                            LOGGER.warn("failed to write the uploaded document", e);
-                        }
                     });
 
                     upload.addFileRejectedListener(event -> {
@@ -134,7 +158,7 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
         // logic configuration
         crud.setOperations(
-                () -> service.findAll(),
+                () -> documentService.findAll(),
                 document -> addDocument(document),
                 document -> updateDocument(document),
                 document -> deleteDocument(document)
@@ -163,13 +187,25 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        optUser = userService.findByUsername(getUsername());
+
+        optUser.ifPresent(user -> {
+            if (user.isAdmin()) {
+                crud.addUpdateButtonColumn();
+            } else {
+                crud.setAddOperationVisible(false);
+                crud.setUpdateOperationVisible(false);
+                crud.setDeleteOperationVisible(false);
+            }
+        });
+
         crud.refreshGrid();
     }
 
     private void deleteDocument(ShopDocument document) {
-        service.delete(document);
+        documentService.delete(document);
 
-        File file = new File(DOCUMENTS, document.getFilename());
+        File file = new File(DOCUMENTS_FOLDER, document.getFilename());
         if (!file.delete()) {
             LOGGER.warn("failed to delete document {}", document);
         }
@@ -177,17 +213,24 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
     private ShopDocument updateDocument(ShopDocument document) {
         try {
-            return service.save(document);
+            return documentService.save(document);
         } catch (ExistingUser e) {
             throw new CrudOperationException("A document with this name already exists");
         }
     }
 
     private ShopDocument addDocument(ShopDocument document) {
-        document.setFilename(fileName);
+        File file = new File(DOCUMENTS_FOLDER, fileName);
 
         try {
-            return service.save(document);
+            Files.copy(memoryBuffer.getInputStream(), file.toPath(), StandardCopyOption.REPLACE_EXISTING);
+
+            document.setFilename(fileName);
+
+            return documentService.save(document);
+
+        } catch (IOException e) {
+            throw new CrudOperationException("Failed to write the uploaded document");
         } catch (ExistingUser e) {
             throw new CrudOperationException("A document with this name already exists");
         }

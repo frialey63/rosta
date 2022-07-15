@@ -1,5 +1,6 @@
 package org.pjp.rosta;
 
+import org.pjp.rosta.service.DocumentService;
 import org.pjp.rosta.service.RostaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -33,6 +34,9 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     @Autowired
     private RostaService rostaService;
 
+    @Autowired
+    private DocumentService documentService;
+
     public static void main(String[] args) {
         SpringApplication.run(RostaApplication.class, args);
     }
@@ -41,6 +45,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     public void run(ApplicationArguments args) throws Exception {
         if ("docker".equals(activeProfile)) {
             rostaService.testData();
+            documentService.testData();
             return;
         }
 

@@ -19,7 +19,6 @@ import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
@@ -140,9 +139,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private DatesRenderedEvent datesRenderedEvent;
 
     @Autowired
-    private SecurityUtil securityUtil;
-
-    @Autowired
     private UserService userService;
 
     @Autowired
@@ -187,10 +183,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             add(calendar, helpText);
             setHorizontalComponentAlignment(Alignment.STRETCH, calendar, helpText);
         });
-    }
-
-    private String getUsername() {
-        return securityUtil.getAuthenticatedUser().getUsername();
     }
 
     private FullCalendar createCalendar() {
@@ -264,6 +256,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         return pageTitle;
     }
 
+    @SuppressWarnings("deprecation")
     @Override
     public void onComponentEvent(DatesRenderedEvent event) {
         this.datesRenderedEvent = event;
@@ -470,10 +463,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
+    @SuppressWarnings("deprecation")
     private boolean hasExistingEntry(RenderingMode renderingMode, LocalDate date) {
         return calendar.getEntries().stream().filter(e -> (e.getRenderingMode() == renderingMode) && e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
     }
 
+    @SuppressWarnings("deprecation")
     private void onCreate(ClickEvent<Button> event) {
         CreateDialog createDialog = (CreateDialog) dialog;
 
@@ -504,6 +499,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
     }
 
+    @SuppressWarnings("deprecation")
     private void onDelete(ClickEvent<Button> event) {
         Entry entry = ((DeleteDialog) dialog).getEntry();
 

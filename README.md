@@ -20,7 +20,8 @@ Backup of the Mongo DB
 
 ## TODO
 
-shop info docs for users
+idle notification
+    https://vaadin.com/directory/component/idle-notification/discussions
 
 new data attributes for user
 
@@ -44,6 +45,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+shop info docs for users
 
 session inactivity timeouts
 
