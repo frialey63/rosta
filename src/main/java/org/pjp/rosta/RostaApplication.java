@@ -30,9 +30,6 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     @Value("${spring.profiles.active:default}")
     private String activeProfile;
 
-    @Value("${init.data:false}")
-    private boolean initData;
-
     @Autowired
     private RostaService rostaService;
 
@@ -45,10 +42,6 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
         if ("docker".equals(activeProfile)) {
             rostaService.testData();
             return;
-        }
-
-        if (initData) {
-            rostaService.initData();
         }
 
         rostaService.sendTestEmail();

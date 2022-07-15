@@ -3,11 +3,14 @@ package org.pjp.rosta.service;
 import java.util.List;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.pjp.rosta.model.ShopDocument;
 import org.pjp.rosta.repository.ShopDocumentRepository;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -19,11 +22,22 @@ public class DocumentService {
         private static final long serialVersionUID = -1080429253717683067L;
     }
 
+    @Value("${init.data:false}")
+    private boolean initData;
+
     private final ShopDocumentRepository repository;
 
     @Autowired
     public DocumentService(ShopDocumentRepository repository) {
         this.repository = repository;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (initData) {
+            LOGGER.debug("initialising documents");
+            repository.deleteAll();
+        }
     }
 
     public List<ShopDocument> findAll() {

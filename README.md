@@ -27,6 +27,10 @@ new data attributes for user
 
 shop info docs for users
 
+session inactivity timeouts
+
+    http://doc.sibvisions.com/applications/timeouts_vaadin
+
 ## Bugs
 
 duplicated notifications from crudui

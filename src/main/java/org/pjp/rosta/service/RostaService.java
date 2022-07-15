@@ -18,6 +18,8 @@ import java.util.Set;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+import javax.annotation.PostConstruct;
+
 import org.apache.poi.xwpf.usermodel.XWPFDocument;
 import org.apache.poi.xwpf.usermodel.XWPFParagraph;
 import org.apache.poi.xwpf.usermodel.XWPFRun;
@@ -69,6 +71,8 @@ public class RostaService {
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
+    private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
+
     private static String capitalise(String str) {
         return str.substring(0, 1).toUpperCase() + str.substring(1);
     }
@@ -118,16 +122,14 @@ public class RostaService {
         }
     }
 
+    @Value("${init.data:false}")
+    private boolean initData;
+
     @Value("${check.rosta.director.email}")
     private String checkRostaDirectorEmail;
 
     @Value("${test.email.to:none}")
     private String testEmailTo;
-
-    private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
-    @Value("${initial.admin.password:password}")
-    private String initialAdminPassword;
 
     @Autowired
     private UserRepository userRepo;
@@ -150,18 +152,15 @@ public class RostaService {
     @Autowired
     private ResourceLoader resourceLoader;
 
-    public void initData() {
-        LOGGER.info("initialising data and creating the admin user");
-
-        userRepo.deleteAll();
-        shiftRepo.deleteAll();
-        absenceDayRepository.deleteAll();
-        holidayRepository.deleteAll();
-        volunteerDayRepository.deleteAll();
-
-        String id = UUID.randomUUID().toString();
-        User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode(initialAdminPassword)), true, "admin@gmail.com", false, false, false);
-        userRepo.save(user);
+    @PostConstruct
+    public void postConstruct() {
+        if (initData) {
+            LOGGER.debug("initialising shifts and days");
+            shiftRepo.deleteAll();
+            absenceDayRepository.deleteAll();
+            holidayRepository.deleteAll();
+            volunteerDayRepository.deleteAll();
+        }
     }
 
     public void testData() {
@@ -173,7 +172,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode("password")), true, "admin@gmail.com", false, false, false);
+            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "admin@gmail.com", false, false, false);
             userRepo.save(user);
         }
 
@@ -181,7 +180,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + passwordEncoder.encode("password")), true, "fred@gmail.com", true, true, true);
+            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -200,7 +199,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + passwordEncoder.encode("password")), false, "bill@gmail.com", true, true, false);
+            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -219,7 +218,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + passwordEncoder.encode("password")), true, "anne@gmail.com", true, false, false);
+            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);

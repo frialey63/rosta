@@ -9,6 +9,8 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
 
+import javax.annotation.PostConstruct;
+
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
@@ -16,6 +18,7 @@ import org.pjp.rosta.ui.view.register.UserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -41,6 +44,12 @@ public class UserService {
 
     private final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
+    @Value("${init.data:false}")
+    private boolean initData;
+
+    @Value("${initial.admin.password:password}")
+    private String initialAdminPassword;
+
     private final UserRepository userRepository;
 
     private final EmailService emailService;
@@ -49,6 +58,19 @@ public class UserService {
     public UserService(UserRepository userRepository, EmailService emailService) {
         this.userRepository = userRepository;
         this.emailService = emailService;
+    }
+
+    @PostConstruct
+    public void postConstruct() {
+        if (initData) {
+            userRepository.deleteAll();
+
+            LOGGER.info("initialising data and creating the admin user");
+
+            String id = UUID.randomUUID().toString();
+            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode(initialAdminPassword)), true, "admin@gmail.com", false, false, false);
+            userRepository.save(user);
+        }
     }
 
     public List<User> findAll() {
