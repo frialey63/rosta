@@ -14,6 +14,8 @@ SSL
     https://www.thomasvitale.com/https-spring-boot-ssl-certificate/
     https://www.baeldung.com/spring-boot-https-self-signed-certificate
 
+Configure the email server
+
 Backup of the Mongo DB
 
     https://www.mongodb.com/docs/manual/tutorial/backup-and-restore-tools/
