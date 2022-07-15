@@ -22,10 +22,6 @@ Backup of the Mongo DB
 
 shop info docs for users
 
-session inactivity timeouts
-
-    http://doc.sibvisions.com/applications/timeouts_vaadin
-
 new data attributes for user
 
     contact telephone number
@@ -33,7 +29,7 @@ new data attributes for user
 
 ## Bugs
 
-duplicated notifications from crudui
+duplicated notifications from crudui?
 
 ## Sprint 3 Stories
 
@@ -48,6 +44,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+session inactivity timeouts
 
 management reports of periods worked, holidays, absences, etc.
 
@@ -90,8 +88,11 @@ SSL
 
     keytool -import -alias rosta -file myCertificate.crt -keystore rosta.p12 -storepass password
 
-
 Security
+- session inactivity timeouts
+
+    http://doc.sibvisions.com/applications/timeouts_vaadin
+    https://stackoverflow.com/questions/48741820/vaadin-8-set-session-timeout
 - login and session management
 
     https://vaadin.com/docs/latest/flow/security/enabling-security
@@ -113,3 +114,5 @@ Security
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
+
+
