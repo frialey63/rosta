@@ -20,16 +20,16 @@ Backup of the Mongo DB
 
 ## TODO
 
-new data attributes for user
-
-    contact telephone number
-    next of kin
-
 shop info docs for users
 
 session inactivity timeouts
 
     http://doc.sibvisions.com/applications/timeouts_vaadin
+
+new data attributes for user
+
+    contact telephone number
+    next of kin
 
 ## Bugs
 
