@@ -29,8 +29,6 @@ idle notification
 
 ## Bugs
 
-duplicated notifications from crudui?
-
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?
