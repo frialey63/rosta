@@ -91,7 +91,6 @@ Refactor "rosta" to roster
 SSL
 
     keytool -genkeypair -alias rosta -keyalg RSA -keysize 4096 -storetype PKCS12 -keystore rosta.p12 -validity 3650 -storepass password
-
     keytool -import -alias rosta -file myCertificate.crt -keystore rosta.p12 -storepass password
 
 Security
