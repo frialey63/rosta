@@ -24,6 +24,7 @@ Backup of the Mongo DB
 
 idle notification
 
+    https://stackoverflow.com/questions/72689660/idle-notification-not-showing-vaadin-14
     https://vaadin.com/directory/component/idle-notification/discussions
 
 ## Bugs
@@ -115,7 +116,7 @@ Security
 - signup
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-- password management: first-time change, expiry, lock-out
+- password management: first-time change, expiry, lock-out, time of last login (notification); need login success/failure callbacks...
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
