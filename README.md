@@ -118,4 +118,6 @@ Security
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
 
+- remember me authentication
+
 
