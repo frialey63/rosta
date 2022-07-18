@@ -12,10 +12,12 @@ import org.springframework.beans.factory.annotation.Autowired;
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
+import com.vaadin.flow.router.AfterNavigationEvent;
+import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
 
-public abstract class AbstractView extends VerticalLayout implements BeforeEnterObserver {
+public abstract class AbstractView extends VerticalLayout implements BeforeEnterObserver, AfterNavigationObserver {
 
     private static final long serialVersionUID = 2208170317290395433L;
 
@@ -34,7 +36,10 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
         if (((RostaUserPrincipal) securityUtil.getAuthenticatedUser()).isPasswordChange()) {
             event.rerouteTo(PasswordChangeView.class);
         }
+    }
 
+    @Override
+    public void afterNavigation(AfterNavigationEvent event) {
         Optional<User> optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {
