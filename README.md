@@ -22,10 +22,9 @@ Backup of the Mongo DB
 
 ## TODO
 
-idle notification
+time of last login (notification)
 
-    https://stackoverflow.com/questions/72689660/idle-notification-not-showing-vaadin-14
-    https://vaadin.com/directory/component/idle-notification/discussions
+password expiry, lock-out,
 
 ## Bugs
 
@@ -42,6 +41,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+idle notification
 
 new data attributes for user
 - contact telephone
@@ -92,6 +93,10 @@ SSL
     keytool -import -alias rosta -file myCertificate.crt -keystore rosta.p12 -storepass password
 
 Security
+- idle notification
+
+    https://stackoverflow.com/questions/72689660/idle-notification-not-showing-vaadin-14
+    https://vaadin.com/directory/component/idle-notification/discussions
 - session inactivity timeouts
 
     http://doc.sibvisions.com/applications/timeouts_vaadin
@@ -113,7 +118,7 @@ Security
 - signup
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-- password management: first-time change, expiry, lock-out, time of last login (notification); need login success/failure callbacks...
+- password management: first-time change, expiry, lock-out, time of last login (notification)
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
 - auditing
