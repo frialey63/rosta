@@ -44,6 +44,8 @@ public class AboutView extends AbstractView implements AfterNavigationObserver {
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         paragraph.setText("Shop Rota App version " + applicationVersion);
     }
 

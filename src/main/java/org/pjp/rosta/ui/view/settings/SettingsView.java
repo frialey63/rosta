@@ -72,6 +72,8 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         TableRow detailsRow;
 
         detailsRow = table.addRow();

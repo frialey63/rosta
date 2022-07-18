@@ -105,6 +105,8 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         if (adminManagePassword) {
             crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD,
                     "username", "password", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");

@@ -188,6 +188,8 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {

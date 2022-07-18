@@ -199,6 +199,8 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         List<User> users = userService.findAll(null).stream().sorted().collect(Collectors.toList());
 
         selectUser.setItems(users);

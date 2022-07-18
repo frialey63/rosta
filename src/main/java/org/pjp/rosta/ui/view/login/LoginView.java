@@ -21,13 +21,15 @@ import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.BeforeEnterObserver;
+import com.vaadin.flow.router.BeforeLeaveEvent;
+import com.vaadin.flow.router.BeforeLeaveObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 import com.vaadin.flow.shared.Registration;
 
 @PageTitle("Login")
 @Route("login")
-public class LoginView extends VerticalLayout implements BeforeEnterObserver {
+public class LoginView extends VerticalLayout implements BeforeEnterObserver, BeforeLeaveObserver {
 
     private static final long serialVersionUID = 4838429459481914860L;
 
@@ -110,6 +112,12 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver {
 
             login.setError(true);
         }
+    }
+
+    // https://github.com/vaadin/flow/issues/7287
+    @Override
+    public void beforeLeave(BeforeLeaveEvent event) {
+        LOGGER.debug("forwardUrl = {}", event.getForwardUrl());
     }
 
 }

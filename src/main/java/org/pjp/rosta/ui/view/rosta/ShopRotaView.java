@@ -182,6 +182,8 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         datePicker.setValue(LocalDate.now());
     }
 

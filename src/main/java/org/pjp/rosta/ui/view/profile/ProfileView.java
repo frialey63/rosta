@@ -123,6 +123,8 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         populateUser();
     }
 

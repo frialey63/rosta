@@ -234,6 +234,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {
