@@ -22,9 +22,7 @@ Backup of the Mongo DB
 
 ## TODO
 
-time of last login (notification)
-
-password expiry, lock-out,
+password expiry?, account lock-out
 
 ## Bugs
 
@@ -118,11 +116,11 @@ Security
 - signup
 
     https://vaadin.com/blog/create-a-registration-form-in-pure-java
-- password management: first-time change, expiry, lock-out, time of last login (notification)
+- account management: first-time login, password expiry, account lock-out, time of last login (notification)
 
     https://www.codejava.net/frameworks/spring-boot/spring-security-limit-login-attempts-example
-- auditing
-
 - remember me authentication
+
+- auditing
 
 

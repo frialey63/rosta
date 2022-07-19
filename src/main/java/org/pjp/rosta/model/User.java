@@ -1,6 +1,8 @@
 package org.pjp.rosta.model;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -14,6 +16,8 @@ import org.springframework.data.mongodb.core.mapping.Document;
 public class User implements Comparable<User> {
 
     public static final String ADMIN = "admin";
+
+    public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
     private static boolean isNullOrBlank(String s) {
         return (s == null) || s.isBlank();
@@ -43,6 +47,8 @@ public class User implements Comparable<User> {
     private Instant passwordExpiry;
 
     private boolean enabled;
+
+    private LocalDateTime lastLoggedIn;
 
     @Size(max = 50)
     @Email
@@ -147,6 +153,22 @@ public class User implements Comparable<User> {
 
     public void setEnabled(boolean enabled) {
         this.enabled = enabled;
+    }
+
+    public LocalDateTime getLastLoggedIn() {
+        return lastLoggedIn;
+    }
+
+    public String getLastLoggedInStr() {
+        if (lastLoggedIn != null) {
+            return lastLoggedIn.format(FORMATTER);
+        }
+
+        return "never";
+    }
+
+    public void setLastLoggedIn(LocalDateTime lastLoggedIn) {
+        this.lastLoggedIn = lastLoggedIn;
     }
 
     public String getEmail() {

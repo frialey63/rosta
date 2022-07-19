@@ -1,6 +1,7 @@
 package org.pjp.rosta.service;
 
 import java.time.Instant;
+import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
 import java.util.HashMap;
@@ -129,6 +130,27 @@ public class UserService {
 
         LOGGER.debug("saving user {}", user);
         return userRepository.save(user);
+    }
+
+    public LocalDateTime updateLastLoggedIn(String username) {
+        LOGGER.debug("update last logged-in for {}", username);
+
+        LocalDateTime result = null;
+
+        Optional<User> optUser = userRepository.findByUsername(username);
+
+        if (optUser.isPresent()) {
+            User user = optUser.get();
+
+            result = user.getLastLoggedIn();
+
+            user.setLastLoggedIn(LocalDateTime.now());
+            userRepository.save(user);
+        } else {
+            LOGGER.debug("failed to lookup user {}", username);
+        }
+
+        return result;
     }
 
     public int forgotPassword(String username) {

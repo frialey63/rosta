@@ -1,6 +1,7 @@
 package org.pjp.rosta.ui.view.profile;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 
 import javax.annotation.security.PermitAll;
 import javax.validation.constraints.NotNull;
@@ -8,14 +9,13 @@ import javax.validation.constraints.Size;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.RostaUserPrincipal;
-import org.pjp.rosta.security.SecurityUtil;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.util.CompactVerticalLayout;
+import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.nulabinc.zxcvbn.StandardDictionaries;
 import com.nulabinc.zxcvbn.StandardKeyboards;
@@ -42,6 +42,7 @@ import com.vaadin.flow.data.binder.ValueContext;
 import com.vaadin.flow.data.value.ValueChangeMode;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
+import com.vaadin.flow.router.BeforeEnterEvent;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
@@ -49,7 +50,7 @@ import com.vaadin.flow.router.Route;
 @PermitAll
 @PageTitle("Change Password")
 @Route(value = "password", layout = MainLayout.class)
-public class PasswordChangeView extends VerticalLayout implements AfterNavigationObserver {
+public class PasswordChangeView extends AbstractView implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -2024122079440962290L;
 
@@ -120,13 +121,9 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
 
     private User user;
 
-    @Autowired
-    private SecurityUtil securityUtil;
-
-    @Autowired
-    private UserService userService;
-
     public PasswordChangeView() {
+        super();
+
         password.setMaxLength(20);
         confirmPassword.setMaxLength(password.getMaxLength());
 
@@ -235,7 +232,24 @@ public class PasswordChangeView extends VerticalLayout implements AfterNavigatio
     }
 
     @Override
+    public void beforeEnter(BeforeEnterEvent event) {
+        UserDetails authenticatedUser = securityUtil.getAuthenticatedUser();
+
+        if (authenticatedUser instanceof RostaUserPrincipal rostaUserPrincipal) {
+            if (rostaUserPrincipal.getAndSetFirst(false)) {
+                LocalDateTime lastLoggedIn = userService.updateLastLoggedIn(authenticatedUser.getUsername());
+
+                if (lastLoggedIn != null) {
+                    Notification.show("Last logged-in at " + lastLoggedIn.format(User.FORMATTER));
+                }
+            }
+        }
+    }
+
+    @Override
     public void afterNavigation(AfterNavigationEvent event) {
+        super.afterNavigation(event);
+
         String username = securityUtil.getAuthenticatedUser().getUsername();
 
         userService.findByUsername(username).ifPresent(user -> {

@@ -150,6 +150,8 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
 
     @SuppressWarnings("unchecked")
     public ShopRotaView() {
+        super();
+
         registration = datePicker.addValueChangeListener(this);
 
         Span filler = new Span();

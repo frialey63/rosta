@@ -27,6 +27,8 @@ public class AboutView extends AbstractView implements AfterNavigationObserver {
     private final Paragraph paragraph = new Paragraph();
 
     public AboutView() {
+        super();
+
         setSpacing(false);
 
         Image img = new Image("images/raf-manston-logo.png", "logo");

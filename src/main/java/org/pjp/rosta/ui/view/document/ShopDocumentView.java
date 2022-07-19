@@ -15,7 +15,6 @@ import javax.annotation.security.PermitAll;
 import org.pjp.rosta.model.ShopDocument;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.DocumentService;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -70,12 +69,11 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
     private String fileName;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private DocumentService documentService;
 
     public ShopDocumentView() {
+        super();
+
         // grid configuration
         crud.getGrid().setColumns("title", "filename");
         crud.getGrid().setColumnReorderingAllowed(true);

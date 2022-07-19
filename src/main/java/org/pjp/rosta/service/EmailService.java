@@ -17,8 +17,13 @@ public class EmailService {
 
     private static final String FROM = "noreply@rafmanston.co.uk";
 
+    private final JavaMailSender emailSender;
+
     @Autowired
-    private JavaMailSender emailSender;
+    public EmailService(JavaMailSender emailSender) {
+        super();
+        this.emailSender = emailSender;
+    }
 
     @Async
     public void sendSimpleMessage(String to, String subject, String text) {

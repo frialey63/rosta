@@ -4,7 +4,6 @@ import javax.annotation.security.RolesAllowed;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -41,14 +40,13 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     private boolean adminManagePassword;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private RostaService rostaService;
 
     public UserManagementView() {
+        super();
+
         // grid configuration
-        crud.getGrid().setColumns("username", "name", "admin", "enabled", "employee", "keyholder", "notifications");
+        crud.getGrid().setColumns("username", "name", "admin", "enabled", "lastLoggedInStr", "employee", "keyholder", "notifications");
         crud.getGrid().setColumnReorderingAllowed(true);
 
         crud.setFindAllOperationVisible(false);

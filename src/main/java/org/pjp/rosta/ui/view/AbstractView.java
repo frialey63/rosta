@@ -1,5 +1,6 @@
 package org.pjp.rosta.ui.view;
 
+import java.time.LocalDateTime;
 import java.util.Optional;
 
 import org.pjp.rosta.model.User;
@@ -8,6 +9,7 @@ import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 
 import com.vaadin.flow.component.notification.Notification;
 import com.vaadin.flow.component.notification.NotificationVariant;
@@ -22,10 +24,14 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
     private static final long serialVersionUID = 2208170317290395433L;
 
     @Autowired
-    private SecurityUtil securityUtil;
+    protected SecurityUtil securityUtil;
 
     @Autowired
-    private UserService userService;
+    protected UserService userService;
+
+    public AbstractView() {
+        super();
+    }
 
     protected String getUsername() {
         return securityUtil.getAuthenticatedUser().getUsername();
@@ -33,8 +39,20 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
 
     @Override
     public void beforeEnter(BeforeEnterEvent event) {
-        if (((RostaUserPrincipal) securityUtil.getAuthenticatedUser()).isPasswordChange()) {
-            event.rerouteTo(PasswordChangeView.class);
+        UserDetails authenticatedUser = securityUtil.getAuthenticatedUser();
+
+        if (authenticatedUser instanceof RostaUserPrincipal rostaUserPrincipal) {
+            if (rostaUserPrincipal.getAndSetFirst(false)) {
+                LocalDateTime lastLoggedIn = userService.updateLastLoggedIn(authenticatedUser.getUsername());
+
+                if (lastLoggedIn != null) {
+                    Notification.show("Last logged-in at " + lastLoggedIn.format(User.FORMATTER));
+                }
+            }
+
+            if (rostaUserPrincipal.isPasswordChange()) {
+                event.rerouteTo(PasswordChangeView.class);
+            }
         }
     }
 

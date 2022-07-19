@@ -67,6 +67,8 @@ public class LoginView extends VerticalLayout implements BeforeEnterObserver, Be
     private UserService userService;
 
     public LoginView() {
+        super();
+
         addClassName("login-view");
         setSizeFull();
 

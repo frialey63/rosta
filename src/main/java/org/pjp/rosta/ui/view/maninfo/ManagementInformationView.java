@@ -16,7 +16,6 @@ import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.util.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
@@ -127,12 +126,11 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     private Table results;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private RostaService rostaService;
 
     public ManagementInformationView() {
+        super();
+
         setSpacing(false);
 
         H2 h2 = new H2("Management Information");

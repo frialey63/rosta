@@ -20,7 +20,6 @@ import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.UserService;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.util.MyDatePicker;
@@ -139,12 +138,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private DatesRenderedEvent datesRenderedEvent;
 
     @Autowired
-    private UserService userService;
-
-    @Autowired
     private RostaService rostaService;
 
     public CalendarView() {
+        super();
+
         MenuBar menuBar = createMenuBar();
 
         Span filler = new Span();

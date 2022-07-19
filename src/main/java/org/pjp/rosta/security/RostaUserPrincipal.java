@@ -14,6 +14,8 @@ public class RostaUserPrincipal implements UserDetails {
 
     private final User user;
 
+    private boolean first = true;
+
     public RostaUserPrincipal(User user) {
         super();
         this.user = user;
@@ -64,6 +66,14 @@ public class RostaUserPrincipal implements UserDetails {
 
     public void setPasswordChange(boolean passwordChange) {
         user.setPasswordChange(passwordChange);
+    }
+
+    public boolean getAndSetFirst(boolean first) {
+        boolean result = this.first;
+
+        this.first = first;
+
+        return result;
     }
 
 }

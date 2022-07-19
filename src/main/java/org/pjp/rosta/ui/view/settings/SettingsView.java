@@ -43,6 +43,8 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
     private Table table;
 
     public SettingsView() {
+        super();
+
         setSpacing(false);
 
         add(new H2("Notification Settings"));
