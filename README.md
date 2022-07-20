@@ -34,6 +34,8 @@ real-time notifications of user updates to their calendars, e.g. holiday/absence
 
 ## Sprint 4 Stories
 
+overview rota for next 3 months?
+
 planning of events
 
 planning of tasks
