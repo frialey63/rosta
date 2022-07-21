@@ -55,11 +55,13 @@
             <artifactId>enhanced-dialog</artifactId>
             <version>22.0.0</version>
         </dependency>
+<!--
         <dependency>
             <groupId>com.vaadin.componentfactory</groupId>
             <artifactId>idle-notification</artifactId>
             <version>1.1.6</version>
         </dependency>
+-->
         <dependency>
             <groupId>org.vaadin.crudui</groupId>
             <artifactId>crudui</artifactId>

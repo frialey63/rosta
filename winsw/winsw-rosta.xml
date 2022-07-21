@@ -4,13 +4,8 @@
     <name>Shop Rota App</name>
     <description>The RAF Manston History Museum Shop Rota Service</description>
     <executable>java</executable>
-    <arguments>-jar "rosta-0.2.0-SNAPSHOT.jar"</arguments>
+    <arguments>-jar "rosta-0.3.0-SNAPSHOT.jar"</arguments>
     <workingdirectory>C:\Rosta</workingdirectory>
-<!--
-    <serviceaccount>
-        <username>NT AUTHORITY\NetworkService</username>
-    </serviceaccount>
--->
     <serviceaccount>
         <username>.\rafmanstonshop</username>
         <password>194045</password>
@@ -18,10 +13,6 @@
     </serviceaccount>
     <priority>Normal</priority>
     <startmode>Automatic</startmode>
-<!--
-    <depend>Eventlog</depend>
-    <depend>W32Time</depend>
--->
     <depend>MongoDB</depend>
     <logpath>%BASE%\logs</logpath>
     <logmode>rotate</logmode>
