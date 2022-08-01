@@ -18,6 +18,7 @@ import org.vaadin.crudui.form.impl.form.factory.DefaultCrudFormFactory;
 
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.grid.Grid.SelectionMode;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
@@ -97,8 +98,11 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         setPadding(false);
         setSizeFull();
 
+        Span helpText = new Span("The admin(s) cannot operate as an employee or volunteer ('employee', 'keyholder' and 'notifications' are ignored).");
+        helpText.getStyle().set("font-style", "italic");
+
         setHorizontalComponentAlignment(Alignment.START, crud);
-        add(crud);
+        add(crud, helpText);
     }
 
     @Override

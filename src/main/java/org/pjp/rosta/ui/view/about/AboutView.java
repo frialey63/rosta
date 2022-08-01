@@ -21,22 +21,29 @@ public class AboutView extends AbstractView implements AfterNavigationObserver {
 
     private static final long serialVersionUID = -2468462280700402027L;
 
+    private static final String APP_NAME = "Shop Rota App version ";
+
+    @Value("${about.heading}")
+    private String aboutHeading;
+
+    @Value("${about.image}")
+    private String aboutImage;
+
     @Value("${application.version}")
     private String applicationVersion;
 
-    private final Paragraph paragraph = new Paragraph();
+    private final Image image = new Image("images/empty-plant.png", "logo");
+
+    private final H2 heading = new H2();
+
+    private final Paragraph appParagraph = new Paragraph();
 
     public AboutView() {
         super();
 
         setSpacing(false);
 
-        Image img = new Image("images/raf-manston-logo.png", "logo");
-        img.setWidth("200px");
-        add(img);
-
-        add(new H2("RAF Manston History Museum"));
-        add(paragraph);
+        add(image, heading, appParagraph);
 
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
@@ -48,7 +55,12 @@ public class AboutView extends AbstractView implements AfterNavigationObserver {
     public void afterNavigation(AfterNavigationEvent event) {
         super.afterNavigation(event);
 
-        paragraph.setText("Shop Rota App version " + applicationVersion);
+        image.setSrc(aboutImage);
+        image.setWidth("200px");
+
+        heading.setText(aboutHeading);
+
+        appParagraph.setText(APP_NAME + applicationVersion);
     }
 
 }
