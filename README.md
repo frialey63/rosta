@@ -24,6 +24,8 @@ Backup of the Mongo DB
 
 password expiry?, account lock-out
 
+register attendance via QR code or bluetooth proxity
+
 ## Bugs
 
 ## Sprint 3 Stories
@@ -35,6 +37,8 @@ real-time notifications of user updates to their calendars, e.g. holiday/absence
 ## Sprint 4 Stories
 
 overview rota for next 3 months?
+
+volunteer attendance and reliability stats/predictions
 
 planning of events
 
