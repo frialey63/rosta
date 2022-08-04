@@ -48,6 +48,7 @@ public class AboutView extends AbstractView implements AfterNavigationObserver {
         setSizeFull();
         setJustifyContentMode(JustifyContentMode.CENTER);
         setDefaultHorizontalComponentAlignment(Alignment.CENTER);
+
         getStyle().set("text-align", "center");
     }
 
