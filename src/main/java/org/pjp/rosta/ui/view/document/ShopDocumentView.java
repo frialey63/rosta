@@ -99,7 +99,7 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
         });
 
         crud.setFindAllOperationVisible(false);
-        crud.setWidth("98%");
+        crud.setWidthFull();
         crud.setShowNotifications(SHOW_NOTIFICATIONS);
 
         crud.setCrudFormFactory(new DefaultCrudFormFactory<>(ShopDocument.class) {
@@ -175,13 +175,13 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
             });
         });
 
-        // layout configuration
-        setMargin(true);
-        setPadding(false);
-        setSizeFull();
-
         setHorizontalComponentAlignment(Alignment.START, crud);
         add(crud);
+
+        // layout configuration
+        setMargin(false);
+        setPadding(true);
+        setSizeFull();
     }
 
     @Override

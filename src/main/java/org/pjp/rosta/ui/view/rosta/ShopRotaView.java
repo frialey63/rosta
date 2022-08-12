@@ -21,6 +21,7 @@ import org.pjp.rosta.bean.RostaDay;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
+import org.pjp.rosta.ui.component.CompactVerticalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -162,7 +163,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
         HorizontalLayout hl = new CompactHorizontalLayout(labelSpan, datePicker, filler, buttonWrapper);
         hl.setVerticalComponentAlignment(Alignment.CENTER, labelSpan, datePicker, filler, buttonWrapper);
         hl.setAlignItems(Alignment.STRETCH);
-        hl.setWidth("98%");
+        hl.setWidthFull();
 
         setHorizontalComponentAlignment(Alignment.START, hl);
         add(hl);
@@ -177,8 +178,13 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
             add(layout);
         }
 
-        setMargin(true);
-        setPadding(false);
+        VerticalLayout vl = new CompactVerticalLayout();
+        vl.getStyle().set("padding-bottom", "10px");
+
+        add(vl);
+
+        setMargin(false);
+        setPadding(true);
         setSizeFull();
     }
 
@@ -253,7 +259,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
         hl.setPadding(false);
         hl.setMargin(false);
         hl.setSpacing(false);
-        hl.setWidth("98%");
+        hl.setWidthFull();
 
         Grid<GridBean> dayGrid = new Grid<>(GridBean.class, false);
         dayGrid.setColumnReorderingAllowed(false);
