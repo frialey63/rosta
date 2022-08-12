@@ -28,6 +28,14 @@ register attendance via QR code or bluetooth proxity
 
 ## Bugs
 
+mobile friendly
+
+one week cal view with instant notifications
+
+user roles
+
+rationalise employee and volunteer capabilities
+
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?

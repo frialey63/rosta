@@ -6,7 +6,7 @@ import java.util.stream.Collectors;
 import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.Holiday;
-import org.pjp.rosta.ui.util.CompactHorizontalLayout;
+import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;

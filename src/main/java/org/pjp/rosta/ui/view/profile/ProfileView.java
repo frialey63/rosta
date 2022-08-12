@@ -5,7 +5,7 @@ import javax.annotation.security.RolesAllowed;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.RostaUserPrincipal;
 import org.pjp.rosta.service.UserService.ExistingUser;
-import org.pjp.rosta.ui.util.CompactHorizontalLayout;
+import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 

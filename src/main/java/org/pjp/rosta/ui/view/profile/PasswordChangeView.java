@@ -9,8 +9,8 @@ import javax.validation.constraints.Size;
 
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.security.RostaUserPrincipal;
-import org.pjp.rosta.ui.util.CompactHorizontalLayout;
-import org.pjp.rosta.ui.util.CompactVerticalLayout;
+import org.pjp.rosta.ui.component.CompactHorizontalLayout;
+import org.pjp.rosta.ui.component.CompactVerticalLayout;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;

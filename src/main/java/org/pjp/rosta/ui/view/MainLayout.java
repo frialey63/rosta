@@ -2,8 +2,8 @@ package org.pjp.rosta.ui.view;
 
 
 import org.pjp.rosta.security.SecurityUtil;
+import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
-import org.pjp.rosta.ui.util.CompactHorizontalLayout;
 import org.pjp.rosta.ui.view.about.AboutView;
 import org.pjp.rosta.ui.view.calendar.CalendarView;
 import org.pjp.rosta.ui.view.document.ShopDocumentView;

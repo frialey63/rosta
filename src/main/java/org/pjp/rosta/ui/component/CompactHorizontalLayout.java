@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.util;
+package org.pjp.rosta.ui.component;
 
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
