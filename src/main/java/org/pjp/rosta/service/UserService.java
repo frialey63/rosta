@@ -4,7 +4,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
@@ -98,9 +97,7 @@ public class UserService {
     }
 
     public Map<String, User> getAllNonManager() {
-        Map<String, User> map = new HashMap<>();
-
-        findAll().stream().filter(user -> !user.isManager()).collect(Collectors.toMap(User::getUuid, Function.identity()));
+        Map<String, User> map = findAll().stream().filter(user -> !user.isManager()).collect(Collectors.toMap(User::getUuid, Function.identity()));
 
         return Collections.unmodifiableMap(map);
     }
