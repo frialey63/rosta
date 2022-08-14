@@ -30,11 +30,11 @@ register attendance via QR code or bluetooth proxity
 
 mobile friendly
 
-one week cal view with instant notifications
-
 user roles
 
 tooltips on Calendar, see https://vaadin.com/directory/component/full-calendar-flow/samples
+
+one week calendar view with instant notifications
 
 rationalise employee and volunteer capabilities
 
