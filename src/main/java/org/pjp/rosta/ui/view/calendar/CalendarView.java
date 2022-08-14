@@ -22,6 +22,8 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
+import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltip;
+import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltipBuilder;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -32,8 +34,6 @@ import org.vaadin.stefan.fullcalendar.DatesRenderedEvent;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
-import org.vaadin.stefan.fullcalendar.FullCalendar;
-import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 import org.vaadin.stefan.ui.view.demos.customdaygrid.CustomFixedDayGridWeekCalendarView;
@@ -78,6 +78,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     static final String KEY_UUID = "uuid";
 
     static final String KEY_DAY_CLASS = "dayClass";
+
+    static final String KEY_DESCRIPTION = "description";
 
     private static String getTitle(PartOfDay partOfDay) {
         if (partOfDay.isEvening() == null) {
@@ -134,7 +136,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private String pageTitle = "Calendar";
 
-    private FullCalendar calendar;
+    private FullCalendarWithTooltip calendar;
 
     private JsonObject defaultInitialOptions = Json.createObject();
 
@@ -199,8 +201,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
-    private FullCalendar createCalendar(JsonObject initialOptions) {
-        calendar = FullCalendarBuilder.create().withInitialOptions(initialOptions).build();
+    private FullCalendarWithTooltip createCalendar(JsonObject initialOptions) {
+        calendar = FullCalendarWithTooltipBuilder.create().withInitialOptions(initialOptions).build();
         calendar.setHeightByParent();
         calendar.setFirstDay(DayOfWeek.MONDAY);
 
@@ -317,13 +319,16 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
 
             rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
+                String title = getTitle(day);
+
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
                 entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+                entry.setCustomProperty(KEY_DESCRIPTION, title);
                 entry.setStart(day.getDate());
                 entry.setColor(day.getColour());
                 entry.setAllDay(true);
-                entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
+                entry.setTitle(title);	// TODO centre align the text in the entry on the calendar
                 entry.setRenderingMode(RenderingMode.BLOCK);
 
                 entry.setDurationEditable(false);
@@ -345,6 +350,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                         Entry entry = new Entry();
                         entry.setCustomProperty(KEY_UUID, day.getUuid());
                         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+                        entry.setCustomProperty(KEY_DESCRIPTION, title);
                         entry.setStart(day.getDate());
                         entry.setColor(day.getColour());
                         entry.setAllDay(true);
@@ -506,6 +512,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         Entry entry = new Entry();
         entry.setCustomProperty(KEY_UUID, day.getUuid());
         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+        entry.setCustomProperty(KEY_DESCRIPTION, title);
         entry.setStart(date);
         entry.setColor(day.getColour());
         entry.setAllDay(true);
