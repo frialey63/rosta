@@ -25,7 +25,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@RolesAllowed("USER")
+@RolesAllowed({"WORKER", "SUPERVISOR"})
 @PageTitle("Profile")
 @Route(value = "profile", layout = MainLayout.class)
 public class ProfileView extends AbstractView implements AfterNavigationObserver {

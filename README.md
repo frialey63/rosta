@@ -34,6 +34,8 @@ one week cal view with instant notifications
 
 user roles
 
+tooltips on Calendar, see https://vaadin.com/directory/component/full-calendar-flow/samples
+
 rationalise employee and volunteer capabilities
 
 ## Sprint 3 Stories

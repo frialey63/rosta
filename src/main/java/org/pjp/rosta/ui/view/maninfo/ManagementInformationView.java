@@ -41,7 +41,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@RolesAllowed("ADMIN")
+@RolesAllowed("MANAGER")
 @PageTitle("Management Information")
 @Route(value = "maninfo", layout = MainLayout.class)
 public class ManagementInformationView extends AbstractView implements AfterNavigationObserver, ComponentEventListener<ClickEvent<Button>> {
@@ -199,7 +199,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     public void afterNavigation(AfterNavigationEvent event) {
         super.afterNavigation(event);
 
-        List<User> users = userService.findAll(null).stream().sorted().collect(Collectors.toList());
+        List<User> users = userService.findAllNonManager(null).stream().sorted().collect(Collectors.toList());
 
         selectUser.setItems(users);
         if (users.size() > 0) {
@@ -285,9 +285,9 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
     private List<User> findUsersByCriteria() {
         return switch (userType.getValue()) {
-        case ALL -> userService.findAll(null);
-        case EMPLOYEE -> userService.findAll(true);
-        case VOLUNTEER -> userService.findAll(false);
+        case ALL -> userService.findAllNonManager(null);
+        case EMPLOYEE -> userService.findAllNonManager(true);
+        case VOLUNTEER -> userService.findAllNonManager(false);
         case SPECIFIC -> userService.findByUsername(selectUser.getValue().getUsername()).stream().collect(Collectors.toList());
         };
     }

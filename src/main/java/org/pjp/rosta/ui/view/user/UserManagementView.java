@@ -24,7 +24,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@RolesAllowed("ADMIN")
+@RolesAllowed("ROLE_MANAGER")
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserManagementView extends AbstractView implements AfterNavigationObserver {
@@ -37,8 +37,8 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     private final GridCrud<User> crud = new GridCrud<>(User.class);
 
-    @Value("${admin.manage.password:false}")
-    private boolean adminManagePassword;
+    @Value("${test.manage.password:false}")
+    private boolean testManagePassword;
 
     @Autowired
     private RostaService rostaService;
@@ -47,7 +47,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         super();
 
         // grid configuration
-        crud.getGrid().setColumns("username", "name", "admin", "enabled", "lastLoggedInStr", "employee", "keyholder", "notifications");
+        crud.getGrid().setColumns("username", "name", "userRole", "enabled", "lastLoggedInStr", "employee", "keyholder", "notifications");
         crud.getGrid().setColumnReorderingAllowed(true);
 
         crud.setFindAllOperationVisible(false);
@@ -70,7 +70,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
         // form configuration
         crud.getCrudFormFactory().setUseBeanValidation(true);
-        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
+        crud.getCrudFormFactory().setVisibleProperties("username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "userRole", "enabled", "employee", "keyholder", "notifications");
         crud.getCrudFormFactory().setShowNotifications(SHOW_NOTIFICATIONS);
 
         // logic configuration
@@ -98,7 +98,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         setPadding(false);
         setSizeFull();
 
-        Span helpText = new Span("The admin(s) cannot operate as an employee or volunteer ('employee', 'keyholder' and 'notifications' are ignored).");
+        Span helpText = new Span("The manager(s) cannot operate as an employee or volunteer ('employee', 'keyholder' and 'notifications' are ignored).");
         helpText.getStyle().set("font-style", "italic");
 
         setHorizontalComponentAlignment(Alignment.START, crud);
@@ -109,12 +109,12 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     public void afterNavigation(AfterNavigationEvent event) {
         super.afterNavigation(event);
 
-        if (adminManagePassword) {
+        if (testManagePassword) {
             crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD,
-                    "username", "password", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
+                    "username", "password", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "userRole", "enabled", "employee", "keyholder", "notifications");
         } else {
             crud.getCrudFormFactory().setVisibleProperties(CrudOperation.ADD,
-                    "username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "admin", "enabled", "employee", "keyholder", "notifications");
+                    "username", "name", "email", "telephone", "emergencyName", "emergencyTelephone", "userRole", "enabled", "employee", "keyholder", "notifications");
         }
 
         crud.refreshGrid();
@@ -134,7 +134,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
 
     private User addUser(User user) {
         try {
-            if (adminManagePassword) {
+            if (testManagePassword) {
                 user.setPassword("{bcrypt}" + passwordEncoder.encode(user.getPassword()));
                 user.setPasswordChange(true);
             }

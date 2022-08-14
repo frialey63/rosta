@@ -3,6 +3,7 @@ package org.pjp.rosta.model;
 import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.util.Objects;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotNull;
@@ -14,8 +15,6 @@ import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
 public class User implements Comparable<User> {
-
-    public static final String ADMIN = "admin";
 
     public static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("HH:mm dd/MM/yy");
 
@@ -31,7 +30,8 @@ public class User implements Comparable<User> {
     @NotNull
     private String username;
 
-    private boolean admin;
+    @NotNull
+    private UserRole userRole;
 
     @Size(max = 50)
     @Pattern(regexp="[A-Za-z ]+")
@@ -77,11 +77,11 @@ public class User implements Comparable<User> {
         super();
     }
 
-    public User(String uuid, @NotNull String username, boolean admin, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee, boolean keyholder) {
+    public User(String uuid, @NotNull String username, @NotNull UserRole role, @NotNull String name, @NotNull String password, boolean enabled, @NotNull String email, boolean notifications, boolean employee, boolean keyholder) {
         super();
         this.uuid = uuid;
         this.username = username;
-        this.admin = admin;
+        this.userRole = role;
         this.name = name;
         this.password = password;
         this.enabled = enabled;
@@ -107,12 +107,20 @@ public class User implements Comparable<User> {
         this.username = username;
     }
 
-    public boolean isAdmin() {
-        return admin;
+    public UserRole getUserRole() {
+        return userRole;
     }
 
-    public void setAdmin(boolean admin) {
-        this.admin = admin;
+    public void setUserRole(UserRole userRole) {
+        this.userRole = userRole;
+    }
+
+    public boolean isManager() {
+        return userRole == UserRole.MANAGER;
+    }
+
+    public boolean isSupervisor() {
+        return userRole == UserRole.SUPERVISOR;
     }
 
     public String getName() {
@@ -225,6 +233,23 @@ public class User implements Comparable<User> {
 
     public void setKeyholder(boolean keyholder) {
         this.keyholder = keyholder;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(uuid);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj)
+            return true;
+        if (obj == null)
+            return false;
+        if (getClass() != obj.getClass())
+            return false;
+        User other = (User) obj;
+        return Objects.equals(uuid, other.uuid);
     }
 
     @Override

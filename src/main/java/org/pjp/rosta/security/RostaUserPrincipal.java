@@ -23,7 +23,11 @@ public class RostaUserPrincipal implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return user.isAdmin() ? Collections.singleton(new SimpleGrantedAuthority("ROLE_ADMIN")) : Collections.singleton(new SimpleGrantedAuthority("ROLE_USER"));
+        return switch(user.getUserRole()) {
+        case WORKER ->  Collections.singleton(new SimpleGrantedAuthority("ROLE_WORKER"));
+        case SUPERVISOR ->  Collections.singleton(new SimpleGrantedAuthority("ROLE_SUPERVISOR"));
+        case MANAGER ->  Collections.singleton(new SimpleGrantedAuthority("ROLE_MANAGER"));
+        };
     }
 
     @Override

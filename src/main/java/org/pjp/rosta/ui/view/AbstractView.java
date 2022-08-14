@@ -61,7 +61,7 @@ public abstract class AbstractView extends VerticalLayout implements BeforeEnter
         Optional<User> optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {
-            if (!user.isAdmin() && user.hasIncompleteProfile()) {
+            if (!user.isManager() && user.hasIncompleteProfile()) {
                 Notification.show("Please complete your profile").addThemeVariants(NotificationVariant.LUMO_ERROR);
             }
         });

@@ -9,10 +9,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
+import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
 import org.pjp.rosta.ui.view.register.UserBean;
@@ -48,8 +51,8 @@ public class UserService {
     @Value("${init.data:false}")
     private boolean initData;
 
-    @Value("${initial.admin.password:password}")
-    private String initialAdminPassword;
+    @Value("${initial.manager.password:password}")
+    private String initialManagerPassword;
 
     private final UserRepository userRepository;
 
@@ -66,10 +69,10 @@ public class UserService {
         if (initData) {
             userRepository.deleteAll();
 
-            LOGGER.info("initialising data and creating the admin user");
+            LOGGER.info("initialising data and creating the manager");
 
             String id = UUID.randomUUID().toString();
-            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + passwordEncoder.encode(initialAdminPassword)), true, "admin@gmail.com", false, false, false);
+            User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + passwordEncoder.encode(initialManagerPassword)), true, "manager@gmail.com", false, true, false);
             userRepository.save(user);
         }
     }
@@ -82,22 +85,22 @@ public class UserService {
         return (int) userRepository.count();
     }
 
-    public List<User> findAll(Boolean employee) {
+    public List<User> findAllNonManager(Boolean employee) {
         if (employee == null) {
-            return userRepository.findAllByAdmin(false);
+            return userRepository.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER });
         }
 
-        return userRepository.findAllByAdminAndEmployee(false, employee);
+        return userRepository.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, employee);
     }
 
     public Optional<User> findByUsername(String username) {
         return userRepository.findByUsername(username);
     }
 
-    public Map<String, User> getAllNonAdmin() {
+    public Map<String, User> getAllNonManager() {
         Map<String, User> map = new HashMap<>();
 
-        findAll().stream().filter(user -> !user.isAdmin()).forEach(user -> map.put(user.getUuid(), user));
+        findAll().stream().filter(user -> !user.isManager()).collect(Collectors.toMap(User::getUuid, Function.identity()));
 
         return Collections.unmodifiableMap(map);
     }
@@ -205,7 +208,7 @@ public class UserService {
         String password = "{bcrypt}" + passwordEncoder.encode(userBean.getPassword());
         Instant passwordExpiry = Instant.now().plus(FORGOT_PASSWORD_EXPIRY_HOURS, ChronoUnit.HOURS);
 
-        User user = new User(UUID.randomUUID().toString(), username, false, name, password, true, userBean.getEmail(), true, userBean.isEmployee(), false);
+        User user = new User(UUID.randomUUID().toString(), username, UserRole.WORKER, name, password, true, userBean.getEmail(), true, userBean.isEmployee(), false);
         user.setPasswordChange(true);
         user.setPasswordExpiry(passwordExpiry);
 

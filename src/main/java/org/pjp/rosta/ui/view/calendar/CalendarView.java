@@ -36,6 +36,7 @@ import org.vaadin.stefan.fullcalendar.FullCalendar;
 import org.vaadin.stefan.fullcalendar.FullCalendarBuilder;
 import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
+import org.vaadin.stefan.ui.view.demos.customdaygrid.CustomFixedDayGridWeekCalendarView;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
@@ -58,6 +59,9 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
 
+import elemental.json.Json;
+import elemental.json.JsonObject;
+
 @PermitAll
 @Route(value = "calendar", layout = MainLayout.class)
 public class CalendarView extends AbstractView implements AfterNavigationObserver, HasDynamicTitle, ComponentEventListener<DatesRenderedEvent> {
@@ -65,6 +69,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private static final long serialVersionUID = -4423320972580039035L;
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalendarView.class);
+
+    @SuppressWarnings("unused")
+    private static final CustomFixedDayGridWeekCalendarView CUSTOM_VIEW = new CustomFixedDayGridWeekCalendarView(1);
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
@@ -129,6 +136,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private FullCalendar calendar;
 
+    private JsonObject defaultInitialOptions = Json.createObject();
+
     private final Button buttonDatePicker = new Button("", VaadinIcon.CALENDAR.create());
 
     private final Button mySummary = new Button("My Summary", this::onMySummary);
@@ -154,13 +163,17 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         hl.setWidthFull();
 
         // Create a new calendar instance and attach it to our layout
-        calendar = createCalendar();
+        calendar = createCalendar(defaultInitialOptions);
 
 //        String customCss = "" +
 //                ".fc {" + // marks today with red
 //                "   --fc-today-bg-color: red;" +
 //                "}";
 //        calendar.addCustomStyles(customCss);
+
+
+//        CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
+//        calendar.changeView(CUSTOM_VIEW);
 
         setSizeFull();
         setFlexGrow(1, calendar);
@@ -173,7 +186,10 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         ComponentUtil.addListener(UI.getCurrent(), DrawerToggleEvent.class, event -> {
             remove(calendar, helpText);
-            calendar = createCalendar();
+            calendar = createCalendar( defaultInitialOptions);
+
+//            CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
+//            calendar.changeView(CUSTOM_VIEW);
 
             setSizeFull();
             setFlexGrow(1, calendar);
@@ -183,8 +199,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
-    private FullCalendar createCalendar() {
-        calendar = FullCalendarBuilder.create().build();
+    private FullCalendar createCalendar(JsonObject initialOptions) {
+        calendar = FullCalendarBuilder.create().withInitialOptions(initialOptions).build();
         calendar.setHeightByParent();
         calendar.setFirstDay(DayOfWeek.MONDAY);
 
@@ -237,7 +253,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {
-            if (user.isAdmin()) {
+            if (user.isManager()) {
                 mySummary.setEnabled(false);
             }
         });
@@ -246,7 +262,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     @Override
     public String getPageTitle() {
         userService.findByUsername(getUsername()).ifPresent(user -> {
-            if (user.isAdmin()) {
+            if (user.isManager() || user.isSupervisor()) {
                 pageTitle = "Global " + pageTitle;
             } else {
                 pageTitle += user.isEmployee() ? " of Shifts & Holidays" : " of Volunteer Days";
@@ -271,13 +287,59 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         calendar.removeAllEntries();
 
         optUser.ifPresent(user -> {
-            if (user.isAdmin()) {
-                Map<String, User> userMap = userService.getAllNonAdmin();
+            if (user.isEmployee()) {
+                LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+
+                while (monday.isBefore(end)) {
+                    LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+                    MutableLocalDate date = new MutableLocalDate(monday);
+
+                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                        shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
+                           if (shiftDay.isWorking()) {
+                               Entry entry = new Entry();
+                                entry.setStart(date.get());
+                                entry.setColor(shiftDay.getColour());
+                                entry.setAllDay(true);
+                                entry.setRenderingMode(RenderingMode.BACKGROUND);
+
+                                calendar.addEntry(entry);
+                            }
+
+                           date.plusOneDay();
+                        });
+                    });
+
+                    monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+                }
+            }
+
+            Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
+
+            rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
+                Entry entry = new Entry();
+                entry.setCustomProperty(KEY_UUID, day.getUuid());
+                entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+                entry.setStart(day.getDate());
+                entry.setColor(day.getColour());
+                entry.setAllDay(true);
+                entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
+                entry.setRenderingMode(RenderingMode.BLOCK);
+
+                entry.setDurationEditable(false);
+                entry.setEditable(false);
+                entry.setDurationEditable(false);
+
+                calendar.addEntry(entry);
+            });
+
+            if (user.isManager() || user.isSupervisor()) {
+                Map<String, User> userMap = userService.getAllNonManager();
 
                 rostaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
                     User entryUser = userMap.get(day.getUserUuid());
 
-                    if (entryUser != null) {
+                    if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
                         String title = entryUser.getDisplayName() + " - " + getTitle(day);
 
                         Entry entry = new Entry();
@@ -295,52 +357,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                         calendar.addEntry(entry);
                     }
-                });
-            } else {
-                if (user.isEmployee()) {
-                    LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
-
-                    while (monday.isBefore(end)) {
-                        LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-                        MutableLocalDate date = new MutableLocalDate(monday);
-
-                        rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
-                            shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
-                               if (shiftDay.isWorking()) {
-                                   Entry entry = new Entry();
-                                    entry.setStart(date.get());
-                                    entry.setColor(shiftDay.getColour());
-                                    entry.setAllDay(true);
-                                    entry.setRenderingMode(RenderingMode.BACKGROUND);
-
-                                    calendar.addEntry(entry);
-                                }
-
-                               date.plusOneDay();
-                            });
-                        });
-
-                        monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-                    }
-                }
-
-                Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
-
-                rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
-                    Entry entry = new Entry();
-                    entry.setCustomProperty(KEY_UUID, day.getUuid());
-                    entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                    entry.setStart(day.getDate());
-                    entry.setColor(day.getColour());
-                    entry.setAllDay(true);
-                    entry.setTitle(getTitle(day));	// TODO centre align the text in the entry on the calendar
-                    entry.setRenderingMode(RenderingMode.BLOCK);
-
-                    entry.setDurationEditable(false);
-                    entry.setEditable(false);
-                    entry.setDurationEditable(false);
-
-                    calendar.addEntry(entry);
                 });
             }
         });
@@ -367,7 +383,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         optUser.ifPresent(user -> {
-            if (!user.isAdmin()) {
+            if (!user.isManager()) {
                 LocalDate date = event.getDate();
 
                 assert date.getDayOfWeek() == DayOfWeek.MONDAY;
@@ -429,7 +445,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             LocalDate startDate = event.getEntry().getStartAsLocalDate();
             LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
-            if (user.isAdmin() || !startDate.isBefore(nowMonday)) {
+            if (user.isManager() || user.isSupervisor() || !startDate.isBefore(nowMonday)) {	// the worker can only delete from current week onwards
                 dialog = new DeleteDialog(event.getEntry());
                 dialog.setHeader("Delete");
                 dialog.setFooter(getDialogFooter(false, true));
@@ -442,16 +458,17 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         optUser.ifPresent(user -> {
             LocalDate startDate = event.getDate();
             LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            boolean dateFlag = !startDate.isBefore(nowMonday);
 
-            if (user.isAdmin()) {
-                String header = "Add Holiday or Absence";
+            if (user.isManager() || user.isSupervisor()) {
+                String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
-                dialog = new CreateDialog(startDate);
+                dialog = new CreateDialog(startDate, user.isEmployee());
                 dialog.setHeader(header);
-                dialog.setFooter(getDialogFooter(true, true, false));
+                dialog.setFooter(getDialogFooter(dateFlag, user, true, false));
                 dialog.open();
             } else {
-                if (!startDate.isBefore(nowMonday) && !hasExistingEntry(RenderingMode.BLOCK, startDate)) {
+                if (dateFlag && !hasExistingEntry(RenderingMode.BLOCK, startDate)) {
                     String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
                     dialog = new CreateDialog(startDate, user.isEmployee(), user);
@@ -474,9 +491,17 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         LocalDate date = createDialog.getDate();
 
-        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, createDialog.getUser().getUuid());
+        User dayUser = (createDialog.getUser() != null) ? createDialog.getUser() : optUser.get();
+        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, dayUser.getUuid());
 
-        String title = (optUser.get().isAdmin() ? createDialog.getUser().getDisplayName() + " - " : "") + getTitle(createDialog);
+        User user = optUser.get();
+
+        String title = getTitle(createDialog);
+        if (user.isManager()) {
+            title = dayUser.getDisplayName() + " - " + title;
+        } else if (user.isSupervisor()) {
+            title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + " - ")) + title;
+        }
 
         Entry entry = new Entry();
         entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -527,7 +552,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         createDialog.setUser(user);
     }
 
-    private HorizontalLayout getDialogFooter(boolean userSelect, boolean save, boolean delete) {
+    private HorizontalLayout getDialogFooter(Boolean dateFlag, User user, boolean save, boolean delete) {
         Span filler = new Span();
 
         List<Component> children = new ArrayList<>();
@@ -542,17 +567,27 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             children.add(new Button("Delete", this::onDelete));
         }
 
-        if (userSelect) {
-            List<User> values = userService.getAllNonAdmin().values().stream().sorted().collect(Collectors.toList());
+        if (user != null) {
+            List<User> values = userService.getAllNonManager().values().stream().filter(other -> {
+                if (user.isSupervisor()) {
+                    return !other.equals(user);
+                }
+
+                return true;
+            }).sorted().collect(Collectors.toList());
 
             Select<User> selector = new Select<>();
             selector.setItems(values);
             selector.addValueChangeListener(this::onUserSelect);
 
-            if (values.isEmpty()) {
-                saveButton.setEnabled(false);
+            if (user.isSupervisor() && dateFlag) {
+                selector.setValue(null);
             } else {
-                selector.setValue(values.get(0));
+                if (values.isEmpty()) {
+                    saveButton.setEnabled(false);
+                } else {
+                    selector.setValue(values.get(0));
+                }
             }
 
             children.add(0, selector);
@@ -569,7 +604,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
-        return getDialogFooter(false, save, delete);
+        return getDialogFooter(null, null, save, delete);
     }
 
 }

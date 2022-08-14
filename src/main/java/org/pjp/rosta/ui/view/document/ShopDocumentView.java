@@ -191,7 +191,7 @@ public class ShopDocumentView extends AbstractView implements AfterNavigationObs
         optUser = userService.findByUsername(getUsername());
 
         optUser.ifPresent(user -> {
-            if (user.isAdmin()) {
+            if (user.isManager()) {
                 crud.addUpdateButtonColumn();
             } else {
                 crud.setAddOperationVisible(false);

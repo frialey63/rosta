@@ -43,14 +43,8 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         setContent(getContent());
     }
 
-    public CreateDialog(LocalDate date) {
-        super();
-        this.date = date;
-        this.employee = true;
-
-        addCheckboxListeners(employee);
-
-        setContent(getContent());
+    public CreateDialog(LocalDate date, boolean employee) {
+        this(date, employee, null);
     }
 
     public void reconfigure(boolean employee) {

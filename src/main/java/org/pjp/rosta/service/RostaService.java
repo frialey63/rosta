@@ -36,6 +36,7 @@ import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.model.VolunteerDay;
 import org.pjp.rosta.repository.AbsenceDayRepository;
 import org.pjp.rosta.repository.HolidayRepository;
@@ -172,7 +173,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, User.ADMIN, true, "Administrator", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "admin@gmail.com", false, false, false);
+            User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "manager@gmail.com", false, true, false);
             userRepo.save(user);
         }
 
@@ -180,7 +181,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", false, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
+            var user = new User(id, "fred", UserRole.SUPERVISOR, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -199,7 +200,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", false, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), false, "bill@gmail.com", true, true, false);
+            var user = new User(id, "bill", UserRole.WORKER, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "bill@gmail.com", true, true, false);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -218,7 +219,7 @@ public class RostaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", false, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
+            var user = new User(id, "anne", UserRole.WORKER, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
@@ -263,7 +264,7 @@ public class RostaService {
 
                 String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
 
-                userRepo.findAllByAdminAndEmployee(false, false).forEach(user -> {
+                userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).forEach(user -> {
                     if (user.isNotifications()) {
                         String text = String.format(templateStr, user.getName()) + missingCoverStr;
 

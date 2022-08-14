@@ -16,6 +16,7 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.ShiftRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -40,7 +41,7 @@ class RostaServiceTest {
     void testCalculateShiftWorkJune() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", false, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 6, 1);
         LocalDate end = LocalDate.of(2022, 6, 30);
@@ -67,7 +68,7 @@ class RostaServiceTest {
     void testCalculateShiftWorkJuly() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", false, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 7, 1);
         LocalDate end = LocalDate.of(2022, 7, 31);
@@ -92,7 +93,7 @@ class RostaServiceTest {
     void testCalculateShiftWorkAugust() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", false, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 8, 1);
         LocalDate end = LocalDate.of(2022, 8, 31);
@@ -126,7 +127,7 @@ class RostaServiceTest {
     void testCalculateShiftWorkJuneJulyAugust() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", false, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 6, 1);
         LocalDate end = LocalDate.of(2022, 8, 31);

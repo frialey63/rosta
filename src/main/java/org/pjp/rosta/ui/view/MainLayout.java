@@ -1,6 +1,7 @@
 package org.pjp.rosta.ui.view;
 
 
+import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.security.SecurityUtil;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
@@ -157,11 +158,13 @@ public class MainLayout extends AppLayout {
     }
 
     private MenuItemInfo[] createMenuItems() {
-        boolean admin = securityUtil.getAuthenticatedUser().getAuthorities().stream().filter(ga -> "ROLE_ADMIN".equals(ga.getAuthority())).findFirst().isPresent();
+        String managerRole = UserRole.MANAGER.getRole();
 
-        LOGGER.debug("creating menu items with admin = {}", admin);
+        boolean manager = securityUtil.getAuthenticatedUser().getAuthorities().stream().filter(ga -> managerRole.equals(ga.getAuthority())).findFirst().isPresent();
 
-        if (admin) {
+        LOGGER.debug("creating menu items with manager = {}", manager);
+
+        if (manager) {
             return new MenuItemInfo[] {
                     new MenuItemInfo("Rota", "la la-clipboard", ShopRotaView.class),
                     new MenuItemInfo("Calendar", "la la-calendar", CalendarView.class),

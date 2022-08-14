@@ -1,6 +1,6 @@
 package org.pjp.rosta.ui.view.settings;
 
-import javax.annotation.security.PermitAll;
+import javax.annotation.security.RolesAllowed;
 
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -15,7 +15,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@PermitAll
+@RolesAllowed("MANAGER")
 @PageTitle("Settings")
 @Route(value = "settings", layout = MainLayout.class)
 public class SettingsView extends AbstractView implements AfterNavigationObserver {
