@@ -447,17 +447,21 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     private void onEntryClickedEvent(EntryClickedEvent event) {
-        optUser.ifPresent(user -> {
-            LocalDate startDate = event.getEntry().getStartAsLocalDate();
-            LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        Entry entry = event.getEntry();
 
-            if (user.isManager() || user.isSupervisor() || !startDate.isBefore(nowMonday)) {	// the worker can only delete from current week onwards
-                dialog = new DeleteDialog(event.getEntry());
-                dialog.setHeader("Delete");
-                dialog.setFooter(getDialogFooter(false, true));
-                dialog.open();
-            }
-        });
+        if (entry.getRenderingMode() == RenderingMode.BLOCK) {
+            optUser.ifPresent(user -> {
+                LocalDate startDate = entry.getStartAsLocalDate();
+                LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+
+                if (user.isManager() || user.isSupervisor() || !startDate.isBefore(nowMonday)) {	// the worker can only delete from current week onwards
+                    dialog = new DeleteDialog(entry);
+                    dialog.setHeader("Delete");
+                    dialog.setFooter(getDialogFooter(false, true));
+                    dialog.open();
+                }
+            });
+        }
     }
 
     private void onTimeslotClickedEvent(TimeslotClickedEvent event) {
