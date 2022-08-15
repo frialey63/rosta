@@ -51,9 +51,10 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         crud.getGrid().setColumnReorderingAllowed(true);
 
         crud.setFindAllOperationVisible(false);
-        crud.setWidth("98%");
-        crud.addUpdateButtonColumn();
+        crud.setWidthFull();
         crud.setShowNotifications(SHOW_NOTIFICATIONS);
+
+        crud.addUpdateButtonColumn();
 
         crud.setCrudFormFactory(new DefaultCrudFormFactory<>(User.class) {
             private static final long serialVersionUID = -1958239881821633214L;
@@ -93,16 +94,16 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
             });
         });
 
-        // layout configuration
-        setMargin(true);
-        setPadding(false);
-        setSizeFull();
-
         Span helpText = new Span("The manager(s) cannot operate as an employee or volunteer ('employee' and 'keyholder' are ignored).");
         helpText.getStyle().set("font-style", "italic");
 
         setHorizontalComponentAlignment(Alignment.START, crud);
         add(crud, helpText);
+
+        // layout configuration
+        setMargin(false);
+        setPadding(true);
+        setSizeFull();
     }
 
     @Override
