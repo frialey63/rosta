@@ -22,29 +22,21 @@ Backup of the Mongo DB
 
 ## TODO
 
-password expiry?, account lock-out
-
-register attendance via QR code or bluetooth proxity
-
-## Bugs
-
-mobile friendly
-
-user roles
-
-tooltips on Calendar, see https://vaadin.com/directory/component/full-calendar-flow/samples
-
-management get status emails
-
 one week calendar view with instant notifications
 
+real-time notifications of user updates to their calendars, e.g. holiday/absence/volunteer
+
+bank holidays (https://www.gov.uk/bank-holidays.json)
+
 rationalise employee and volunteer capabilities
+
+## Bugs
 
 ## Sprint 3 Stories
 
 notifications by SMS as well as by email?
 
-real-time notifications of user updates to their calendars, e.g. holiday/absence/volunteer
+register attendance via QR code or bluetooth proxity
 
 ## Sprint 4 Stories
 
@@ -58,6 +50,12 @@ planning of tasks
 
 ## Done
 
+mobile friendly
+
+user roles
+
+tooltips on Calendar, see https://vaadin.com/directory/component/full-calendar-flow/samples
+
 idle notification
 
 new data attributes for user
@@ -70,7 +68,7 @@ session inactivity timeouts
 
 management reports of periods worked, holidays, absences, etc.
 
-the admin user should be able to add/delete days in the calendar on behalf of other users
+the supervisor/manager should be able to add/delete days in the calendar on behalf of other users
 
 remove opener concept
 
@@ -79,7 +77,7 @@ evening work periods
 identify users as "keyholder"
 - check at least one keyholder per day
 
-checks of the rota should notify Directors
+checks of the rota should notify managers and Directors
 
 ## Backlog Stories
 
@@ -87,14 +85,9 @@ QA
 
 Logging
 
-Settings
-- schedule cron
-- email server
-
 Calendar
 - display half days as half fills on the calendar
 - investigate use of EntryProvider
-- bank holidays (https://www.gov.uk/bank-holidays.json)
 
 Styling
 - buttons, etc.
