@@ -115,6 +115,10 @@ public class User implements Comparable<User> {
         this.userRole = userRole;
     }
 
+    public boolean hasAccess(UserRole userRole) {
+        return getUserRole().compareTo(userRole) >= 0;
+    }
+
     public boolean isManager() {
         return userRole == UserRole.MANAGER;
     }

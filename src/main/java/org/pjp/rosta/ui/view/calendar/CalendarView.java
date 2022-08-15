@@ -79,7 +79,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     static final String KEY_DAY_CLASS = "dayClass";
 
-    static final String KEY_DESCRIPTION = "description";
+    static final String KEY_DESCRIPTION = "description";	// tooltips by tippy.js
 
     private static String getTitle(PartOfDay partOfDay) {
         if (partOfDay.isEvening() == null) {
