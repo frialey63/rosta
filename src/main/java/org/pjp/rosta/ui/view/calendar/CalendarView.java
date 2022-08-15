@@ -79,7 +79,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     static final String KEY_DAY_CLASS = "dayClass";
 
-    static final String KEY_DESCRIPTION = "description";	// tooltips by tippy.js
+    static final String KEY_TOOLTIP = "tooltip";
 
     private static String getTitle(PartOfDay partOfDay) {
         if (partOfDay.isEvening() == null) {
@@ -324,7 +324,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
                 entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                entry.setCustomProperty(KEY_DESCRIPTION, title);
+                entry.setCustomProperty(KEY_TOOLTIP, title);
                 entry.setStart(day.getDate());
                 entry.setColor(day.getColour());
                 entry.setAllDay(true);
@@ -350,7 +350,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                         Entry entry = new Entry();
                         entry.setCustomProperty(KEY_UUID, day.getUuid());
                         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                        entry.setCustomProperty(KEY_DESCRIPTION, title);
+                        entry.setCustomProperty(KEY_TOOLTIP, title);
                         entry.setStart(day.getDate());
                         entry.setColor(day.getColour());
                         entry.setAllDay(true);
@@ -516,7 +516,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         Entry entry = new Entry();
         entry.setCustomProperty(KEY_UUID, day.getUuid());
         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-        entry.setCustomProperty(KEY_DESCRIPTION, title);
+        entry.setCustomProperty(KEY_TOOLTIP, title);
         entry.setStart(date);
         entry.setColor(day.getColour());
         entry.setAllDay(true);
