@@ -115,6 +115,14 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
     }
 
+    private static String abbreviate(String str) {
+        if (str.contains("&")) {
+            return str.replace("Morning", "Mrng").replace("Afternoon", "Aftn").replace("Evening", "Evng");
+        }
+
+        return str;
+    }
+
     private static class MutableLocalDate {
         private LocalDate date;
 
@@ -328,7 +336,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 entry.setStart(day.getDate());
                 entry.setColor(day.getColour());
                 entry.setAllDay(true);
-                entry.setTitle(title);	// TODO centre align the text in the entry on the calendar
+                entry.setTitle(abbreviate(title));	// TODO centre align the text in the entry on the calendar
                 entry.setRenderingMode(RenderingMode.BLOCK);
 
                 entry.setDurationEditable(false);
@@ -354,7 +362,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                         entry.setStart(day.getDate());
                         entry.setColor(day.getColour());
                         entry.setAllDay(true);
-                        entry.setTitle(title);	// TODO centre align the text in the entry on the calendar
+                        entry.setTitle(abbreviate(title));	// TODO centre align the text in the entry on the calendar
                         entry.setRenderingMode(RenderingMode.BLOCK);
 
                         entry.setDurationEditable(false);
@@ -470,12 +478,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
             boolean dateFlag = !startDate.isBefore(nowMonday);
 
-            if (user.isManager() || user.isSupervisor()) {
+            if (user.isManager() || (dateFlag && user.isSupervisor())) {
                 String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
                 dialog = new CreateDialog(startDate, user.isEmployee());
                 dialog.setHeader(header);
-                dialog.setFooter(getDialogFooter(dateFlag, user, true, false));
+                dialog.setFooter(getDialogFooter(user, true, false));
                 dialog.open();
             } else {
                 if (dateFlag && !hasExistingEntry(RenderingMode.BLOCK, startDate)) {
@@ -520,7 +528,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setStart(date);
         entry.setColor(day.getColour());
         entry.setAllDay(true);
-        entry.setTitle(title); 	// TODO centre align the text in the entry on the calendar
+        entry.setTitle(abbreviate(title)); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
 
         entry.setDurationEditable(false);
@@ -563,7 +571,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         createDialog.setUser(user);
     }
 
-    private HorizontalLayout getDialogFooter(Boolean dateFlag, User user, boolean save, boolean delete) {
+    private HorizontalLayout getDialogFooter(User user, boolean save, boolean delete) {
         Span filler = new Span();
 
         List<Component> children = new ArrayList<>();
@@ -591,7 +599,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             selector.setItems(values);
             selector.addValueChangeListener(this::onUserSelect);
 
-            if (user.isSupervisor() && dateFlag) {
+            if (user.isSupervisor()) {
                 selector.setValue(null);
             } else {
                 if (values.isEmpty()) {
@@ -615,7 +623,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
-        return getDialogFooter(null, null, save, delete);
+        return getDialogFooter(null, save, delete);
     }
 
 }

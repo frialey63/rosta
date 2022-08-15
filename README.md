@@ -34,6 +34,8 @@ user roles
 
 tooltips on Calendar, see https://vaadin.com/directory/component/full-calendar-flow/samples
 
+management get status emails
+
 one week calendar view with instant notifications
 
 rationalise employee and volunteer capabilities
