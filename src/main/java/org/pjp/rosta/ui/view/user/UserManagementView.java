@@ -98,7 +98,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
         setPadding(false);
         setSizeFull();
 
-        Span helpText = new Span("The manager(s) cannot operate as an employee or volunteer ('employee', 'keyholder' and 'notifications' are ignored).");
+        Span helpText = new Span("The manager(s) cannot operate as an employee or volunteer ('employee' and 'keyholder' are ignored).");
         helpText.getStyle().set("font-style", "italic");
 
         setHorizontalComponentAlignment(Alignment.START, crud);

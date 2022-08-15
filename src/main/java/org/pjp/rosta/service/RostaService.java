@@ -58,11 +58,11 @@ public class RostaService {
 
     private static final int MIN_COVER_COUNT = 2;
 
-    private static final String EMAIL_TEMPLATE = "file:template/email-template.txt";
+    private static final String VOLUNTEER_TEMPLATE = "file:template/volunteer-template.txt";
 
-    private static final String DIRECTOR_TEMPLATE = "file:template/director-template.txt";
+    private static final String MANAGEMENT_TEMPLATE = "file:template/management-template.txt";
 
-    private static final String DIRECTOR_OK_TEMPLATE = "file:template/director-ok-template.txt";
+    private static final String MANAGEMENT_OK_TEMPLATE = "file:template/management-ok-template.txt";
 
     private static final String TEST_TEMPLATE = "file:template/test-template.txt";
 
@@ -74,12 +74,12 @@ public class RostaService {
 
     private static final PasswordEncoder PASSWORD_ENCODER = new BCryptPasswordEncoder();
 
-    private static String capitalise(String str) {
-        return str.substring(0, 1).toUpperCase() + str.substring(1);
-    }
-
     private static String nameFromEmail(String email) {
         return email.split("@")[0].split("\\.")[0];
+    }
+
+    private static String firstName(String name) {
+        return name.split(" ")[0];
     }
 
     static List<DayOfWeek> getDayOfWeekRange(DayOfWeek start, DayOfWeek end) {
@@ -173,7 +173,7 @@ public class RostaService {
 
         {
             String id = UUID.randomUUID().toString();
-            User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "manager@gmail.com", false, true, false);
+            User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "manager@gmail.com", true, true, false);
             userRepo.save(user);
         }
 
@@ -254,19 +254,19 @@ public class RostaService {
         LOGGER.debug("missingCover = {}", missingCover);
 
         if (!missingCover.isEmpty()) {
-            LOGGER.info("found missing cover in rota, sending emails to all volunteers");
+            LOGGER.info("found missing cover in rota, sending emails to all volunteers and informing management");
 
             String missingCoverStr = missingCover.stream().map(MissingCover::toString).collect(Collectors.joining("\n"));
             List<String> notified = new ArrayList<>();
 
-            try (InputStream inputStream = resourceLoader.getResource(EMAIL_TEMPLATE).getInputStream()) {
+            try (InputStream inputStream = resourceLoader.getResource(VOLUNTEER_TEMPLATE).getInputStream()) {
                 String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
 
                 String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
 
                 userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).forEach(user -> {
                     if (user.isNotifications()) {
-                        String text = String.format(templateStr, user.getName()) + missingCoverStr;
+                        String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
 
                         emailService.sendSimpleMessage(user.getEmail(), subject, text);
 
@@ -277,14 +277,22 @@ public class RostaService {
                 LOGGER.error("failed to read email template from classpath resources", e);
             }
 
-            try (InputStream inputStream = resourceLoader.getResource(DIRECTOR_TEMPLATE).getInputStream()) {
+            try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_TEMPLATE).getInputStream()) {
                 String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
 
                 String subject = "Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
                 String notifiedStr = notified.stream().collect(Collectors.joining(", "));
 
+                userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
+                    if (user.isNotifications()) {
+                        String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
+
+                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                    }
+                });
+
                 for (String directorEmail : checkRostaDirectorEmail.split(",")) {
-                    String text = String.format(templateStr, capitalise(nameFromEmail(directorEmail)), notifiedStr) + missingCoverStr;
+                    String text = String.format(templateStr, nameFromEmail(directorEmail), notifiedStr) + missingCoverStr;
 
                     emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
                 }
@@ -292,13 +300,23 @@ public class RostaService {
                 LOGGER.error("failed to read email template from classpath resources", e);
             }
         } else {
-            try (InputStream inputStream = resourceLoader.getResource(DIRECTOR_OK_TEMPLATE).getInputStream()) {
+            LOGGER.info("the rota is covered, sending emails to management only");
+
+            try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_OK_TEMPLATE).getInputStream()) {
                 String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
 
                 String subject = "Shop Volunteers (OK) - Week of " + nextMonday.format(FORMATTER);
 
+                userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
+                    if (user.isNotifications()) {
+                        String text = String.format(templateStr, firstName(user.getName()));
+
+                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                    }
+                });
+
                 for (String directorEmail : checkRostaDirectorEmail.split(",")) {
-                    String text = String.format(templateStr, capitalise(directorEmail.split("@")[0]));
+                    String text = String.format(templateStr, nameFromEmail(directorEmail));
 
                     emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
                 }
