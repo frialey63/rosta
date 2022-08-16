@@ -13,6 +13,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.UUID;
@@ -63,6 +64,8 @@ public class RostaService {
     private static final String MANAGEMENT_TEMPLATE = "file:template/management-template.txt";
 
     private static final String MANAGEMENT_OK_TEMPLATE = "file:template/management-ok-template.txt";
+
+    private static final String IMMEDIATE_TEMPLATE = "file:template/immediate-template.txt";
 
     private static final String TEST_TEMPLATE = "file:template/test-template.txt";
 
@@ -259,70 +262,82 @@ public class RostaService {
             String missingCoverStr = missingCover.stream().map(MissingCover::toString).collect(Collectors.joining("\n"));
             List<String> notified = new ArrayList<>();
 
-            try (InputStream inputStream = resourceLoader.getResource(VOLUNTEER_TEMPLATE).getInputStream()) {
-                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+            sendVolunteerEmail(nextMonday, missingCoverStr, notified);
 
-                String subject = "Request for Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
-
-                userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).forEach(user -> {
-                    if (user.isNotifications()) {
-                        String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
-
-                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
-
-                        notified.add(user.getName());
-                    }
-                });
-            } catch (IOException e) {
-                LOGGER.error("failed to read email template from classpath resources", e);
-            }
-
-            try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_TEMPLATE).getInputStream()) {
-                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
-
-                String subject = "Shop Volunteers - Week of " + nextMonday.format(FORMATTER);
-                String notifiedStr = notified.stream().collect(Collectors.joining(", "));
-
-                userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
-                    if (user.isNotifications()) {
-                        String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
-
-                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                    }
-                });
-
-                for (String directorEmail : checkRostaDirectorEmail.split(",")) {
-                    String text = String.format(templateStr, nameFromEmail(directorEmail), notifiedStr) + missingCoverStr;
-
-                    emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
-                }
-            } catch (IOException e) {
-                LOGGER.error("failed to read email template from classpath resources", e);
-            }
+            sendManagementEmail(nextMonday, missingCoverStr, notified);
         } else {
             LOGGER.info("the rota is covered, sending emails to management only");
 
-            try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_OK_TEMPLATE).getInputStream()) {
-                String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+            sendManagementOkEmail(nextMonday);
+        }
+    }
 
-                String subject = "Shop Volunteers (OK) - Week of " + nextMonday.format(FORMATTER);
+    private void sendManagementOkEmail(LocalDate date) {
+        try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_OK_TEMPLATE).getInputStream()) {
+            String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
 
-                userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
-                    if (user.isNotifications()) {
-                        String text = String.format(templateStr, firstName(user.getName()));
+            String subject = "Shop Rota Sitrep (OK) - Week of " + date.format(FORMATTER);
 
-                        emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                    }
-                });
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
+                if (user.isNotifications()) {
+                    String text = String.format(templateStr, firstName(user.getName()));
 
-                for (String directorEmail : checkRostaDirectorEmail.split(",")) {
-                    String text = String.format(templateStr, nameFromEmail(directorEmail));
-
-                    emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
+                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
                 }
-            } catch (IOException e) {
-                LOGGER.error("failed to read email template from classpath resources", e);
+            });
+
+            for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+                String text = String.format(templateStr, nameFromEmail(directorEmail));
+
+                emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
             }
+        } catch (IOException e) {
+            LOGGER.error("failed to read email template from classpath resources", e);
+        }
+    }
+
+    private void sendManagementEmail(LocalDate date, String missingCoverStr, List<String> notified) {
+        try (InputStream inputStream = resourceLoader.getResource(MANAGEMENT_TEMPLATE).getInputStream()) {
+            String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+            String subject = "Shop Rota Sitrep - Week of " + date.format(FORMATTER);
+            String notifiedStr = notified.stream().collect(Collectors.joining(", "));
+
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
+                if (user.isNotifications()) {
+                    String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
+
+                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                }
+            });
+
+            for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+                String text = String.format(templateStr, nameFromEmail(directorEmail), notifiedStr) + missingCoverStr;
+
+                emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
+            }
+        } catch (IOException e) {
+            LOGGER.error("failed to read email template from classpath resources", e);
+        }
+    }
+
+    private void sendVolunteerEmail(LocalDate date, String missingCoverStr, List<String> notified) {
+        try (InputStream inputStream = resourceLoader.getResource(VOLUNTEER_TEMPLATE).getInputStream()) {
+            String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+            String subject = "Request for Shop Volunteers - Week of " + date.format(FORMATTER);
+
+            userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).forEach(user -> {
+                if (user.isNotifications()) {
+                    String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
+
+                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
+
+                    notified.add(user.getName());
+                }
+            });
+        } catch (IOException e) {
+            LOGGER.error("failed to read email template from classpath resources", e);
         }
     }
 
@@ -514,7 +529,7 @@ public class RostaService {
         return result;
     }
 
-    public void saveDay(AbstractDay day) {
+    public void saveDay(AbstractDay day, String bookerUuid) {
         if (day instanceof Holiday holiday) {
             holidayRepository.save(holiday);
         } else if (day instanceof AbsenceDay absenceDay) {
@@ -524,12 +539,66 @@ public class RostaService {
         } else {
             throw new IllegalStateException();
         }
+
+        sendImmediateEmail("ADD", day, bookerUuid);
     }
 
-    public void removeDay(String uuid) {
-        holidayRepository.deleteById(uuid);
-        absenceDayRepository.deleteById(uuid);
-        volunteerDayRepository.deleteById(uuid);
+    public void removeDay(String uuid, String bookerUuid) {
+        holidayRepository.findById(uuid).ifPresent(day -> {
+            holidayRepository.deleteById(uuid);
+
+            sendImmediateEmail("REMOVE", day, bookerUuid);
+        });
+
+        absenceDayRepository.findById(uuid).ifPresent(day -> {
+            absenceDayRepository.deleteById(uuid);
+
+            sendImmediateEmail("REMOVE", day, bookerUuid);
+        });
+
+        volunteerDayRepository.findById(uuid).ifPresent(day -> {
+            volunteerDayRepository.deleteById(uuid);
+
+            sendImmediateEmail("REMOVE", day, bookerUuid);
+        });
+    }
+
+    private void sendImmediateEmail(String changeType, AbstractDay day, String bookerUuid) {
+        if (Objects.equals(day.getUserUuid(), bookerUuid)) {
+            LocalDate date = day.getDate();
+
+            LocalDate today = LocalDate.now();
+            LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+            LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+            if (!date.isBefore(monday) && !date.isAfter(sunday)) {
+                LOGGER.info("sending immediate notification email for {}", day);
+
+                userRepo.findById(day.getUserUuid()).ifPresent(bookee -> {
+                    DayType dayType = AbstractDay.getDayType(day.getClass().getCanonicalName());
+                    DayOfWeek dayOfWeek = day.getDate().getDayOfWeek();
+                    String title = org.pjp.rosta.model.PartOfDay.getTitle(day);
+                    String bookeeName = bookee.getName();
+
+                    try (InputStream inputStream = resourceLoader.getResource(IMMEDIATE_TEMPLATE).getInputStream()) {
+                        String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+                        String subject = "Shop Rota Change - Week of " + monday.format(FORMATTER);
+
+                        userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).forEach(user -> {
+                            if (user.isNotifications()) {
+                                String text = String.format(templateStr, firstName(user.getName()),
+                                        changeType, dayType, dayOfWeek, title, bookeeName);
+
+                                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                            }
+                        });
+                    } catch (IOException e) {
+                        LOGGER.error("failed to read email template from classpath resources", e);
+                    }
+                });
+            }
+        }
     }
 
     public void saveShift(Shift shift) {

@@ -1,4 +1,4 @@
-Good evening %s,
+Hello %s,
 
 This is the RAF Manston Museum Shop contacting you.
 

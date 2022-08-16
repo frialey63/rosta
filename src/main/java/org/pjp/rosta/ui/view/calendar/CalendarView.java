@@ -82,48 +82,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     static final String KEY_TOOLTIP = "tooltip";
 
-    private static String getTitle(PartOfDay partOfDay) {
-        if (partOfDay.isEvening() == null) {
-            if (partOfDay.isAllDay()) {
-                return "All Day";
-            } else if (partOfDay.isMorning()) {
-                return "Morning";
-            } else if (partOfDay.isAfternoon()) {
-                return "Afternoon";
-            }
-
-            throw new IllegalStateException();
-        } else {
-            if (partOfDay.isAllDay()) {
-                return "All Day";
-            } else {
-                List<String> str = new ArrayList<>();
-
-                if (partOfDay.isMorning()) {
-                    str.add("Morning");
-                }
-
-                if (partOfDay.isAfternoon()) {
-                    str.add("Afternoon");
-                }
-
-                if (partOfDay.isEvening()) {
-                    str.add("Evening");
-                }
-
-                return String.join(" & ", str);
-            }
-        }
-    }
-
-    private static String abbreviate(String str) {
-        if (str.contains("&")) {
-            return str.replace("Morning", "Mrng").replace("Afternoon", "Aftn").replace("Evening", "Evng");
-        }
-
-        return str;
-    }
-
     private static class MutableLocalDate {
         private LocalDate date;
 
@@ -351,7 +309,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
 
             rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
-                String title = getTitle(day);
+                String title = PartOfDay.getTitle(day);
 
                 Entry entry = new Entry();
                 entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -360,7 +318,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 entry.setStart(day.getDate());
                 entry.setColor(day.getColour());
                 entry.setAllDay(true);
-                entry.setTitle(abbreviate(title));	// TODO centre align the text in the entry on the calendar
+                entry.setTitle(PartOfDay.abbreviate(title));	// TODO centre align the text in the entry on the calendar
                 entry.setRenderingMode(RenderingMode.BLOCK);
 
                 entry.setDurationEditable(false);
@@ -377,7 +335,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     User entryUser = userMap.get(day.getUserUuid());
 
                     if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
-                        String title = entryUser.getDisplayName() + " - " + getTitle(day);
+                        String title = entryUser.getDisplayName() + " - " + PartOfDay.getTitle(day);
 
                         Entry entry = new Entry();
                         entry.setCustomProperty(KEY_UUID, day.getUuid());
@@ -386,7 +344,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                         entry.setStart(day.getDate());
                         entry.setColor(day.getColour());
                         entry.setAllDay(true);
-                        entry.setTitle(abbreviate(title));	// TODO centre align the text in the entry on the calendar
+                        entry.setTitle(PartOfDay.abbreviate(title));	// TODO centre align the text in the entry on the calendar
                         entry.setRenderingMode(RenderingMode.BLOCK);
 
                         entry.setDurationEditable(false);
@@ -538,7 +496,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         User user = optUser.get();
 
-        String title = getTitle(createDialog);
+        String title = PartOfDay.getTitle(createDialog);
         if (user.isManager()) {
             title = dayUser.getDisplayName() + " - " + title;
         } else if (user.isSupervisor()) {
@@ -552,7 +510,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setStart(date);
         entry.setColor(day.getColour());
         entry.setAllDay(true);
-        entry.setTitle(abbreviate(title)); 	// TODO centre align the text in the entry on the calendar
+        entry.setTitle(PartOfDay.abbreviate(title)); 	// TODO centre align the text in the entry on the calendar
         entry.setRenderingMode(RenderingMode.BLOCK);
 
         entry.setDurationEditable(false);
@@ -560,7 +518,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setDurationEditable(false);
 
         try {
-            rostaService.saveDay(day);
+            rostaService.saveDay(day, user.getUuid());
             calendar.addEntry(entry);
         } finally {
             dialog.close();
@@ -572,7 +530,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         Entry entry = ((DeleteDialog) dialog).getEntry();
 
         try {
-            rostaService.removeDay(entry.getCustomProperty(KEY_UUID));
+            User user = optUser.get();
+
+            rostaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
             calendar.removeEntry(entry);
         } finally {
             dialog.close();

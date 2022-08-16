@@ -16,6 +16,10 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
     }
 
     public static DayType getDayType(String className) {
+        assert "org.pjp.rosta.model".equals(AbsenceDay.class.getPackageName());
+        assert "org.pjp.rosta.model".equals(Holiday.class.getPackageName());
+        assert "org.pjp.rosta.model".equals(VolunteerDay.class.getPackageName());
+
         return switch(className) {
         case "org.pjp.rosta.model.AbsenceDay" -> DayType.ABSENCE;
         case "org.pjp.rosta.model.Holiday" -> DayType.HOLIDAY;
