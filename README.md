@@ -22,8 +22,6 @@ Backup of the Mongo DB
 
 ## TODO
 
-one week calendar view with instant notifications
-
 real-time notifications of user updates to their calendars, e.g. holiday/absence/volunteer
 
 bank holidays (https://www.gov.uk/bank-holidays.json)
@@ -51,6 +49,8 @@ planning of tasks
 ## Done
 
 mobile friendly
+
+one week calendar view
 
 user roles
 
