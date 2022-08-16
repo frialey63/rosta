@@ -36,7 +36,6 @@ import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
 import org.vaadin.stefan.fullcalendar.EntryClickedEvent;
 import org.vaadin.stefan.fullcalendar.TimeslotClickedEvent;
 import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
-import org.vaadin.stefan.ui.view.demos.customdaygrid.CustomFixedDayGridWeekCalendarView;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
@@ -48,6 +47,7 @@ import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
+import com.vaadin.flow.component.contextmenu.MenuItem;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.icon.VaadinIcon;
@@ -70,8 +70,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private static final Logger LOGGER = LoggerFactory.getLogger(CalendarView.class);
 
-    @SuppressWarnings("unused")
     private static final CustomFixedDayGridWeekCalendarView CUSTOM_VIEW = new CustomFixedDayGridWeekCalendarView(1);
+
+    private static final DefaultCalendarView DEFAULT_VIEW = new DefaultCalendarView();
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
@@ -148,6 +149,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private JsonObject defaultInitialOptions = Json.createObject();
 
+    {
+        CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
+    }
+
+    private boolean customView;
+
     private final Button buttonDatePicker = new Button("", VaadinIcon.CALENDAR.create());
 
     private final Button mySummary = new Button("My Summary", this::onMySummary);
@@ -174,17 +181,13 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         // Create a new calendar instance and attach it to our layout
         calendar = createCalendar(defaultInitialOptions);
-
-//        String customCss = "" +
-//                ".fc {" + // marks today with red
-//                "   --fc-today-bg-color: red;" +
-//                "}";
-//        calendar.addCustomStyles(customCss);
-
-
-//        CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
-//        calendar.changeView(CUSTOM_VIEW);
-
+        /*
+        String customCss = "" +
+                ".fc {" + // marks today with red
+                "   --fc-today-bg-color: red;" +
+                "}";
+        calendar.addCustomStyles(customCss);
+        */
         setSizeFull();
         setFlexGrow(1, calendar);
 
@@ -196,10 +199,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         ComponentUtil.addListener(UI.getCurrent(), DrawerToggleEvent.class, event -> {
             remove(calendar, helpText);
-            calendar = createCalendar( defaultInitialOptions);
 
-//            CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
-//            calendar.changeView(CUSTOM_VIEW);
+            calendar = createCalendar(defaultInitialOptions);
+            if (customView) {
+                calendar.changeView(CUSTOM_VIEW);
+            }
 
             setSizeFull();
             setFlexGrow(1, calendar);
@@ -239,17 +243,37 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
 
+        //menuBar.addItem("Today", e -> calendar.today());
         menuBar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         menuBar.addItem(buttonDatePicker);
         menuBar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
-        menuBar.addItem("Today", e -> calendar.today());
+        menuBar.addItem("One Week", e -> {
+            MenuItem menuItem = e.getSource();
+
+            if (customView) {
+                calendar.changeView(DEFAULT_VIEW);
+                menuItem.setText("One Week");
+            } else {
+                calendar.changeView(CUSTOM_VIEW);
+                menuItem.setText("Default");
+            }
+
+            calendar.today();
+
+            customView = !customView;
+        });
 
         return menuBar;
     }
 
     private void updateMonthReadout(HasText label, LocalDate date) {
-        if (date.getDayOfMonth() != 1) {
-            date = date.with(TemporalAdjusters.firstDayOfNextMonth());
+        if (customView) {
+            // date is first day of the week and accept this as the current month
+        } else {
+            // date may be first day of week in the previous month
+            if (date.getDayOfMonth() != 1) {
+                date = date.with(TemporalAdjusters.firstDayOfNextMonth());
+            }
         }
 
         String text = date.format(FORMATTER.withLocale(calendar.getLocale()));

@@ -1,4 +1,4 @@
-package org.vaadin.stefan.ui.view.demos.customdaygrid;
+package org.pjp.rosta.ui.view.calendar;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
