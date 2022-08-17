@@ -103,6 +103,11 @@
             <artifactId>zxcvbn</artifactId>
             <version>1.7.0</version>
         </dependency>
+        <dependency>
+            <groupId>org.pjp.api</groupId>
+            <artifactId>uk-bank-holiday</artifactId>
+            <version>0.0.1-SNAPSHOT</version>
+        </dependency>
     </dependencies>
 
     <dependencyManagement>

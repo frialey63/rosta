@@ -22,8 +22,6 @@ Backup of the Mongo DB
 
 ## TODO
 
-bank holidays (https://www.gov.uk/bank-holidays.json)
-
 rationalise employee and volunteer capabilities
 
 ## Bugs
@@ -47,6 +45,8 @@ planning of tasks
 ## Done
 
 mobile friendly
+
+bank holidays (https://www.gov.uk/bank-holidays.json)
 
 real-time notifications of user updates to their calendars, e.g. holiday/absence/volunteer
 

@@ -13,6 +13,9 @@ import java.util.stream.Collectors;
 
 import javax.annotation.security.PermitAll;
 
+import org.pjp.api.holiday.QueryUtil;
+import org.pjp.api.holiday.model.Division;
+import org.pjp.api.holiday.model.Event;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
@@ -74,6 +77,10 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private static final DefaultCalendarView DEFAULT_VIEW = new DefaultCalendarView();
 
+    private static final String YELLOW = "#ffff00";
+
+    private static final String BLACK = "#000000";
+
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
     static final String KEY_UUID = "uuid";
@@ -97,6 +104,56 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         public void plusOneDay() {
             date = date.plusDays(1);
         }
+    }
+
+    private static Entry createBankHolidayEntry(Event bankHoliday) {
+        String title = bankHoliday.getTitle();
+
+        Entry entry = new Entry();
+
+        entry.setCustomProperty(KEY_TOOLTIP, title);
+        entry.setStart(bankHoliday.getDate());
+        entry.setColor(YELLOW);
+        entry.setTextColor(BLACK);
+        entry.setAllDay(true);
+        entry.setTitle(title);
+        entry.setRenderingMode(RenderingMode.BLOCK);
+
+        entry.setDurationEditable(false);
+        entry.setEditable(false);
+        entry.setDurationEditable(false);
+
+        return entry;
+    }
+
+    private static Entry createAbstractDayEntry(AbstractDay day, String title) {
+        Entry entry = new Entry();
+
+        entry.setCustomProperty(KEY_UUID, day.getUuid());
+        entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
+        entry.setCustomProperty(KEY_TOOLTIP, title);
+        entry.setStart(day.getDate());
+        entry.setColor(day.getColour());
+        entry.setAllDay(true);
+        entry.setTitle(PartOfDay.abbreviate(title));
+        entry.setRenderingMode(RenderingMode.BLOCK);
+
+        entry.setDurationEditable(false);
+        entry.setEditable(false);
+        entry.setDurationEditable(false);
+
+        return entry;
+    }
+
+    private static Entry createShiftDayEntry(MutableLocalDate date, ShiftDay shiftDay) {
+        Entry entry = new Entry();
+
+        entry.setStart(date.get());
+        entry.setColor(shiftDay.getColour());
+        entry.setAllDay(true);
+        entry.setRenderingMode(RenderingMode.BACKGROUND);
+
+        return entry;
     }
 
     private Optional<User> optUser;
@@ -278,6 +335,16 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         calendar.removeAllEntries();
 
+        QueryUtil.getInstance().getHolidays(Division.ENGLAND_AND_WALES, start.getYear()).forEach(bankHoliday -> {
+            calendar.addEntry(createBankHolidayEntry(bankHoliday));
+        });
+
+        if (end.getYear() != start.getYear()) {
+            QueryUtil.getInstance().getHolidays(Division.ENGLAND_AND_WALES, end.getYear()).forEach(bankHoliday -> {
+                calendar.addEntry(createBankHolidayEntry(bankHoliday));
+            });
+        }
+
         optUser.ifPresent(user -> {
             if (user.isEmployee()) {
                 LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
@@ -289,13 +356,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
                         shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
                            if (shiftDay.isWorking()) {
-                               Entry entry = new Entry();
-                                entry.setStart(date.get());
-                                entry.setColor(shiftDay.getColour());
-                                entry.setAllDay(true);
-                                entry.setRenderingMode(RenderingMode.BACKGROUND);
-
-                                calendar.addEntry(entry);
+                               calendar.addEntry(createShiftDayEntry(date, shiftDay));
                             }
 
                            date.plusOneDay();
@@ -311,21 +372,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
                 String title = PartOfDay.getTitle(day);
 
-                Entry entry = new Entry();
-                entry.setCustomProperty(KEY_UUID, day.getUuid());
-                entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                entry.setCustomProperty(KEY_TOOLTIP, title);
-                entry.setStart(day.getDate());
-                entry.setColor(day.getColour());
-                entry.setAllDay(true);
-                entry.setTitle(PartOfDay.abbreviate(title));	// TODO centre align the text in the entry on the calendar
-                entry.setRenderingMode(RenderingMode.BLOCK);
-
-                entry.setDurationEditable(false);
-                entry.setEditable(false);
-                entry.setDurationEditable(false);
-
-                calendar.addEntry(entry);
+                calendar.addEntry(createAbstractDayEntry(day, title));
             });
 
             if (user.isManager() || user.isSupervisor()) {
@@ -337,21 +384,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
                         String title = entryUser.getDisplayName() + " - " + PartOfDay.getTitle(day);
 
-                        Entry entry = new Entry();
-                        entry.setCustomProperty(KEY_UUID, day.getUuid());
-                        entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-                        entry.setCustomProperty(KEY_TOOLTIP, title);
-                        entry.setStart(day.getDate());
-                        entry.setColor(day.getColour());
-                        entry.setAllDay(true);
-                        entry.setTitle(PartOfDay.abbreviate(title));	// TODO centre align the text in the entry on the calendar
-                        entry.setRenderingMode(RenderingMode.BLOCK);
-
-                        entry.setDurationEditable(false);
-                        entry.setEditable(false);
-                        entry.setDurationEditable(false);
-
-                        calendar.addEntry(entry);
+                        calendar.addEntry(createAbstractDayEntry(day, title));
                     }
                 });
             }
@@ -439,7 +472,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private void onEntryClickedEvent(EntryClickedEvent event) {
         Entry entry = event.getEntry();
 
-        if (entry.getRenderingMode() == RenderingMode.BLOCK) {
+        if ((entry.getRenderingMode() == RenderingMode.BLOCK) && (entry.getCustomProperty(KEY_UUID) != null)) {
             optUser.ifPresent(user -> {
                 LocalDate startDate = entry.getStartAsLocalDate();
                 LocalDate nowMonday = LocalDate.now().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
@@ -496,30 +529,17 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         User user = optUser.get();
 
-        String title = PartOfDay.getTitle(createDialog);
-        if (user.isManager()) {
-            title = dayUser.getDisplayName() + " - " + title;
-        } else if (user.isSupervisor()) {
-            title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + " - ")) + title;
-        }
-
-        Entry entry = new Entry();
-        entry.setCustomProperty(KEY_UUID, day.getUuid());
-        entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
-        entry.setCustomProperty(KEY_TOOLTIP, title);
-        entry.setStart(date);
-        entry.setColor(day.getColour());
-        entry.setAllDay(true);
-        entry.setTitle(PartOfDay.abbreviate(title)); 	// TODO centre align the text in the entry on the calendar
-        entry.setRenderingMode(RenderingMode.BLOCK);
-
-        entry.setDurationEditable(false);
-        entry.setEditable(false);
-        entry.setDurationEditable(false);
-
         try {
             rostaService.saveDay(day, user.getUuid());
-            calendar.addEntry(entry);
+
+            String title = PartOfDay.getTitle(createDialog);
+            if (user.isManager()) {
+                title = dayUser.getDisplayName() + " - " + title;
+            } else if (user.isSupervisor()) {
+                title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + " - ")) + title;
+            }
+
+            calendar.addEntry(createAbstractDayEntry(day, title));
         } finally {
             dialog.close();
         }
