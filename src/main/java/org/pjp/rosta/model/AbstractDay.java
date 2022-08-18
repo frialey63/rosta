@@ -115,4 +115,24 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
     }
 
     public abstract String getColour();
+
+    public boolean overlapsWith(AbstractDay other) {
+        if (this.isAllDay() || other.isAllDay()) {
+            return true;
+        }
+
+        if (this.isMorning() && other.isMorning()) {
+            return true;
+        }
+
+        if (this.isAfternoon() && other.isAfternoon()) {
+            return true;
+        }
+
+        if ((this.isEvening() != null) && this.isEvening() && (other.isEvening() != null) && other.isEvening()) {
+            return true;
+        }
+
+        return false;
+    }
 }

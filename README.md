@@ -24,11 +24,7 @@ Backup of the Mongo DB
 
 better sitrep view for manager on calendar using background events (overview rota for next 3 months?)
 
-rules for add >1 entry on a day
-
 rationalise employee and volunteer capabilities
-
-day/event update
 
 ## Bugs
 
@@ -49,6 +45,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+improved rules for add >1 entry on a day
 
 refresh button for calendar
 

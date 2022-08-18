@@ -9,7 +9,7 @@ import org.springframework.data.mongodb.repository.Query;
 import org.springframework.stereotype.Repository;
 
 @Repository
-public interface VolunteerDayRepository extends MongoRepository<VolunteerDay, String> {
+public interface VolunteerDayRepository extends MongoRepository<VolunteerDay, String>, AbstractDayRepository<VolunteerDay> {
 
     List<VolunteerDay> findAllByUserUuid(String userUuid);
 

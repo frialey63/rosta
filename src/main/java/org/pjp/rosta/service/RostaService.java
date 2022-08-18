@@ -40,6 +40,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.model.VolunteerDay;
 import org.pjp.rosta.repository.AbsenceDayRepository;
+import org.pjp.rosta.repository.AbstractDayRepository;
 import org.pjp.rosta.repository.HolidayRepository;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
@@ -529,18 +530,42 @@ public class RostaService {
         return result;
     }
 
-    public void saveDay(AbstractDay day, String bookerUuid) {
+    public boolean saveDay(AbstractDay day, String bookerUuid) {
+        boolean result = false;
+
         if (day instanceof Holiday holiday) {
-            holidayRepository.save(holiday);
+            if (result = (checkConflict(holidayRepository, holiday) && checkConflict(absenceDayRepository, holiday))) {
+                holidayRepository.save(holiday);
+            }
         } else if (day instanceof AbsenceDay absenceDay) {
-            absenceDayRepository.save(absenceDay);
+            if (result = (checkConflict(absenceDayRepository, absenceDay) && checkConflict(holidayRepository, absenceDay))) {
+                absenceDayRepository.save(absenceDay);
+            }
         } else if (day instanceof VolunteerDay volunteerDay) {
-            volunteerDayRepository.save(volunteerDay);
+            if (result = checkConflict(volunteerDayRepository, volunteerDay)) {
+                volunteerDayRepository.save(volunteerDay);
+            }
         } else {
             throw new IllegalStateException();
         }
 
         sendImmediateEmail("ADD", day, bookerUuid);
+
+        return result;
+    }
+
+    private static <U extends AbstractDay, V extends AbstractDay> boolean checkConflict(AbstractDayRepository<V> repository, U day) {
+        boolean result = true;
+
+        List<V> allOthers = repository.findAllByUserUuidAndDate(day.getUserUuid(), day.getDate());
+
+        for (V other : allOthers) {
+            if (day.overlapsWith(other)) {
+                result = false;
+            }
+        }
+
+        return result;
     }
 
     public void removeDay(String uuid, String bookerUuid) {

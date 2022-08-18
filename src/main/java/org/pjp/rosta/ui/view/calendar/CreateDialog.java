@@ -26,11 +26,11 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
     private final RadioButtonGroup<DayType> dayType = new RadioButtonGroup<>();
 
-    private final Checkbox morning = new Checkbox("Morning", true);
+    private Checkbox morning;
 
-    private final Checkbox afternoon = new Checkbox("Afternoon", true);
+    private Checkbox afternoon;
 
-    private final Checkbox evening = new Checkbox("Evening", false);
+    private Checkbox evening;
 
     public CreateDialog(LocalDate date, boolean employee, User user) {
         super();
@@ -38,9 +38,7 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         this.employee = employee;
         this.user = user;
 
-        addCheckboxListeners(employee);
-
-        setContent(getContent());
+        reconfigure(employee);
     }
 
     public CreateDialog(LocalDate date, boolean employee) {
@@ -50,9 +48,9 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     public void reconfigure(boolean employee) {
         this.employee = employee;
 
-        addCheckboxListeners(employee);
-
         setContent(getContent());
+
+        addCheckboxListeners(employee);
     }
 
     private void addCheckboxListeners(boolean employee) {
@@ -93,6 +91,10 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     }
 
     private Component getContent() {
+        morning = new Checkbox("Morning", true);
+        afternoon = new Checkbox("Afternoon", true);
+        evening = new Checkbox("Evening", false);
+
         VerticalLayout subPanel = new CompactVerticalLayout(morning, afternoon);
         subPanel.setHorizontalComponentAlignment(Alignment.START, morning, afternoon);
         subPanel.setHeightFull();

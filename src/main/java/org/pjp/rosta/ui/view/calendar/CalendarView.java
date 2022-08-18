@@ -142,7 +142,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     private static Entry createShiftDayEntry(MutableLocalDate date, ShiftDay shiftDay) {
-        String title = PartOfDay.getTitle(shiftDay);
+        String title = "$" + PartOfDay.getTitle(shiftDay);
 
         Entry entry = new Entry();
 
@@ -542,11 +542,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
-//    @SuppressWarnings("deprecation")
-//    private boolean hasExistingEntry(RenderingMode renderingMode, LocalDate date) {
-//        return calendar.getEntries().stream().filter(e -> (e.getRenderingMode() == renderingMode) && e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
-//    }
-
     @SuppressWarnings("deprecation")
     private void onCreate(ClickEvent<Button> event) {
         CreateDialog createDialog = (CreateDialog) dialog;
@@ -559,16 +554,21 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         User user = optUser.get();
 
         try {
-            rostaService.saveDay(day, user.getUuid());
+            if (rostaService.saveDay(day, user.getUuid())) {
+                String title = PartOfDay.getTitle(createDialog);
+                if (user.isManager()) {
+                    title = dayUser.getDisplayName() + SEPARATOR + title;
+                } else if (user.isSupervisor()) {
+                    title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + SEPARATOR)) + title;
+                }
 
-            String title = PartOfDay.getTitle(createDialog);
-            if (user.isManager()) {
-                title = dayUser.getDisplayName() + SEPARATOR + title;
-            } else if (user.isSupervisor()) {
-                title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + SEPARATOR)) + title;
+                calendar.addEntry(createAbstractDayEntry(day, title));
+            } else {
+                EnhancedDialog conflictDialog = new ConflictDialog(day);
+                conflictDialog.setHeader("Conflict");
+                conflictDialog.setFooter(getDialogFooter(conflictDialog));
+                conflictDialog.open();
             }
-
-            calendar.addEntry(createAbstractDayEntry(day, title));
         } finally {
             dialog.close();
         }
@@ -657,6 +657,22 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private HorizontalLayout getDialogFooter(boolean save, boolean delete) {
         return getDialogFooter(null, save, delete);
+    }
+
+    private HorizontalLayout getDialogFooter(EnhancedDialog dialog) {
+        Span filler = new Span();
+
+        List<Component> children = new ArrayList<>();
+        children.add(filler);
+
+        children.add(new Button("Cancel", e -> dialog.close()));
+
+        HorizontalLayout footer = new CompactHorizontalLayout(children.toArray(new Component[0]));
+        footer.setAlignItems(Alignment.STRETCH);
+        footer.setVerticalComponentAlignment(Alignment.CENTER, children.toArray(new Component[0]));
+        footer.setFlexGrow(1, filler);
+
+        return footer;
     }
 
 }
