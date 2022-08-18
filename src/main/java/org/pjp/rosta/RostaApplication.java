@@ -54,6 +54,6 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     @Scheduled(cron = "${check.rosta.cron}")
     public void checkRosta() {
-        rostaService.checkRosta();
+        rostaService.checkRostaAndNotify();
     }
 }

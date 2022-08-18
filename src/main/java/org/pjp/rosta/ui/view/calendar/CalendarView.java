@@ -23,6 +23,7 @@ import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.RostaService.MissingCover;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
 import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltip;
@@ -78,15 +79,14 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private static final DefaultCalendarView DEFAULT_VIEW = new DefaultCalendarView();
 
     private static final String YELLOW = "#ffff00";
-
     private static final String BLACK = "#000000";
+    private static final String LIGHT_RED = "#ffcccb";
+    private static final String LIGHT_RED_25 = "#ff726f";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
     static final String KEY_UUID = "uuid";
-
     static final String KEY_DAY_CLASS = "dayClass";
-
     static final String KEY_TOOLTIP = "tooltip";
 
     private static class MutableLocalDate {
@@ -110,7 +110,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         String title = bankHoliday.getTitle();
 
         Entry entry = new Entry();
-
         entry.setCustomProperty(KEY_TOOLTIP, title);
         entry.setStart(bankHoliday.getDate());
         entry.setColor(YELLOW);
@@ -126,7 +125,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private static Entry createAbstractDayEntry(AbstractDay day, String title) {
         Entry entry = new Entry();
-
         entry.setCustomProperty(KEY_UUID, day.getUuid());
         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
         entry.setCustomProperty(KEY_TOOLTIP, title);
@@ -145,7 +143,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         String title = "$" + PartOfDay.getTitle(shiftDay);
 
         Entry entry = new Entry();
-
         entry.setCustomProperty(KEY_TOOLTIP, title);
         entry.setStart(date.get());
         entry.setColor(shiftDay.getColour());
@@ -154,6 +151,19 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setRenderingMode(RenderingMode.BLOCK);
         entry.setDurationEditable(false);
         entry.setEditable(false);
+
+        return entry;
+    }
+
+    private static Entry createMissingCoverEntry(LocalDate date, MissingCover[] missingCover) {
+        String colour = (missingCover.length > 1) ? LIGHT_RED_25 : LIGHT_RED;
+
+        Entry entry = new Entry();
+        entry.setCustomProperty(KEY_TOOLTIP, missingCover);
+        entry.setStart(date);
+        entry.setColor(colour);
+        entry.setAllDay(true);
+        entry.setRenderingMode(RenderingMode.BACKGROUND);
 
         return entry;
     }
@@ -188,7 +198,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private FullCalendarWithTooltip calendar;
 
     private JsonObject defaultInitialOptions = Json.createObject();
-
     {
         CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
     }
@@ -364,6 +373,96 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         calendar.removeAllEntries();
 
+        addBankHolidays(start, end);
+
+        optUser.ifPresent(user -> {
+            if (user.isEmployee()) {
+                addShiftDays(user, start, end);
+            }
+
+            addAbstractDays(user, start, end);
+
+            if (user.isManager() || user.isSupervisor()) {
+                addAbstractDaysForOtherUsers(start, end, user);
+
+                addMissingCover(start, end);
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addMissingCover(LocalDate start, LocalDate end) {
+        LocalDate monday = start;
+
+        while (!monday.isAfter(end)) {
+            Map<DayOfWeek, MissingCover[]> map = rostaService.checkRosta(monday);
+
+            final var capturedMonday = monday;
+
+            map.keySet().forEach(dayOfWeek -> {
+                LocalDate date = capturedMonday.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+
+                MissingCover[] missingCover = map.get(dayOfWeek);
+
+                Entry entry = createMissingCoverEntry(date, missingCover);
+
+                calendar.addEntry(entry);
+            });
+
+            monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addAbstractDaysForOtherUsers(LocalDate start, LocalDate end, User user) {
+        Map<String, User> userMap = userService.getAllNonManager();
+
+        rostaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
+            User entryUser = userMap.get(day.getUserUuid());
+
+            if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
+                String title = entryUser.getDisplayName() + SEPARATOR + PartOfDay.getTitle(day);
+
+                calendar.addEntry(createAbstractDayEntry(day, title));
+            }
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addAbstractDays(User user, LocalDate start, LocalDate end) {
+        Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
+
+        rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
+            String title = PartOfDay.getTitle(day);
+
+            calendar.addEntry(createAbstractDayEntry(day, title));
+        });
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addShiftDays(User user, LocalDate start, LocalDate end) {
+        LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
+
+        while (monday.isBefore(end)) {
+            LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+            MutableLocalDate date = new MutableLocalDate(monday);
+
+            rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+                shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
+                   if (shiftDay.isWorking()) {
+                       calendar.addEntry(createShiftDayEntry(date, shiftDay));
+                    }
+
+                   date.plusOneDay();
+                });
+            });
+
+            monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
+        }
+    }
+
+    @SuppressWarnings("deprecation")
+    private void addBankHolidays(LocalDate start, LocalDate end) {
         QueryUtil.getInstance().getHolidays(Division.ENGLAND_AND_WALES, start.getYear()).forEach(bankHoliday -> {
             calendar.addEntry(createBankHolidayEntry(bankHoliday));
         });
@@ -373,51 +472,6 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 calendar.addEntry(createBankHolidayEntry(bankHoliday));
             });
         }
-
-        optUser.ifPresent(user -> {
-            if (user.isEmployee()) {
-                LocalDate monday = start.with(TemporalAdjusters.nextOrSame(DayOfWeek.MONDAY));
-
-                while (monday.isBefore(end)) {
-                    LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
-                    MutableLocalDate date = new MutableLocalDate(monday);
-
-                    rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
-                        shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
-                           if (shiftDay.isWorking()) {
-                               calendar.addEntry(createShiftDayEntry(date, shiftDay));
-                            }
-
-                           date.plusOneDay();
-                        });
-                    });
-
-                    monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));
-                }
-            }
-
-            Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
-
-            rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
-                String title = PartOfDay.getTitle(day);
-
-                calendar.addEntry(createAbstractDayEntry(day, title));
-            });
-
-            if (user.isManager() || user.isSupervisor()) {
-                Map<String, User> userMap = userService.getAllNonManager();
-
-                rostaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
-                    User entryUser = userMap.get(day.getUserUuid());
-
-                    if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
-                        String title = entryUser.getDisplayName() + SEPARATOR + PartOfDay.getTitle(day);
-
-                        calendar.addEntry(createAbstractDayEntry(day, title));
-                    }
-                });
-            }
-        });
     }
 
     private void onMySummary(ClickEvent<Button> event) {

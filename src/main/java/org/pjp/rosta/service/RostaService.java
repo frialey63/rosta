@@ -12,7 +12,9 @@ import java.time.format.DateTimeFormatter;
 import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
@@ -57,6 +59,13 @@ import org.springframework.util.FileCopyUtils;
 
 @Service
 public class RostaService {
+
+    public record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay, int count, boolean keyholder) {
+        @Override
+        public String toString() {
+            return String.format("%-9s %-9s %d %s", dayOfWeek, partOfDay, count, (keyholder ? "" : "(no key-holder)"));
+        }
+    }
 
     private static final int MIN_COVER_COUNT = 2;
 
@@ -117,13 +126,6 @@ public class RostaService {
                 text = text.replace(search, replacement);
                 run.setText(text, 0);
             }
-        }
-    }
-
-    private record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay, int count, boolean keyholder) {
-        @Override
-        public String toString() {
-            return String.format("%-9s %-9s %d %s", dayOfWeek, partOfDay, count, (keyholder ? "" : "(no key-holder)"));
         }
     }
 
@@ -231,29 +233,10 @@ public class RostaService {
         }
     }
 
-    public void checkRosta() {
+    public void checkRostaAndNotify() {
         LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
-        Rosta rosta = buildRosta(nextMonday);
-
-        LOGGER.info("checking rosta for {}", nextMonday);
-
-        List<MissingCover> missingCover = new ArrayList<>();
-
-        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
-
-            for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
-                Set<String> userUuids = rostaDay.getUserUuids(partOfDay);
-
-                int count = userUuids.size();
-                boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid)).flatMap(Optional::stream).filter(User::isKeyholder).findFirst().isPresent();
-
-                if ((count < MIN_COVER_COUNT) || !keyholder) {
-                    missingCover.add(new MissingCover(dayOfWeek, partOfDay, count, keyholder));
-                }
-            }
-        }
+        List<MissingCover> missingCover = checkRosta(nextMonday, MIN_COVER_COUNT);
 
         LOGGER.debug("missingCover = {}", missingCover);
 
@@ -271,6 +254,46 @@ public class RostaService {
 
             sendManagementOkEmail(nextMonday);
         }
+    }
+
+    public Map<DayOfWeek, MissingCover[]> checkRosta(LocalDate date) {
+        Map<DayOfWeek, MissingCover[]> result = new HashMap<>();
+
+        for (MissingCover missingCover : checkRosta(date, MIN_COVER_COUNT)) {
+            if (result.containsKey(missingCover.dayOfWeek)) {
+                MissingCover temp = result.get(missingCover.dayOfWeek)[0];
+                result.put(missingCover.dayOfWeek, new MissingCover[] { temp, missingCover });
+            } else {
+                result.put(missingCover.dayOfWeek, new MissingCover[] { missingCover });
+            }
+        }
+
+        return result;
+    }
+
+    private List<MissingCover> checkRosta(LocalDate date, int minCoverCount) {
+        Rosta rosta = buildRosta(date);
+
+        LOGGER.info("checking rosta for {}", date);
+
+        List<MissingCover> missingCover = new ArrayList<>();
+
+        for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
+            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+
+            for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
+                Set<String> userUuids = rostaDay.getUserUuids(partOfDay);
+
+                int count = userUuids.size();
+                boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid)).flatMap(Optional::stream).filter(User::isKeyholder).findFirst().isPresent();
+
+                if ((count < minCoverCount) || !keyholder) {
+                    missingCover.add(new MissingCover(dayOfWeek, partOfDay, count, keyholder));
+                }
+            }
+        }
+
+        return missingCover;
     }
 
     private void sendManagementOkEmail(LocalDate date) {

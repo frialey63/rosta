@@ -153,6 +153,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
     public ShopRotaView() {
         super();
 
+        datePicker.setWeekNumbersVisible(true);
         registration = datePicker.addValueChangeListener(this);
 
         Span filler = new Span();
