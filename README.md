@@ -22,19 +22,25 @@ Backup of the Mongo DB
 
 ## TODO
 
+better sitrep view for manager on calendar using background events (overview rota for next 3 months?)
+
+rules for add >1 entry on a day
+
 rationalise employee and volunteer capabilities
+
+day/event update
 
 ## Bugs
 
 ## Sprint 3 Stories
+
+push notification of changes by other users to the calendar
 
 notifications by SMS as well as by email?
 
 register attendance via QR code or bluetooth proxity
 
 ## Sprint 4 Stories
-
-overview rota for next 3 months?
 
 volunteer attendance and reliability stats/predictions
 
@@ -43,6 +49,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+refresh button for calendar
 
 mobile friendly
 

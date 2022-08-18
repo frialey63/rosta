@@ -118,10 +118,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setAllDay(true);
         entry.setTitle(title);
         entry.setRenderingMode(RenderingMode.BLOCK);
-
         entry.setDurationEditable(false);
         entry.setEditable(false);
-        entry.setDurationEditable(false);
 
         return entry;
     }
@@ -135,25 +133,52 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         entry.setStart(day.getDate());
         entry.setColor(day.getColour());
         entry.setAllDay(true);
-        entry.setTitle(PartOfDay.abbreviate(title));
+        entry.setTitle(abbreviate(title));
         entry.setRenderingMode(RenderingMode.BLOCK);
-
         entry.setDurationEditable(false);
         entry.setEditable(false);
-        entry.setDurationEditable(false);
 
         return entry;
     }
 
     private static Entry createShiftDayEntry(MutableLocalDate date, ShiftDay shiftDay) {
+        String title = PartOfDay.getTitle(shiftDay);
+
         Entry entry = new Entry();
 
+        entry.setCustomProperty(KEY_TOOLTIP, title);
         entry.setStart(date.get());
         entry.setColor(shiftDay.getColour());
         entry.setAllDay(true);
-        entry.setRenderingMode(RenderingMode.BACKGROUND);
+        entry.setTitle(abbreviate(title));
+        entry.setRenderingMode(RenderingMode.BLOCK);
+        entry.setDurationEditable(false);
+        entry.setEditable(false);
 
         return entry;
+    }
+
+    private static final String SEPARATOR = " - ";
+
+    private static String abbreviate(String str) {
+        if (str.contains(SEPARATOR)) {
+            String[] strArr = str.split(SEPARATOR);
+            String[] nameArr = strArr[0].split(" ");
+
+            String initials = "";
+
+            for (String name : nameArr) {
+                initials += name.substring(0, 1);
+            }
+
+            str = initials + SEPARATOR + strArr[1];
+        }
+
+        if (str.contains("&")) {
+            str = str.replace("Morning", "Mrng").replace("Afternoon", "Aftn").replace("Evening", "Evng");
+        }
+
+        return str;
     }
 
     private Optional<User> optUser;
@@ -258,7 +283,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
 
-        //menuBar.addItem("Today", e -> calendar.today());
+        menuBar.addItem("Refresh", e -> refreshCalendar(datesRenderedEvent));
         menuBar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         menuBar.addItem(buttonDatePicker);
         menuBar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
@@ -321,11 +346,15 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         return pageTitle;
     }
 
-    @SuppressWarnings("deprecation")
     @Override
     public void onComponentEvent(DatesRenderedEvent event) {
         this.datesRenderedEvent = event;
 
+        refreshCalendar(event);
+    }
+
+    @SuppressWarnings("deprecation")
+    private void refreshCalendar(DatesRenderedEvent event) {
         LocalDate start = event.getStart();
         LocalDate end = event.getEnd();
 
@@ -382,7 +411,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     User entryUser = userMap.get(day.getUserUuid());
 
                     if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
-                        String title = entryUser.getDisplayName() + " - " + PartOfDay.getTitle(day);
+                        String title = entryUser.getDisplayName() + SEPARATOR + PartOfDay.getTitle(day);
 
                         calendar.addEntry(createAbstractDayEntry(day, title));
                     }
@@ -501,7 +530,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 dialog.setFooter(getDialogFooter(user, true, false));
                 dialog.open();
             } else {
-                if (dateFlag && !hasExistingEntry(RenderingMode.BLOCK, startDate)) {
+                if (dateFlag) {
                     String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
                     dialog = new CreateDialog(startDate, user.isEmployee(), user);
@@ -513,10 +542,10 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
-    @SuppressWarnings("deprecation")
-    private boolean hasExistingEntry(RenderingMode renderingMode, LocalDate date) {
-        return calendar.getEntries().stream().filter(e -> (e.getRenderingMode() == renderingMode) && e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
-    }
+//    @SuppressWarnings("deprecation")
+//    private boolean hasExistingEntry(RenderingMode renderingMode, LocalDate date) {
+//        return calendar.getEntries().stream().filter(e -> (e.getRenderingMode() == renderingMode) && e.getStartAsLocalDate().equals(date)).findFirst().isPresent();
+//    }
 
     @SuppressWarnings("deprecation")
     private void onCreate(ClickEvent<Button> event) {
@@ -534,9 +563,9 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             String title = PartOfDay.getTitle(createDialog);
             if (user.isManager()) {
-                title = dayUser.getDisplayName() + " - " + title;
+                title = dayUser.getDisplayName() + SEPARATOR + title;
             } else if (user.isSupervisor()) {
-                title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + " - ")) + title;
+                title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + SEPARATOR)) + title;
             }
 
             calendar.addEntry(createAbstractDayEntry(day, title));

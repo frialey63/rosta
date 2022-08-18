@@ -47,12 +47,4 @@ public interface PartOfDay {
         }
     }
 
-    public static String abbreviate(String str) {
-        if (str.contains("&")) {
-            return str.replace("Morning", "Mrng").replace("Afternoon", "Aftn").replace("Evening", "Evng");
-        }
-
-        return str;
-    }
-
 }
