@@ -1,5 +1,6 @@
 package org.pjp.rosta.ui.view.register;
 
+import org.pjp.rosta.bean.UserBean;
 import org.pjp.rosta.service.UserService;
 
 import com.vaadin.flow.component.UI;
@@ -11,7 +12,7 @@ import com.vaadin.flow.data.binder.ValidationException;
 import com.vaadin.flow.data.binder.ValidationResult;
 import com.vaadin.flow.data.binder.ValueContext;
 
-public class RegistrationFormBinder {
+class RegistrationFormBinder {
 
     private UserService userService;
 

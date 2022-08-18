@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
 
+import org.pjp.rosta.bean.UserBean;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
-import org.pjp.rosta.ui.view.register.UserBean;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;

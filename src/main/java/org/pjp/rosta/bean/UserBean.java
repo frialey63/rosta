@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.view.register;
+package org.pjp.rosta.bean;
 
 import javax.validation.constraints.Email;
 import javax.validation.constraints.NotBlank;

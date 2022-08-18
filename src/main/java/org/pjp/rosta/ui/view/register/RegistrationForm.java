@@ -22,7 +22,7 @@ import java.util.stream.Stream;
  * This FormLayout itself is added to the MainView, where it is made
  * accessible to the user.
  */
-public class RegistrationForm extends FormLayout {
+class RegistrationForm extends FormLayout {
 
     private static final long serialVersionUID = -7379451127997641924L;
 
