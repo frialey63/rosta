@@ -22,8 +22,6 @@ Backup of the Mongo DB
 
 ## TODO
 
-background processing of missing cover
-
 rationalise employee and volunteer capabilities
 
 should an employee take bank holidays?

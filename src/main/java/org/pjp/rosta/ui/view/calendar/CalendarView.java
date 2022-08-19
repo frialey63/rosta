@@ -34,6 +34,7 @@ import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.concurrent.ListenableFuture;
 import org.vaadin.stefan.fullcalendar.DatesRenderedEvent;
 import org.vaadin.stefan.fullcalendar.Entry;
 import org.vaadin.stefan.fullcalendar.Entry.RenderingMode;
@@ -415,18 +416,28 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         LocalDate monday = start;
 
         while (!monday.isAfter(end)) {
-            Map<DayOfWeek, MissingCover[]> map = rotaService.checkRota(monday);
+            ListenableFuture<Map<DayOfWeek, MissingCover[]>> future = rotaService.checkRota(monday);
 
             final var capturedMonday = monday;
 
-            map.keySet().forEach(dayOfWeek -> {
-                LocalDate date = capturedMonday.with(TemporalAdjusters.nextOrSame(dayOfWeek));
+            UI ui = UI.getCurrent();
 
-                MissingCover[] missingCover = map.get(dayOfWeek);
+            future.addCallback(map -> {
+                LOGGER.debug("successful background calculation of missing cover");
 
-                Entry entry = createMissingCoverEntry(date, missingCover);
+                map.keySet().forEach(dayOfWeek -> {
+                    LocalDate date = capturedMonday.with(TemporalAdjusters.nextOrSame(dayOfWeek));
 
-                calendar.addEntry(entry);
+                    MissingCover[] missingCover = map.get(dayOfWeek);
+
+                    Entry entry = createMissingCoverEntry(date, missingCover);
+
+                    ui.access(() -> {
+                        calendar.addEntry(entry);
+                    });
+                });
+            }, failure -> {
+                LOGGER.error("failed background calculation of missing cover");
             });
 
             monday = monday.with(TemporalAdjusters.next(DayOfWeek.MONDAY));

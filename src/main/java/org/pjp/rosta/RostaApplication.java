@@ -15,15 +15,17 @@ import org.springframework.scheduling.annotation.Scheduled;
 
 import com.vaadin.flow.component.dependency.NpmPackage;
 import com.vaadin.flow.component.page.AppShellConfigurator;
+import com.vaadin.flow.component.page.Push;
 import com.vaadin.flow.server.PWA;
 import com.vaadin.flow.theme.Theme;
 
-@EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
-@EnableScheduling
-@SpringBootApplication
+@Push
 @Theme(value = "ocimport")
 @PWA(name = "RAF Manston History Museum Shop Rota", shortName = "Rota", offlineResources = {})
 @NpmPackage(value = "line-awesome", version = "1.3.0")
+@EnableScheduling
+@EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
+@SpringBootApplication
 public class RostaApplication extends SpringBootServletInitializer implements AppShellConfigurator, ApplicationRunner {
 
     private static final long serialVersionUID = 4107623244717405998L;

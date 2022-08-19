@@ -52,10 +52,13 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.scheduling.annotation.Async;
+import org.springframework.scheduling.annotation.AsyncResult;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
+import org.springframework.util.concurrent.ListenableFuture;
 
 @Service
 public class RotaService {
@@ -256,7 +259,8 @@ public class RotaService {
         }
     }
 
-    public Map<DayOfWeek, MissingCover[]> checkRota(LocalDate date) {
+    @Async
+    public ListenableFuture<Map<DayOfWeek, MissingCover[]>> checkRota(LocalDate date) {
         Map<DayOfWeek, MissingCover[]> result = new HashMap<>();
 
         for (MissingCover missingCover : checkRota(date, MIN_COVER_COUNT)) {
@@ -268,7 +272,7 @@ public class RotaService {
             }
         }
 
-        return result;
+        return AsyncResult.forValue(result);
     }
 
     private List<MissingCover> checkRota(LocalDate date, int minCoverCount) {
