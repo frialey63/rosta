@@ -190,7 +190,7 @@ public class RotaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "fred", UserRole.SUPERVISOR, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred@gmail.com", true, true, true);
+            var user = new User(id, "fred", UserRole.SUPERVISOR, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred.bloggs@gmail.com", true, true, true);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -209,7 +209,7 @@ public class RotaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "bill", UserRole.WORKER, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "bill@gmail.com", true, true, false);
+            var user = new User(id, "bill", UserRole.WORKER, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "bill.smith@gmail.com", true, true, false);
             userRepo.save(user);
 
             var shift = new Shift(UUID.randomUUID().toString(), date, id);
@@ -228,7 +228,16 @@ public class RotaService {
 
         {
             var id = UUID.randomUUID().toString();
-            var user = new User(id, "anne", UserRole.WORKER, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne@gmail.com", true, false, false);
+            var user = new User(id, "anne", UserRole.WORKER, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne.boleyn@gmail.com", true, false, true);
+            userRepo.save(user);
+
+            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
+            volunteerDayRepository.save(VolunteerDay);
+        }
+
+        {
+            var id = UUID.randomUUID().toString();
+            var user = new User(id, "jane", UserRole.WORKER, "Jane Seymour", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "jane.seymour@gmail.com", true, false, false);
             userRepo.save(user);
 
             var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
