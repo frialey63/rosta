@@ -1,7 +1,7 @@
 package org.pjp.rosta;
 
 import org.pjp.rosta.service.DocumentService;
-import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.RotaService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.ApplicationArguments;
@@ -32,7 +32,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     private String activeProfile;
 
     @Autowired
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     @Autowired
     private DocumentService documentService;
@@ -44,16 +44,16 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     @Override
     public void run(ApplicationArguments args) throws Exception {
         if ("docker".equals(activeProfile)) {
-            rostaService.testData();
+            rotaService.testData();
             documentService.testData();
             return;
         }
 
-        rostaService.sendTestEmail();
+        rotaService.sendTestEmail();
     }
 
-    @Scheduled(cron = "${check.rosta.cron}")
+    @Scheduled(cron = "${check.rota.cron}")
     public void checkRosta() {
-        rostaService.checkRostaAndNotify();
+        rotaService.checkRotaAndNotify();
     }
 }

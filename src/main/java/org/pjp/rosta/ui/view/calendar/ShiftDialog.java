@@ -143,8 +143,8 @@ class ShiftDialog extends EnhancedDialog {
         grid.setWidthFull();
 
         grid.addColumn(ShiftEntry::getDayOfWeek).setHeader("Day");
-        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isMorning(), enabled, l -> rostaEntry.setMorning(l.getValue())))).setHeader("Morning");
-        grid.addColumn(new ComponentRenderer<>(rostaEntry -> new MyCheckbox(rostaEntry.isAfternoon(), enabled, l -> rostaEntry.setAfternoon(l.getValue())))).setHeader("Afternoon");
+        grid.addColumn(new ComponentRenderer<>(entry -> new MyCheckbox(entry.isMorning(), enabled, l -> entry.setMorning(l.getValue())))).setHeader("Morning");
+        grid.addColumn(new ComponentRenderer<>(entry -> new MyCheckbox(entry.isAfternoon(), enabled, l -> entry.setAfternoon(l.getValue())))).setHeader("Afternoon");
 
         grid.addThemeVariants(GridVariant.LUMO_COMPACT);
         grid.addThemeVariants(GridVariant.LUMO_COLUMN_BORDERS);

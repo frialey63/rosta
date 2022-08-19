@@ -16,10 +16,10 @@ import java.util.Map;
 import javax.annotation.security.PermitAll;
 
 import org.pjp.rosta.bean.PartOfDay;
-import org.pjp.rosta.bean.Rosta;
-import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.bean.Rota;
+import org.pjp.rosta.bean.RotaDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.RotaService;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.CompactVerticalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
@@ -53,6 +53,8 @@ import com.vaadin.flow.shared.Registration;
 @Route(value = "rota", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ShopRotaView extends AbstractView implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
+
+    private static final String ROTA_S_DOCX = "rota_%s.docx";
 
     private static final int MAX_USERS_IN_PERIOD = 4;
 
@@ -147,7 +149,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
     private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
 
     @Autowired
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     @SuppressWarnings("unchecked")
     public ShopRotaView() {
@@ -204,12 +206,12 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
         datePicker.setValue(date);
         registration = datePicker.addValueChangeListener(this);
 
-        Rosta rosta = rostaService.buildRosta(date);
+        Rota rota = rotaService.buildRota(date);
 
-        mapGridBeans(rosta);
+        mapGridBeans(rota);
         populateGrids();
 
-        String name = String.format("rosta_%s.docx", date.format(FORMATTER));
+        String name = String.format(ROTA_S_DOCX, date.format(FORMATTER));
         buttonWrapper.setResource(new StreamResource(name, () -> {
             InputStream result = null;
 
@@ -217,11 +219,11 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
                 File tempFile = File.createTempFile("tmp-", ".tmp");
                 tempFile.deleteOnExit();
 
-                rostaService.writeRosta(rosta, tempFile);
+                rotaService.writeRota(rota, tempFile);
 
                 result = new FileInputStream(tempFile);
             } catch (IOException e) {
-                LOGGER.error("error attempting to write rosta to temporary file", e);
+                LOGGER.error("error attempting to write rota to temporary file", e);
             }
 
             return result;
@@ -237,14 +239,14 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
         }
     }
 
-    private void mapGridBeans(Rosta rosta) {
+    private void mapGridBeans(Rota rota) {
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+            RotaDay rotaDay = rota.getRotaDay(dayOfWeek);
 
             List<GridBean> gridBeans = List.of(new GridBean(), new GridBean(), new GridBean(), new GridBean());
 
             for (PartOfDay partOfDay : PartOfDay.values()) {
-                User[] users = rostaService.getUsers(rostaDay, partOfDay);
+                User[] users = rotaService.getUsers(rotaDay, partOfDay);
 
                 for (int i = 0; i < Math.min(MAX_USERS_IN_PERIOD, users.length); i++) {
                     gridBeans.get(i).set(partOfDay, users[i].getDisplayName());

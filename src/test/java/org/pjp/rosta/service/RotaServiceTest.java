@@ -20,21 +20,21 @@ import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.ShiftRepository;
 
 @ExtendWith(MockitoExtension.class)
-class RostaServiceTest {
+class RotaServiceTest {
 
     @Mock
     private ShiftRepository shiftRepo;
 
     @InjectMocks
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     @Test
     void testGetDayOfWeekRange() {
-        assertArrayEquals(new DayOfWeek[] { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY }, RostaService.getDayOfWeekRange(DayOfWeek.MONDAY, DayOfWeek.FRIDAY).toArray(new DayOfWeek[0]));
+        assertArrayEquals(new DayOfWeek[] { DayOfWeek.MONDAY, DayOfWeek.TUESDAY, DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY }, RotaService.getDayOfWeekRange(DayOfWeek.MONDAY, DayOfWeek.FRIDAY).toArray(new DayOfWeek[0]));
 
-        assertArrayEquals(new DayOfWeek[] { DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY }, RostaService.getDayOfWeekRange(DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY).toArray(new DayOfWeek[0]));
+        assertArrayEquals(new DayOfWeek[] { DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY, DayOfWeek.SATURDAY, DayOfWeek.SUNDAY }, RotaService.getDayOfWeekRange(DayOfWeek.WEDNESDAY, DayOfWeek.SUNDAY).toArray(new DayOfWeek[0]));
 
-        assertArrayEquals(new DayOfWeek[] { DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY }, RostaService.getDayOfWeekRange(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY).toArray(new DayOfWeek[0]));
+        assertArrayEquals(new DayOfWeek[] { DayOfWeek.WEDNESDAY, DayOfWeek.THURSDAY, DayOfWeek.FRIDAY }, RotaService.getDayOfWeekRange(DayOfWeek.WEDNESDAY, DayOfWeek.FRIDAY).toArray(new DayOfWeek[0]));
     }
 
     @Test
@@ -61,7 +61,7 @@ class RostaServiceTest {
 
         // THEN
 
-        assertEquals((22.0 - 0.5), rostaService.calculateShiftWork(user, start, end), 0.1);
+        assertEquals((22.0 - 0.5), rotaService.calculateShiftWork(user, start, end), 0.1);
     }
 
     @Test
@@ -86,7 +86,7 @@ class RostaServiceTest {
 
         // THEN
 
-        assertEquals((21.0 - 4 * 0.5), rostaService.calculateShiftWork(user, start, end), 0.1);
+        assertEquals((21.0 - 4 * 0.5), rotaService.calculateShiftWork(user, start, end), 0.1);
     }
 
     @Test
@@ -120,7 +120,7 @@ class RostaServiceTest {
 
         // THEN
 
-        assertEquals((20.0 + 3.0), rostaService.calculateShiftWork(user, start, end), 0.1);
+        assertEquals((20.0 + 3.0), rotaService.calculateShiftWork(user, start, end), 0.1);
     }
 
     @Test
@@ -171,7 +171,7 @@ class RostaServiceTest {
 
         // THEN
 
-        assertEquals((22.0 - 0.5) + (21.0 - 4 * 0.5) + (20.0 + 3.0), rostaService.calculateShiftWork(user, start, end), 0.1);
+        assertEquals((22.0 - 0.5) + (21.0 - 4 * 0.5) + (20.0 + 3.0), rotaService.calculateShiftWork(user, start, end), 0.1);
     }
 
 }

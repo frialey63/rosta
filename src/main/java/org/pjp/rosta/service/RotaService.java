@@ -31,8 +31,8 @@ import org.apache.poi.xwpf.usermodel.XWPFTableCell;
 import org.apache.poi.xwpf.usermodel.XWPFTableRow;
 import org.openxmlformats.schemas.wordprocessingml.x2006.main.CTBookmark;
 import org.pjp.rosta.bean.PartOfDay;
-import org.pjp.rosta.bean.Rosta;
-import org.pjp.rosta.bean.RostaDay;
+import org.pjp.rosta.bean.Rota;
+import org.pjp.rosta.bean.RotaDay;
 import org.pjp.rosta.model.AbsenceDay;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
@@ -58,7 +58,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileCopyUtils;
 
 @Service
-public class RostaService {
+public class RotaService {
 
     public record MissingCover(DayOfWeek dayOfWeek, PartOfDay partOfDay, int count, boolean keyholder) {
         @Override
@@ -79,9 +79,9 @@ public class RostaService {
 
     private static final String TEST_TEMPLATE = "file:template/test-template.txt";
 
-    private static final Logger LOGGER = LoggerFactory.getLogger(RostaService.class);
+    private static final Logger LOGGER = LoggerFactory.getLogger(RotaService.class);
 
-    private static final String ROSTA_TEMPLATE_DOCX = "file:template/rosta-template.docx";
+    private static final String ROTA_TEMPLATE_DOCX = "file:template/rota-template.docx";
 
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("dd MMMM yyyy");
 
@@ -132,8 +132,8 @@ public class RostaService {
     @Value("${init.data:false}")
     private boolean initData;
 
-    @Value("${check.rosta.director.email}")
-    private String checkRostaDirectorEmail;
+    @Value("${check.rota.director.email}")
+    private String checkRotaDirectorEmail;
 
     @Value("${test.email.to:none}")
     private String testEmailTo;
@@ -233,10 +233,10 @@ public class RostaService {
         }
     }
 
-    public void checkRostaAndNotify() {
+    public void checkRotaAndNotify() {
         LocalDate nextMonday = LocalDate.now().with(TemporalAdjusters.next(DayOfWeek.MONDAY));
 
-        List<MissingCover> missingCover = checkRosta(nextMonday, MIN_COVER_COUNT);
+        List<MissingCover> missingCover = checkRota(nextMonday, MIN_COVER_COUNT);
 
         LOGGER.debug("missingCover = {}", missingCover);
 
@@ -256,10 +256,10 @@ public class RostaService {
         }
     }
 
-    public Map<DayOfWeek, MissingCover[]> checkRosta(LocalDate date) {
+    public Map<DayOfWeek, MissingCover[]> checkRota(LocalDate date) {
         Map<DayOfWeek, MissingCover[]> result = new HashMap<>();
 
-        for (MissingCover missingCover : checkRosta(date, MIN_COVER_COUNT)) {
+        for (MissingCover missingCover : checkRota(date, MIN_COVER_COUNT)) {
             if (result.containsKey(missingCover.dayOfWeek)) {
                 MissingCover temp = result.get(missingCover.dayOfWeek)[0];
                 result.put(missingCover.dayOfWeek, new MissingCover[] { temp, missingCover });
@@ -271,18 +271,18 @@ public class RostaService {
         return result;
     }
 
-    private List<MissingCover> checkRosta(LocalDate date, int minCoverCount) {
-        Rosta rosta = buildRosta(date);
+    private List<MissingCover> checkRota(LocalDate date, int minCoverCount) {
+        Rota rota = buildRota(date);
 
-        LOGGER.info("checking rosta for {}", date);
+        LOGGER.info("checking rota for {}", date);
 
         List<MissingCover> missingCover = new ArrayList<>();
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+            RotaDay rotaDay = rota.getRotaDay(dayOfWeek);
 
             for (PartOfDay partOfDay : new PartOfDay[] { PartOfDay.MORNING, PartOfDay.AFTERNOON }) {
-                Set<String> userUuids = rostaDay.getUserUuids(partOfDay);
+                Set<String> userUuids = rotaDay.getUserUuids(partOfDay);
 
                 int count = userUuids.size();
                 boolean keyholder = userUuids.stream().map(uuid -> userRepo.findById(uuid)).flatMap(Optional::stream).filter(User::isKeyholder).findFirst().isPresent();
@@ -310,7 +310,7 @@ public class RostaService {
                 }
             });
 
-            for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+            for (String directorEmail : checkRotaDirectorEmail.split(",")) {
                 String text = String.format(templateStr, nameFromEmail(directorEmail));
 
                 emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
@@ -335,7 +335,7 @@ public class RostaService {
                 }
             });
 
-            for (String directorEmail : checkRostaDirectorEmail.split(",")) {
+            for (String directorEmail : checkRotaDirectorEmail.split(",")) {
                 String text = String.format(templateStr, nameFromEmail(directorEmail), notifiedStr) + missingCoverStr;
 
                 emailService.sendSimpleMessage(directorEmail.trim(), subject, text);
@@ -365,16 +365,16 @@ public class RostaService {
         }
     }
 
-    public Rosta buildRosta(LocalDate date) {
+    public Rota buildRota(LocalDate date) {
         assert date.getDayOfWeek() == DayOfWeek.MONDAY;
 
-        LocalDate rostaStartDate = date;
-        LocalDate rostaEndDate = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
+        LocalDate rotaStartDate = date;
+        LocalDate rotaEndDate = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
-        LOGGER.debug("rostaStartDate = {}", rostaStartDate);
-        LOGGER.debug("rostaEndDate = {}", rostaEndDate);
+        LOGGER.debug("rotaStartDate = {}", rotaStartDate);
+        LOGGER.debug("rotaEndDate = {}", rotaEndDate);
 
-        Rosta rosta = new Rosta(rostaStartDate);
+        Rota rota = new Rota(rotaStartDate);
 
         userRepo.findAll().forEach(user -> {
             LOGGER.debug("user: {}", user);
@@ -382,41 +382,41 @@ public class RostaService {
             String userUuid = user.getUuid();
 
             if (user.isEmployee()) {
-                getShiftForUser(userUuid, rostaEndDate).ifPresent(shift -> {
+                getShiftForUser(userUuid, rotaEndDate).ifPresent(shift -> {
                     LOGGER.debug("shift: {}", shift);
 
                     shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
-                        RostaDay rostaDay = rosta.getRostaDay(shiftDay.getDayOfWeek());
-                        rostaDay.addUserUuid(shiftDay, userUuid);
+                        RotaDay rotaDay = rota.getRotaDay(shiftDay.getDayOfWeek());
+                        rotaDay.addUserUuid(shiftDay, userUuid);
                     });
                 });
 
-                holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(holiday -> {
+                holidayRepository.findAllByUserUuidAndDateBetween(userUuid, rotaStartDate, rotaEndDate).forEach(holiday -> {
                     LOGGER.debug("holiday: {}", holiday);
 
-                    RostaDay rostaDay = rosta.getRostaDay(holiday.getDate().getDayOfWeek());
-                    rostaDay.removeUserUuid(holiday, userUuid);
+                    RotaDay rotaDay = rota.getRotaDay(holiday.getDate().getDayOfWeek());
+                    rotaDay.removeUserUuid(holiday, userUuid);
                 });
 
-                absenceDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(absenceDay -> {
+                absenceDayRepository.findAllByUserUuidAndDateBetween(userUuid, rotaStartDate, rotaEndDate).forEach(absenceDay -> {
                     LOGGER.debug("absenceDay: {}", absenceDay);
 
-                    RostaDay rostaDay = rosta.getRostaDay(absenceDay.getDate().getDayOfWeek());
-                    rostaDay.removeUserUuid(absenceDay, userUuid);
+                    RotaDay rotaDay = rota.getRotaDay(absenceDay.getDate().getDayOfWeek());
+                    rotaDay.removeUserUuid(absenceDay, userUuid);
                 });
             } else {
-                volunteerDayRepository.findAllByUserUuidAndDateBetween(userUuid, rostaStartDate, rostaEndDate).forEach(volunteerDay -> {
+                volunteerDayRepository.findAllByUserUuidAndDateBetween(userUuid, rotaStartDate, rotaEndDate).forEach(volunteerDay -> {
                     LOGGER.debug("volunteerDay: {}", volunteerDay);
 
-                    RostaDay rostaDay = rosta.getRostaDay(volunteerDay.getDate().getDayOfWeek());
-                    rostaDay.addUserUuid(volunteerDay, userUuid);
+                    RotaDay rotaDay = rota.getRotaDay(volunteerDay.getDate().getDayOfWeek());
+                    rotaDay.addUserUuid(volunteerDay, userUuid);
                 });
             }
         });
 
-        LOGGER.debug("rosta: {}", rosta);
+        LOGGER.debug("rota: {}", rota);
 
-        return rosta;
+        return rota;
     }
 
     public Optional<Shift> getShiftForUser(String userUuid, LocalDate date) {
@@ -475,17 +475,17 @@ public class RostaService {
         return work.get();
     }
 
-    public void writeRosta(Rosta rosta, File outputFile) throws FileNotFoundException, IOException {
-        try (InputStream is = resourceLoader.getResource(ROSTA_TEMPLATE_DOCX).getInputStream(); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
+    public void writeRota(Rota rota, File outputFile) throws FileNotFoundException, IOException {
+        try (InputStream is = resourceLoader.getResource(ROTA_TEMPLATE_DOCX).getInputStream(); XWPFDocument document = new XWPFDocument(is); FileOutputStream out = new FileOutputStream(outputFile)) {
             for (XWPFParagraph para : document.getParagraphs()) {
-                performParagraphInsertions(rosta, para);
+                performParagraphInsertions(rota, para);
             }
 
             for (XWPFTable tbl : document.getTables()) {
                 for (XWPFTableRow row : tbl.getRows()) {
                     for (XWPFTableCell cell : row.getTableCells()) {
                         for (XWPFParagraph para : cell.getParagraphs()) {
-                            performParagraphInsertions(rosta, para);
+                            performParagraphInsertions(rota, para);
                         }
                     }
                 }
@@ -495,18 +495,18 @@ public class RostaService {
         }
     }
 
-    private void performParagraphInsertions(Rosta rosta, XWPFParagraph para) {
-        String startDate = rosta.getRostaDate().format(FORMATTER);
-        String endDate = rosta.getRostaDate().with(TemporalAdjusters.next(DayOfWeek.SUNDAY)).format(FORMATTER);
+    private void performParagraphInsertions(Rota rota, XWPFParagraph para) {
+        String startDate = rota.getRotaDate().format(FORMATTER);
+        String endDate = rota.getRotaDate().with(TemporalAdjusters.next(DayOfWeek.SUNDAY)).format(FORMATTER);
 
         insertAtBookmark(para, "startDate", startDate);
         insertAtBookmark(para, "endDate", endDate);
 
         for (DayOfWeek dayOfWeek : DayOfWeek.values()) {
-            RostaDay rostaDay = rosta.getRostaDay(dayOfWeek);
+            RotaDay rotaDay = rota.getRotaDay(dayOfWeek);
 
             for (PartOfDay partOfDay : PartOfDay.values()) {
-                User[] users = getUsers(rostaDay, partOfDay);
+                User[] users = getUsers(rotaDay, partOfDay);
 
                 for (int i = 0; i < users.length; i++) {
                     String bookmark = String.format("%s%s%d", dayOfWeek.name().toLowerCase(), partOfDay.toString(), (i + 1));
@@ -517,8 +517,8 @@ public class RostaService {
         }
     }
 
-    public User[] getUsers(RostaDay rostaDay, PartOfDay partOfDay) {
-        return rostaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
+    public User[] getUsers(RotaDay rotaDay, PartOfDay partOfDay) {
+        return rotaDay.getUserUuids(partOfDay).stream().map(userUuid -> userRepo.findById(userUuid)).flatMap(Optional::stream).sorted().toArray(size -> new User[size]);
     }
 
     public List<AbstractDay> getDays(User user, Set<DayType> dayTypes, LocalDate dateStart, LocalDate dateEnd) {

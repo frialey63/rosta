@@ -34,11 +34,11 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
     @Value("${spring.mail.password}")
     private String springMailPassword;
 
-    @Value("${check.rosta.director.email}")
-    private String checkRostaDirectorEmail;
+    @Value("${check.rota.director.email}")
+    private String checkRotaDirectorEmail;
 
-    @Value("${check.rosta.cron}")
-    private String checkRostaCron;
+    @Value("${check.rota.cron}")
+    private String checkRotaCron;
 
     private Table table;
 
@@ -95,12 +95,12 @@ public class SettingsView extends AbstractView implements AfterNavigationObserve
         detailsRow.addDataCell().setText(springMailPassword);
 
         detailsRow = table.addRow();
-        detailsRow.addDataCell().setText("check.rosta.director.email");
-        detailsRow.addDataCell().setText(checkRostaDirectorEmail);
+        detailsRow.addDataCell().setText("check.rota.director.email");
+        detailsRow.addDataCell().setText(checkRotaDirectorEmail);
 
         detailsRow = table.addRow();
-        detailsRow.addDataCell().setText("check.rosta.cron");
-        detailsRow.addDataCell().setText(checkRostaCron);
+        detailsRow.addDataCell().setText("check.rota.cron");
+        detailsRow.addDataCell().setText(checkRotaCron);
     }
 
 }

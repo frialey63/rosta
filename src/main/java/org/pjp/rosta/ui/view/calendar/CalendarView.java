@@ -22,8 +22,8 @@ import org.pjp.rosta.model.PartOfDay;
 import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.ShiftDay;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.service.RostaService;
-import org.pjp.rosta.service.RostaService.MissingCover;
+import org.pjp.rosta.service.RotaService;
+import org.pjp.rosta.service.RotaService.MissingCover;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
 import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltip;
@@ -213,7 +213,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private DatesRenderedEvent datesRenderedEvent;
 
     @Autowired
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     public CalendarView() {
         super();
@@ -395,7 +395,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         LocalDate monday = start;
 
         while (!monday.isAfter(end)) {
-            Map<DayOfWeek, MissingCover[]> map = rostaService.checkRosta(monday);
+            Map<DayOfWeek, MissingCover[]> map = rotaService.checkRota(monday);
 
             final var capturedMonday = monday;
 
@@ -417,7 +417,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private void addAbstractDaysForOtherUsers(LocalDate start, LocalDate end, User user) {
         Map<String, User> userMap = userService.getAllNonManager();
 
-        rostaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
+        rotaService.getDays(Set.of(DayType.values()), start, end).forEach(day -> {
             User entryUser = userMap.get(day.getUserUuid());
 
             if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
@@ -432,7 +432,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private void addAbstractDays(User user, LocalDate start, LocalDate end) {
         Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
 
-        rostaService.getDays(user, dayTypes, start, end).forEach(day -> {
+        rotaService.getDays(user, dayTypes, start, end).forEach(day -> {
             String title = PartOfDay.getTitle(day);
 
             calendar.addEntry(createAbstractDayEntry(day, title));
@@ -447,7 +447,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             LocalDate sunday = monday.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
             MutableLocalDate date = new MutableLocalDate(monday);
 
-            rostaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
+            rotaService.getShiftForUser(user.getUuid(), sunday).ifPresent(shift -> {
                 shift.getShiftDayIterator().forEachRemaining(shiftDay -> {
                    if (shiftDay.isWorking()) {
                        calendar.addEntry(createShiftDayEntry(date, shiftDay));
@@ -483,7 +483,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             boolean employee = user.isEmployee();
             Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
-            List<AbstractDay> days = rostaService.getDays(user, dayTypes, start, end);
+            List<AbstractDay> days = rotaService.getDays(user, dayTypes, start, end);
 
             dialog = new SummaryDialog(employee, days);
             dialog.setHeader("My Summary for " + today.getYear());
@@ -504,7 +504,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
                 if (date.isBefore(nowMonday)) {
-                    rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
+                    rotaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                         dialog = new ShiftDialog(shift);
                         dialog.setHeader("View Shift");
                         dialog.open();
@@ -518,7 +518,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
                         ShiftDialog shiftDialog = (ShiftDialog) dialog;
 
-                        Shift shift = shiftDialog.isEdit() ? rostaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
+                        Shift shift = shiftDialog.isEdit() ? rotaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
 
                         shiftDialog.getEntries().forEach(entry -> {
                             ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
@@ -526,7 +526,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                             shiftDay.setAfternoon(entry.isAfternoon());
                         });
 
-                        rostaService.saveShift(shift);
+                        rotaService.saveShift(shift);
 
                         dialog.close();
 
@@ -536,7 +536,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     footer.setAlignItems(Alignment.STRETCH);
                     footer.setFlexGrow(1, filler);
 
-                    rostaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
+                    rotaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                         dialog = new ShiftDialog(date, shift);
                         dialog.setHeader("Modify Shift (" + ShiftDialog.FORMATTER.format(shift.getFromDate()) + ")");
                         dialog.setFooter(footer);
@@ -608,7 +608,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         User user = optUser.get();
 
         try {
-            if (rostaService.saveDay(day, user.getUuid())) {
+            if (rotaService.saveDay(day, user.getUuid())) {
                 String title = PartOfDay.getTitle(createDialog);
                 if (user.isManager()) {
                     title = dayUser.getDisplayName() + SEPARATOR + title;
@@ -635,7 +635,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         try {
             User user = optUser.get();
 
-            rostaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
+            rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
             calendar.removeEntry(entry);
         } finally {
             dialog.close();

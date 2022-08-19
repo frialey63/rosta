@@ -5,25 +5,25 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.Map;
 
-public class Rosta {
+public class Rota {
 
-    private final LocalDate rostaDate;	// a Monday
+    private final LocalDate rotaDate;	// a Monday
 
-    private final RostaDay monday = new RostaDay(DayOfWeek.MONDAY);
+    private final RotaDay monday = new RotaDay(DayOfWeek.MONDAY);
 
-    private final RostaDay tuesday = new RostaDay(DayOfWeek.TUESDAY);
+    private final RotaDay tuesday = new RotaDay(DayOfWeek.TUESDAY);
 
-    private final RostaDay wednesday = new RostaDay(DayOfWeek.WEDNESDAY);
+    private final RotaDay wednesday = new RotaDay(DayOfWeek.WEDNESDAY);
 
-    private final RostaDay thursday = new RostaDay(DayOfWeek.THURSDAY);
+    private final RotaDay thursday = new RotaDay(DayOfWeek.THURSDAY);
 
-    private final RostaDay friday = new RostaDay(DayOfWeek.FRIDAY);
+    private final RotaDay friday = new RotaDay(DayOfWeek.FRIDAY);
 
-    private final RostaDay saturday = new RostaDay(DayOfWeek.SATURDAY);
+    private final RotaDay saturday = new RotaDay(DayOfWeek.SATURDAY);
 
-    private final RostaDay sunday = new RostaDay(DayOfWeek.SUNDAY);
+    private final RotaDay sunday = new RotaDay(DayOfWeek.SUNDAY);
 
-    private Map<DayOfWeek, RostaDay> map = new HashMap<>();
+    private Map<DayOfWeek, RotaDay> map = new HashMap<>();
 
     {
         map.put(DayOfWeek.MONDAY, monday);
@@ -35,24 +35,24 @@ public class Rosta {
         map.put(DayOfWeek.SUNDAY, sunday);
     }
 
-    public Rosta(LocalDate rostaDate) {
+    public Rota(LocalDate rotaDate) {
         super();
-        this.rostaDate = rostaDate;
+        this.rotaDate = rotaDate;
     }
 
-    public LocalDate getRostaDate() {
-        return rostaDate;
+    public LocalDate getRotaDate() {
+        return rotaDate;
     }
 
-    public RostaDay getRostaDay(DayOfWeek dayOfWeek) {
+    public RotaDay getRotaDay(DayOfWeek dayOfWeek) {
         return map.get(dayOfWeek);
     }
 
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Rosta [rostaDate=");
-        builder.append(rostaDate);
+        builder.append("Rota [rotaDate=");
+        builder.append(rotaDate);
         builder.append(", monday=");
         builder.append(monday);
         builder.append(", tuesday=");

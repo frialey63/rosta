@@ -3,7 +3,7 @@ package org.pjp.rosta.ui.view.user;
 import javax.annotation.security.RolesAllowed;
 
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.RotaService;
 import org.pjp.rosta.service.UserService.ExistingUser;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
@@ -41,7 +41,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     private boolean testManagePassword;
 
     @Autowired
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     public UserManagementView() {
         super();
@@ -122,7 +122,7 @@ public class UserManagementView extends AbstractView implements AfterNavigationO
     }
 
     private void deleteUser(User user) {
-        rostaService.deleteUser(user);
+        rotaService.deleteUser(user);
     }
 
     private User updateUser(User user) {

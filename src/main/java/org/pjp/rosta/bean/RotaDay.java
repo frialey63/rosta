@@ -7,7 +7,7 @@ import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
-public class RostaDay {
+public class RotaDay {
 
     private final DayOfWeek dayofWeek;
 
@@ -25,7 +25,7 @@ public class RostaDay {
         map.put(PartOfDay.EVENING, eveningUserUuids);
     }
 
-    public RostaDay(DayOfWeek dayofWeek) {
+    public RotaDay(DayOfWeek dayofWeek) {
         super();
         this.dayofWeek = dayofWeek;
     }
@@ -65,7 +65,7 @@ public class RostaDay {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("RostaDay [dayofWeek=");
+        builder.append("RotaDay [dayofWeek=");
         builder.append(dayofWeek);
         builder.append(", morningUserUuids=");
         builder.append(morningUserUuids);

@@ -15,7 +15,7 @@ import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.Holiday;
 import org.pjp.rosta.model.User;
-import org.pjp.rosta.service.RostaService;
+import org.pjp.rosta.service.RotaService;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
 import org.pjp.rosta.ui.view.AbstractView;
@@ -126,7 +126,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
     private Table results;
 
     @Autowired
-    private RostaService rostaService;
+    private RotaService rotaService;
 
     public ManagementInformationView() {
         super();
@@ -249,7 +249,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         for (User user : findUsersByCriteria()) {
             boolean employee = user.isEmployee();
             Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
-            List<AbstractDay> days = rostaService.getDays(user, dayTypes, start, end);
+            List<AbstractDay> days = rotaService.getDays(user, dayTypes, start, end);
 
             float holiday = 0;
             float absence = 0;
@@ -262,7 +262,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
                 holiday = holidays.stream().map(Holiday::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
                 absence = absences.stream().map(AbsenceDay::getPartCount).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
 
-                work = rostaService.calculateShiftWork(user, start, end) - holiday - absence;
+                work = rotaService.calculateShiftWork(user, start, end) - holiday - absence;
             } else {
                 work = days.stream().map(day -> day.getPartCount()).map(BigDecimal::valueOf).reduce(BigDecimal.ZERO, BigDecimal::add).floatValue();
             }
