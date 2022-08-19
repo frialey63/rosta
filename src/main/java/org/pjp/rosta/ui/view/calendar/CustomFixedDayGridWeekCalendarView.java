@@ -15,11 +15,6 @@ public class CustomFixedDayGridWeekCalendarView implements CalendarView {
         this.numberOfWeeks = numberOfWeeks;
     }
 
-    @Override
-    public String getClientSideValue() {
-        return "customDayGridWeek";
-    }
-
     /**
      * views: {
      *     'customDayGridWeek': {
@@ -27,8 +22,6 @@ public class CustomFixedDayGridWeekCalendarView implements CalendarView {
      *         duration: { weeks: 6 }
      *     }
      * },
-     *
-     * @return
      */
     public void extendInitialOptions(JsonObject initialOptions) {
         JsonObject durationHolder = Json.createObject();
@@ -42,6 +35,11 @@ public class CustomFixedDayGridWeekCalendarView implements CalendarView {
         viewsHolder.put("customDayGridWeek", customViewHolder);
 
         initialOptions.put("views", viewsHolder);
+    }
+
+    @Override
+    public String getClientSideValue() {
+        return "customDayGridWeek";
     }
 
     @Override
