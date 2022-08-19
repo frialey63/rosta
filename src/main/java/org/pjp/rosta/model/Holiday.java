@@ -30,4 +30,9 @@ public final class Holiday extends AbstractDay {
         return "#3333ff";
     }
 
+    @Override
+    public int getDisplayOrder() {
+        return 10;
+    }
+
 }

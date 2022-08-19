@@ -30,4 +30,9 @@ public final class AbsenceDay extends AbstractDay {
         return "#ff3333";
     }
 
+    @Override
+    public int getDisplayOrder() {
+        return 20;
+    }
+
 }

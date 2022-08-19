@@ -60,4 +60,9 @@ public final class VolunteerDay extends AbstractDay {
         return "#33ff33";
     }
 
+    @Override
+    public int getDisplayOrder() {
+        return 30;
+    }
+
 }

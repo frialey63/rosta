@@ -116,6 +116,8 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
 
     public abstract String getColour();
 
+    public abstract int getDisplayOrder();
+
     public boolean overlapsWith(AbstractDay other) {
         if (this.isAllDay() || other.isAllDay()) {
             return true;

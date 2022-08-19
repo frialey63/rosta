@@ -94,4 +94,8 @@ public class ShiftDay implements PartOfDay {
         return isAllDay() ? "#33ff33" : "#55ff55";
     }
 
+    public int getDisplayOrder() {
+        return 30;
+    }
+
 }
