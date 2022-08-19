@@ -166,7 +166,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         entry.setStart(date.get());
         entry.setColor(shiftDay.getColour());
-        entry.setTitle(String.format("%d %s", ShiftDay.getDisplayOrder(), abbreviate(title)));
+        //entry.setTitle(String.format("%d %s", ShiftDay.getDisplayOrder(), abbreviate(title)));
+        entry.setTitle("$ " + abbreviate(title));
 
         return entry;
     }
@@ -505,6 +506,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
     }
 
+    @SuppressWarnings("deprecation")
+    private void removeAllEntries(RenderingMode renderingMode) {
+        calendar.getEntries().stream().filter(e -> e.getRenderingMode() == renderingMode).forEach(entry -> calendar.removeEntry(entry));
+    }
+
     private void onMySummary(ClickEvent<Button> event) {
         optUser.ifPresent(user -> {
             LocalDate today = LocalDate.now();
@@ -561,7 +567,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                         dialog.close();
 
-                        onComponentEvent(datesRenderedEvent);
+                        refreshCalendar(datesRenderedEvent);
 
                     }), new Button("Cancel", this::onCancel));
                     footer.setAlignItems(Alignment.STRETCH);
@@ -650,6 +656,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 }
 
                 calendar.addEntry(createAbstractDayEntry(otherUser, day, title));
+
+                refreshMissingCover();
             } else {
                 EnhancedDialog conflictDialog = new ConflictDialog(day);
                 conflictDialog.setHeader("Conflict");
@@ -661,6 +669,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
     }
 
+    private void refreshMissingCover() {
+        removeAllEntries(RenderingMode.BACKGROUND);
+        addMissingCover(datesRenderedEvent.getStart(), datesRenderedEvent.getEnd());
+    }
+
     @SuppressWarnings("deprecation")
     private void onDelete(ClickEvent<Button> event) {
         Entry entry = ((DeleteDialog) dialog).getEntry();
@@ -670,6 +683,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
             calendar.removeEntry(entry);
+
+            refreshMissingCover();
         } finally {
             dialog.close();
         }

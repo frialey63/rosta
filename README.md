@@ -24,8 +24,6 @@ Backup of the Mongo DB
 
 rationalise employee and volunteer capabilities
 
-should an employee take bank holidays?
-
 ## Bugs
 
 ## Sprint 3 Stories
