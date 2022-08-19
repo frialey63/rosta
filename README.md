@@ -22,6 +22,10 @@ Backup of the Mongo DB
 
 ## TODO
 
+ordering of block events on calendar, https://fullcalendar.io/docs/eventOrder
+
+background processing of missing cover
+
 rationalise employee and volunteer capabilities
 
 ## Bugs
