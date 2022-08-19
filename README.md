@@ -30,7 +30,7 @@ should an employee take bank holidays?
 
 ## Sprint 3 Stories
 
-push notification of changes by other users to the calendar
+push notification of changes by other users to the calendar, https://vaadin.com/docs/latest/advanced/server-push
 
 notifications by SMS as well as by email?
 
