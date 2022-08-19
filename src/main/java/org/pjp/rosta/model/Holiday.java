@@ -32,7 +32,7 @@ public final class Holiday extends AbstractDay {
 
     @Override
     public int getDisplayOrder() {
-        return 10;
+        return 1;
     }
 
 }

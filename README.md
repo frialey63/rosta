@@ -22,11 +22,11 @@ Backup of the Mongo DB
 
 ## TODO
 
-ordering of block events on calendar, https://fullcalendar.io/docs/eventOrder
-
 background processing of missing cover
 
 rationalise employee and volunteer capabilities
+
+should an employee take bank holidays?
 
 ## Bugs
 
@@ -51,6 +51,8 @@ planning of tasks
 better sitrep view for manager on calendar using background events (overview rota for next 3 months?)
 
 improved rules for add >1 entry on a day
+
+ordering of block events on calendar, https://fullcalendar.io/docs/eventOrder
 
 refresh button for calendar
 

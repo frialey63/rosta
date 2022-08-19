@@ -88,6 +88,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     static final String KEY_UUID = "uuid";
     static final String KEY_DAY_CLASS = "dayClass";
     static final String KEY_TOOLTIP = "tooltip";
+    static final String KEY_DISPLAY_ORDER = "displayOrder";
 
     private static class MutableLocalDate {
         private LocalDate date;
@@ -106,51 +107,65 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
     }
 
-    private static Entry createBankHolidayEntry(Event bankHoliday) {
-        String title = bankHoliday.getTitle();
-
+    private static Entry newEntry() {
         Entry entry = new Entry();
-        entry.setCustomProperty(KEY_TOOLTIP, title);
-        entry.setStart(bankHoliday.getDate());
-        entry.setColor(YELLOW);
-        entry.setTextColor(BLACK);
-        entry.setAllDay(true);
-        entry.setTitle(title);
+
         entry.setRenderingMode(RenderingMode.BLOCK);
+        entry.setAllDay(true);
         entry.setDurationEditable(false);
         entry.setEditable(false);
 
         return entry;
     }
 
-    private static Entry createAbstractDayEntry(AbstractDay day, String title) {
-        Entry entry = new Entry();
+    private static Entry createBankHolidayEntry(Event bankHoliday) {
+        Entry entry = newEntry();
+
+        String title = bankHoliday.getTitle();
+        int displayOrder = 0;
+
+        entry.setCustomProperty(KEY_TOOLTIP, title);
+        entry.setCustomProperty(KEY_DISPLAY_ORDER, displayOrder);
+
+        entry.setStart(bankHoliday.getDate());
+        entry.setColor(YELLOW);
+        entry.setTextColor(BLACK);
+        entry.setTitle(String.format("%d %s", displayOrder, title));
+
+        return entry;
+    }
+
+    private static Entry createAbstractDayEntry(boolean otherUser, AbstractDay day, String title) {
+        Entry entry = newEntry();
+
+        int displayOrder = day.getDisplayOrder();
+        if (otherUser) {
+            displayOrder += 5;
+        }
+
+        entry.setCustomProperty(KEY_DISPLAY_ORDER, displayOrder);
         entry.setCustomProperty(KEY_UUID, day.getUuid());
         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
         entry.setCustomProperty(KEY_TOOLTIP, title);
+
         entry.setStart(day.getDate());
         entry.setColor(day.getColour());
-        entry.setAllDay(true);
-        entry.setTitle(abbreviate(title));
-        entry.setRenderingMode(RenderingMode.BLOCK);
-        entry.setDurationEditable(false);
-        entry.setEditable(false);
+        entry.setTitle(String.format("%d %s", displayOrder, abbreviate(title)));
 
         return entry;
     }
 
     private static Entry createShiftDayEntry(MutableLocalDate date, ShiftDay shiftDay) {
-        String title = "$" + PartOfDay.getTitle(shiftDay);
+        String title = PartOfDay.getTitle(shiftDay);
 
-        Entry entry = new Entry();
+        Entry entry = newEntry();
+
+        entry.setCustomProperty(KEY_DISPLAY_ORDER, ShiftDay.getDisplayOrder());
         entry.setCustomProperty(KEY_TOOLTIP, title);
+
         entry.setStart(date.get());
         entry.setColor(shiftDay.getColour());
-        entry.setAllDay(true);
-        entry.setTitle(abbreviate(title));
-        entry.setRenderingMode(RenderingMode.BLOCK);
-        entry.setDurationEditable(false);
-        entry.setEditable(false);
+        entry.setTitle(String.format("%d %s", ShiftDay.getDisplayOrder(), abbreviate(title)));
 
         return entry;
     }
@@ -159,11 +174,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         String colour = (missingCover.length > 1) ? LIGHT_RED_25 : LIGHT_RED;
 
         Entry entry = new Entry();
+        entry.setRenderingMode(RenderingMode.BACKGROUND);
+        entry.setAllDay(true);
         entry.setCustomProperty(KEY_TOOLTIP, missingCover);
         entry.setStart(date);
         entry.setColor(colour);
-        entry.setAllDay(true);
-        entry.setRenderingMode(RenderingMode.BACKGROUND);
 
         return entry;
     }
@@ -199,6 +214,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private JsonObject defaultInitialOptions = Json.createObject();
     {
+        // FIXME the FullCalendar eventOrder option does not work
+        //defaultInitialOptions.put("eventOrderStrict", Json.create(true));
+        //defaultInitialOptions.put("eventOrder", Json.create("start,-duration,allDay,displayOrder"));
+
+        DEFAULT_VIEW.extendInitialOptions(defaultInitialOptions);
         CUSTOM_VIEW.extendInitialOptions(defaultInitialOptions);
     }
 
@@ -272,7 +292,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
         calendar.addDatesRenderedListener(this);
 
-        return calendar;
+       return calendar;
     }
 
     private MenuBar createMenuBar() {
@@ -423,7 +443,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             if ((entryUser != null) && !entryUser.equals(user)) {	// avoid adding events for a supervisor twice
                 String title = entryUser.getDisplayName() + SEPARATOR + PartOfDay.getTitle(day);
 
-                calendar.addEntry(createAbstractDayEntry(day, title));
+                calendar.addEntry(createAbstractDayEntry(true, day, title));
             }
         });
     }
@@ -435,7 +455,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         rotaService.getDays(user, dayTypes, start, end).forEach(day -> {
             String title = PartOfDay.getTitle(day);
 
-            calendar.addEntry(createAbstractDayEntry(day, title));
+            calendar.addEntry(createAbstractDayEntry(false, day, title));
         });
     }
 
@@ -609,14 +629,16 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         try {
             if (rotaService.saveDay(day, user.getUuid())) {
+                boolean otherUser = !user.equals(dayUser);
+
                 String title = PartOfDay.getTitle(createDialog);
                 if (user.isManager()) {
                     title = dayUser.getDisplayName() + SEPARATOR + title;
                 } else if (user.isSupervisor()) {
-                    title = (user.equals(dayUser) ? "" : (dayUser.getDisplayName() + SEPARATOR)) + title;
+                    title = (otherUser ? (dayUser.getDisplayName() + SEPARATOR) : "") + title;
                 }
 
-                calendar.addEntry(createAbstractDayEntry(day, title));
+                calendar.addEntry(createAbstractDayEntry(otherUser, day, title));
             } else {
                 EnhancedDialog conflictDialog = new ConflictDialog(day);
                 conflictDialog.setHeader("Conflict");

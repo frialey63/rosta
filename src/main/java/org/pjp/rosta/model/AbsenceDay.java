@@ -32,7 +32,7 @@ public final class AbsenceDay extends AbstractDay {
 
     @Override
     public int getDisplayOrder() {
-        return 20;
+        return 2;
     }
 
 }

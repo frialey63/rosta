@@ -62,7 +62,7 @@ public final class VolunteerDay extends AbstractDay {
 
     @Override
     public int getDisplayOrder() {
-        return 30;
+        return 3;
     }
 
 }
