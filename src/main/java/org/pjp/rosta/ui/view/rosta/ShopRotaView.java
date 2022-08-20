@@ -23,6 +23,7 @@ import org.pjp.rosta.service.RotaService;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.CompactVerticalLayout;
 import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
+import org.pjp.rosta.ui.util.Broadcaster;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
@@ -30,6 +31,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.vaadin.olli.FileDownloadWrapper;
 
+import com.vaadin.flow.component.AttachEvent;
+import com.vaadin.flow.component.DetachEvent;
+import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.HasValue.ValueChangeEvent;
 import com.vaadin.flow.component.HasValue.ValueChangeListener;
 import com.vaadin.flow.component.button.Button;
@@ -140,6 +144,8 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
 
     private Registration registration;
 
+    private LocalDate mondayOfRota;
+
     private final FileDownloadWrapper buttonWrapper = new FileDownloadWrapper(null);
 
     private Map<DayOfWeek, Grid<GridBean>> dayGrids = new HashMap<>();
@@ -147,6 +153,8 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
     private Map<DayOfWeek, Grid<GridBean>> grids = new HashMap<>();
 
     private  Map<DayOfWeek, List<GridBean>> allGridBeans = new HashMap<>();
+
+    private Registration broadcasterRegistration;
 
     @Autowired
     private RotaService rotaService;
@@ -192,6 +200,31 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
     }
 
     @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        UI ui = attachEvent.getUI();
+
+        broadcasterRegistration = Broadcaster.register(newMessage -> {
+            ui.access(() -> {
+                LOGGER.debug("received message {}", newMessage);
+
+                switch (newMessage.messageType()) {
+                case DAY_CREATE:
+                case DAY_DELETE:
+                case SHIFT_UPDATE:
+                    refresh(mondayOfRota);
+                    break;
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcasterRegistration.remove();
+        broadcasterRegistration = null;
+    }
+
+    @Override
     public void afterNavigation(AfterNavigationEvent event) {
         super.afterNavigation(event);
 
@@ -200,12 +233,16 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
 
     @Override
     public void valueChanged(ValueChangeEvent<LocalDate> event) {
-        LocalDate date = event.getValue().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        mondayOfRota = event.getValue().with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
 
         registration.remove();
-        datePicker.setValue(date);
+        datePicker.setValue(mondayOfRota);
         registration = datePicker.addValueChangeListener(this);
 
+        refresh(mondayOfRota);
+    }
+
+    private void refresh(LocalDate date) {
         Rota rota = rotaService.buildRota(date);
 
         mapGridBeans(rota);

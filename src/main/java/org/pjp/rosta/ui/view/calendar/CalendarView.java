@@ -29,6 +29,9 @@ import org.pjp.rosta.ui.component.datepicker.MyDatePicker;
 import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltip;
 import org.pjp.rosta.ui.component.fc.FullCalendarWithTooltipBuilder;
 import org.pjp.rosta.ui.event.DrawerToggleEvent;
+import org.pjp.rosta.ui.util.Broadcaster;
+import org.pjp.rosta.ui.util.RostaMessage;
+import org.pjp.rosta.ui.util.RostaMessage.MessageType;
 import org.pjp.rosta.ui.view.AbstractView;
 import org.pjp.rosta.ui.view.MainLayout;
 import org.slf4j.Logger;
@@ -44,10 +47,12 @@ import org.vaadin.stefan.fullcalendar.WeekNumberClickedEvent;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.AbstractField.ComponentValueChangeEvent;
+import com.vaadin.flow.component.AttachEvent;
 import com.vaadin.flow.component.ClickEvent;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.ComponentEventListener;
 import com.vaadin.flow.component.ComponentUtil;
+import com.vaadin.flow.component.DetachEvent;
 import com.vaadin.flow.component.HasText;
 import com.vaadin.flow.component.UI;
 import com.vaadin.flow.component.button.Button;
@@ -63,6 +68,7 @@ import com.vaadin.flow.router.AfterNavigationEvent;
 import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.HasDynamicTitle;
 import com.vaadin.flow.router.Route;
+import com.vaadin.flow.shared.Registration;
 
 import elemental.json.Json;
 import elemental.json.JsonObject;
@@ -234,6 +240,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private DatesRenderedEvent datesRenderedEvent;
 
+    private Registration broadcasterRegistration;
+
     @Autowired
     private RotaService rotaService;
 
@@ -252,13 +260,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         // Create a new calendar instance and attach it to our layout
         calendar = createCalendar(defaultInitialOptions);
-        /*
-        String customCss = "" +
-                ".fc {" + // marks today with red
-                "   --fc-today-bg-color: red;" +
-                "}";
-        calendar.addCustomStyles(customCss);
-        */
+
         setSizeFull();
         setFlexGrow(1, calendar);
 
@@ -284,6 +286,37 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         });
     }
 
+    @Override
+    protected void onAttach(AttachEvent attachEvent) {
+        UI ui = attachEvent.getUI();
+
+        broadcasterRegistration = Broadcaster.register(newMessage -> {
+            ui.access(() -> {
+                LOGGER.debug("received message {}", newMessage);
+
+                switch (newMessage.messageType()) {
+                case DAY_CREATE:
+                case DAY_DELETE:
+                    if (ui.getUIId() == newMessage.uiId()) {
+                        refreshMissingCover();
+                    } else {
+                        refresh(datesRenderedEvent);
+                    }
+                    break;
+                case SHIFT_UPDATE:
+                    refresh(datesRenderedEvent);
+                    break;
+                }
+            });
+        });
+    }
+
+    @Override
+    protected void onDetach(DetachEvent detachEvent) {
+        broadcasterRegistration.remove();
+        broadcasterRegistration = null;
+    }
+
     private FullCalendarWithTooltip createCalendar(JsonObject initialOptions) {
         calendar = FullCalendarWithTooltipBuilder.create().withInitialOptions(initialOptions).build();
         calendar.setHeightByParent();
@@ -293,7 +326,13 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         calendar.addEntryClickedListener(this::onEntryClickedEvent);
         calendar.addWeekNumberClickedListener(this::onWeekNumberClickedEvent);
         calendar.addDatesRenderedListener(this);
-
+        /*
+        String customCss = "" +
+                ".fc {" + // marks today with red
+                "   --fc-today-bg-color: red;" +
+                "}";
+        calendar.addCustomStyles(customCss);
+        */
        return calendar;
     }
 
@@ -314,7 +353,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         buttonDatePicker.addClickListener(event -> gotoDate.open());
         buttonDatePicker.setWidthFull();
 
-        menuBar.addItem("Refresh", e -> refreshCalendar(datesRenderedEvent));
+        menuBar.addItem("Refresh", e -> refresh(datesRenderedEvent));
         menuBar.addItem(VaadinIcon.ANGLE_LEFT.create(), e -> calendar.previous());
         menuBar.addItem(buttonDatePicker);
         menuBar.addItem(VaadinIcon.ANGLE_RIGHT.create(), e -> calendar.next());
@@ -381,11 +420,11 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     public void onComponentEvent(DatesRenderedEvent event) {
         this.datesRenderedEvent = event;
 
-        refreshCalendar(event);
+        refresh(event);
     }
 
     @SuppressWarnings("deprecation")
-    private void refreshCalendar(DatesRenderedEvent event) {
+    private void refresh(DatesRenderedEvent event) {
         LocalDate start = event.getStart();
         LocalDate end = event.getEnd();
 
@@ -552,24 +591,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                     });
                 } else {
                     Span filler = new Span();
-                    CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", e -> {
-                        ShiftDialog shiftDialog = (ShiftDialog) dialog;
-
-                        Shift shift = shiftDialog.isEdit() ? rotaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, user.getUuid());
-
-                        shiftDialog.getEntries().forEach(entry -> {
-                            ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
-                            shiftDay.setMorning(entry.isMorning());
-                            shiftDay.setAfternoon(entry.isAfternoon());
-                        });
-
-                        rotaService.saveShift(shift);
-
-                        dialog.close();
-
-                        refreshCalendar(datesRenderedEvent);
-
-                    }), new Button("Cancel", this::onCancel));
+                    CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("Save", this::onShiftSave), new Button("Cancel", this::onCancel));
                     footer.setAlignItems(Alignment.STRETCH);
                     footer.setFlexGrow(1, filler);
 
@@ -634,7 +656,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     @SuppressWarnings("deprecation")
-    private void onCreate(ClickEvent<Button> event) {
+    private void onDayCreate(ClickEvent<Button> event) {
         CreateDialog createDialog = (CreateDialog) dialog;
 
         LocalDate date = createDialog.getDate();
@@ -657,7 +679,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                 calendar.addEntry(createAbstractDayEntry(otherUser, day, title));
 
-                refreshMissingCover();
+                Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId()));
             } else {
                 EnhancedDialog conflictDialog = new ConflictDialog(day);
                 conflictDialog.setHeader("Conflict");
@@ -675,7 +697,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     }
 
     @SuppressWarnings("deprecation")
-    private void onDelete(ClickEvent<Button> event) {
+    private void onDayDelete(ClickEvent<Button> event) {
         Entry entry = ((DeleteDialog) dialog).getEntry();
 
         try {
@@ -684,7 +706,29 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
             calendar.removeEntry(entry);
 
-            refreshMissingCover();
+            Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, UI.getCurrent().getUIId()));
+        } finally {
+            dialog.close();
+        }
+    }
+
+    private void onShiftSave(ClickEvent<Button> event) {
+        try {
+            ShiftDialog shiftDialog = (ShiftDialog) dialog;
+
+            LocalDate date = shiftDialog.getDate();
+
+            Shift shift = shiftDialog.isEdit() ? rotaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, optUser.get().getUuid());
+
+            shiftDialog.getEntries().forEach(entry -> {
+                ShiftDay shiftDay = shift.getShiftDay(entry.getDayOfWeek());
+                shiftDay.setMorning(entry.isMorning());
+                shiftDay.setAfternoon(entry.isAfternoon());
+            });
+
+            rotaService.saveShift(shift);
+
+            Broadcaster.broadcast(new RostaMessage(MessageType.SHIFT_UPDATE, UI.getCurrent().getUIId()));
         } finally {
             dialog.close();
         }
@@ -712,13 +756,13 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         List<Component> children = new ArrayList<>();
         children.add(filler);
 
-        Button saveButton = new Button("Save", this::onCreate);
+        Button saveButton = new Button("Save", this::onDayCreate);
         if (save) {
             children.add(saveButton);
         }
 
         if (delete) {
-            children.add(new Button("Delete", this::onDelete));
+            children.add(new Button("Delete", this::onDayDelete));
         }
 
         if (user != null) {

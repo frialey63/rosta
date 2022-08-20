@@ -28,21 +28,21 @@ rationalise employee and volunteer capabilities
 
 ## Sprint 3 Stories
 
-push notification of changes by other users to the calendar, https://vaadin.com/docs/latest/advanced/server-push
-
 notifications by SMS as well as by email?
 
 register attendance via QR code or bluetooth proxity
 
-## Sprint 4 Stories
-
 volunteer attendance and reliability stats/predictions
+
+## Sprint 4 Stories
 
 planning of events
 
 planning of tasks
 
 ## Done
+
+push notification of changes by other users to the calendar, https://vaadin.com/docs/latest/advanced/server-push
 
 better sitrep view for manager on calendar using background events (overview rota for next 3 months?)
 
