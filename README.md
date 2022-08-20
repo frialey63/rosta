@@ -22,6 +22,8 @@ Backup of the Mongo DB
 
 ## TODO
 
+create volunteer days with repeater
+
 rationalise employee and volunteer capabilities
 
 ## Bugs

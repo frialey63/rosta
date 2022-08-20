@@ -34,6 +34,7 @@ import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.datepicker.DatePicker;
 import com.vaadin.flow.component.html.H2;
 import com.vaadin.flow.component.html.Paragraph;
+import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
 import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.router.AfterNavigationEvent;
@@ -136,6 +137,10 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
         H2 h2 = new H2("Management Information");
         add(h2);
         setHorizontalComponentAlignment(Alignment.CENTER, h2);
+
+        Span helpText = new Span("Note changes to employee status will impact the day count for relevant user(s) in the query results.");
+        helpText.getStyle().set("font-style", "italic");
+        add(helpText);
 
         Table table = new Table();
         table.setWidthFull();
