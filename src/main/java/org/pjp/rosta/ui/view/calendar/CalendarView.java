@@ -294,17 +294,29 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             ui.access(() -> {
                 LOGGER.debug("received message {}", newMessage);
 
+                LocalDate date = newMessage.date();
+                LocalDate start = datesRenderedEvent.getStart();
+                LocalDate end = datesRenderedEvent.getEnd();
+
                 switch (newMessage.messageType()) {
                 case DAY_CREATE:
                 case DAY_DELETE:
                     if (ui.getUIId() == newMessage.uiId()) {
                         refreshMissingCover();
                     } else {
-                        refresh(datesRenderedEvent);
+                        if (!date.isBefore(start) && !date.isAfter(end)) {
+                            refresh(datesRenderedEvent);
+                        }
                     }
                     break;
                 case SHIFT_UPDATE:
-                    refresh(datesRenderedEvent);
+                    if (ui.getUIId() == newMessage.uiId()) {
+                        refresh(datesRenderedEvent);
+                    } else {
+                        if (!date.isBefore(start) && !date.isAfter(end)) {
+                            refresh(datesRenderedEvent);
+                        }
+                    }
                     break;
                 }
             });
@@ -679,7 +691,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                 calendar.addEntry(createAbstractDayEntry(otherUser, day, title));
 
-                Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId()));
+                Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId(), date));
             } else {
                 EnhancedDialog conflictDialog = new ConflictDialog(day);
                 conflictDialog.setHeader("Conflict");
@@ -706,7 +718,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
             calendar.removeEntry(entry);
 
-            Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, UI.getCurrent().getUIId()));
+            Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, UI.getCurrent().getUIId(), entry.getStartAsLocalDate()));
         } finally {
             dialog.close();
         }
@@ -718,6 +730,8 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             LocalDate date = shiftDialog.getDate();
 
+            assert date.getDayOfWeek() == DayOfWeek.MONDAY;
+
             Shift shift = shiftDialog.isEdit() ? rotaService.getShift(shiftDialog.getShiftUuid()).get() : new Shift(date, optUser.get().getUuid());
 
             shiftDialog.getEntries().forEach(entry -> {
@@ -728,7 +742,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
             rotaService.saveShift(shift);
 
-            Broadcaster.broadcast(new RostaMessage(MessageType.SHIFT_UPDATE, UI.getCurrent().getUIId()));
+            Broadcaster.broadcast(new RostaMessage(MessageType.SHIFT_UPDATE, UI.getCurrent().getUIId(), date));
         } finally {
             dialog.close();
         }

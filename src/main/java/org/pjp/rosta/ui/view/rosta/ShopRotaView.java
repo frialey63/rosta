@@ -207,11 +207,19 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
             ui.access(() -> {
                 LOGGER.debug("received message {}", newMessage);
 
+                LocalDate date = newMessage.date();
+
                 switch (newMessage.messageType()) {
                 case DAY_CREATE:
                 case DAY_DELETE:
+                    if (mondayOfRota.equals(date.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY)))) {
+                        refresh(mondayOfRota);
+                    }
+                    break;
                 case SHIFT_UPDATE:
-                    refresh(mondayOfRota);
+                    if (!mondayOfRota.isBefore(date)) {
+                        refresh(mondayOfRota);
+                    }
                     break;
                 }
             });
