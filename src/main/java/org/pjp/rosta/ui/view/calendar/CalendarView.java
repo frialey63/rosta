@@ -754,6 +754,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private void onUserSelect(ComponentValueChangeEvent<Select<User>, User> event) {
         User user = event.getValue();
+
+        // check for "Me" selection
+        if (user == null) {
+            user = optUser.get();
+        }
+
         boolean employee = user.isEmployee();
 
         String header = String.format("Add %s", (employee ? "Holiday or Absence" : "Volunteer Day"));
@@ -780,7 +786,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         }
 
         if (user != null) {
-            List<User> values = userService.getAllNonManager().values().stream().filter(other -> {
+            List<User> others = userService.getAllNonManager().values().stream().filter(other -> {
                 if (user.isSupervisor()) {
                     return !other.equals(user);
                 }
@@ -789,18 +795,21 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             }).sorted().collect(Collectors.toList());
 
             Select<User> selector = new Select<>();
-            selector.setItems(values);
-            selector.addValueChangeListener(this::onUserSelect);
+            selector.setItems(others);
 
             if (user.isSupervisor()) {
+                selector.setEmptySelectionAllowed(true);
+                selector.setEmptySelectionCaption("Me");
                 selector.setValue(null);
             } else {
-                if (values.isEmpty()) {
+                if (others.isEmpty()) {
                     saveButton.setEnabled(false);
                 } else {
-                    selector.setValue(values.get(0));
+                    selector.setValue(others.get(0));
                 }
             }
+
+            selector.addValueChangeListener(this::onUserSelect);
 
             children.add(0, selector);
         }
