@@ -24,8 +24,6 @@ Backup of the Mongo DB
 
 create volunteer days with repeater
 
-rationalise employee and volunteer capabilities
-
 ## Bugs
 
 ## Sprint 3 Stories
@@ -34,7 +32,7 @@ notifications by SMS as well as by email?
 
 register attendance via QR code or bluetooth proxity
 
-volunteer attendance and reliability stats/predictions
+volunteer attendance and reliability stats/predictions, stars, etc.
 
 ## Sprint 4 Stories
 
