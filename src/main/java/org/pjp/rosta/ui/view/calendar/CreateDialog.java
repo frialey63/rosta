@@ -4,16 +4,22 @@ import java.time.LocalDate;
 
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
+import org.pjp.rosta.model.Repeat;
 import org.pjp.rosta.model.User;
+import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.CompactVerticalLayout;
 
 import com.vaadin.componentfactory.EnhancedDialog;
 import com.vaadin.flow.component.Component;
 import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.html.Hr;
+import com.vaadin.flow.component.html.Label;
 import com.vaadin.flow.component.orderedlayout.FlexComponent.Alignment;
+import com.vaadin.flow.component.orderedlayout.HorizontalLayout;
 import com.vaadin.flow.component.orderedlayout.VerticalLayout;
 import com.vaadin.flow.component.radiobutton.RadioButtonGroup;
+import com.vaadin.flow.component.select.Select;
+import com.vaadin.flow.component.textfield.IntegerField;
 
 class CreateDialog extends EnhancedDialog implements PartOfDay {
     private static final long serialVersionUID = -6123213676333349968L;
@@ -112,6 +118,41 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
         } else {
             subPanel.add(evening);
             subPanel.setHorizontalComponentAlignment(Alignment.START, evening);
+
+            Label label = new Label("Repeat:");
+
+            Select<Repeat> selector = new Select<>();
+            selector.setItems(Repeat.values());
+            selector.setValue(Repeat.NONE);
+
+            IntegerField count = new IntegerField();
+            count.setValue(0);
+            count.setHasControls(true);
+            count.setMin(0);
+            count.setEnabled(false);
+
+            selector.addValueChangeListener(l -> {
+                count.setValue(0);
+
+                switch (l.getValue()) {
+                case NONE:
+                    count.setMax(0);
+                    count.setEnabled(false);
+                    break;
+                case WEEK:
+                    count.setMax(52);
+                    count.setEnabled(true);
+                    break;
+                case MONTH:
+                    count.setMax(12);
+                    count.setEnabled(true);
+                    break;
+                }
+            });
+
+            HorizontalLayout repeatPanel = new CompactHorizontalLayout(label, selector, count);
+            repeatPanel.setVerticalComponentAlignment(Alignment.CENTER, label, selector, count);
+            subPanel.add(repeatPanel);
 
             content = subPanel;
         }

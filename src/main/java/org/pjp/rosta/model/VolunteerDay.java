@@ -10,6 +10,9 @@ public final class VolunteerDay extends AbstractDay {
 
     private boolean evening;
 
+    @SuppressWarnings("unused")
+    private String repeatUuid;
+
     public VolunteerDay() {
         super();
     }
