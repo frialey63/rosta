@@ -543,7 +543,7 @@ public class RotaService {
         if (dayTypes.contains(DayType.HOLIDAY)) {
             result.addAll(holidayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
         }
-        if (dayTypes.contains(DayType.VOLUNTARY)) {
+        if (dayTypes.contains(DayType.VOLUNTEER)) {
             result.addAll(volunteerDayRepository.findAllByUserUuidAndDateBetween(user.getUuid(), dateStart, dateEnd));
         }
 
@@ -556,48 +556,67 @@ public class RotaService {
         if (dayTypes.contains(DayType.ABSENCE)) {
             result.addAll(absenceDayRepository.findAllByDateBetween(dateStart, dateEnd));
         }
+
         if (dayTypes.contains(DayType.HOLIDAY)) {
             result.addAll(holidayRepository.findAllByDateBetween(dateStart, dateEnd));
         }
-        if (dayTypes.contains(DayType.VOLUNTARY)) {
+
+        if (dayTypes.contains(DayType.VOLUNTEER)) {
             result.addAll(volunteerDayRepository.findAllByDateBetween(dateStart, dateEnd));
         }
 
         return result;
     }
 
-    public boolean saveDay(AbstractDay day, String bookerUuid) {
-        boolean result = false;
+    public LocalDate saveDays(List<AbstractDay> days, String bookerUuid) {
+        LocalDate result = null;
 
-        if (day instanceof Holiday holiday) {
-            if (result = (checkConflict(holidayRepository, holiday) && checkConflict(absenceDayRepository, holiday))) {
-                holidayRepository.save(holiday);
+        for (AbstractDay day : days) {
+            if (day instanceof Holiday holiday) {
+                if (hasConflict(holidayRepository, holiday) || hasConflict(absenceDayRepository, holiday)) {
+                    result = day.getDate();
+                    break;
+                }
+            } else if (day instanceof AbsenceDay absenceDay) {
+                if (hasConflict(absenceDayRepository, absenceDay) || hasConflict(holidayRepository, absenceDay)) {
+                    result = day.getDate();
+                    break;
+                }
+            } else if (day instanceof VolunteerDay volunteerDay) {
+                if (hasConflict(volunteerDayRepository, volunteerDay)) {
+                    result = day.getDate();
+                    break;
+                }
             }
-        } else if (day instanceof AbsenceDay absenceDay) {
-            if (result = (checkConflict(absenceDayRepository, absenceDay) && checkConflict(holidayRepository, absenceDay))) {
-                absenceDayRepository.save(absenceDay);
-            }
-        } else if (day instanceof VolunteerDay volunteerDay) {
-            if (result = checkConflict(volunteerDayRepository, volunteerDay)) {
-                volunteerDayRepository.save(volunteerDay);
-            }
-        } else {
-            throw new IllegalStateException();
         }
 
-        sendImmediateEmail("ADD", day, bookerUuid);
+        if (result == null) {
+            for (AbstractDay day : days) {
+                if (day instanceof Holiday holiday) {
+                    holidayRepository.save(holiday);
+                } else if (day instanceof AbsenceDay absenceDay) {
+                    absenceDayRepository.save(absenceDay);
+                } else if (day instanceof VolunteerDay volunteerDay) {
+                    volunteerDayRepository.save(volunteerDay);
+                }
+
+                // note this only sends for those days which fall in the current week
+                sendImmediateEmail("ADD", day, bookerUuid);
+            }
+        }
+
 
         return result;
     }
 
-    private static <U extends AbstractDay, V extends AbstractDay> boolean checkConflict(AbstractDayRepository<V> repository, U day) {
-        boolean result = true;
+    private static <U extends AbstractDay, V extends AbstractDay> boolean hasConflict(AbstractDayRepository<V> repository, U day) {
+        boolean result = false;
 
-        List<V> allOthers = repository.findAllByUserUuidAndDate(day.getUserUuid(), day.getDate());
+        List<V> others = repository.findAllByUserUuidAndDate(day.getUserUuid(), day.getDate());
 
-        for (V other : allOthers) {
+        for (V other : others) {
             if (day.overlapsWith(other)) {
-                result = false;
+                result = true;
             }
         }
 

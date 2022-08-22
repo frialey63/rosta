@@ -16,6 +16,7 @@ import javax.annotation.security.PermitAll;
 import org.pjp.api.holiday.QueryUtil;
 import org.pjp.api.holiday.model.Division;
 import org.pjp.api.holiday.model.Event;
+import org.pjp.rosta.bean.Repeater.RepeatType;
 import org.pjp.rosta.model.AbstractDay;
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
@@ -264,7 +265,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         setSizeFull();
         setFlexGrow(1, calendar);
 
-        Span helpText = new Span("Click on a day to enter voluntary day, holiday and/or absence; click on week number to access shift pattern (employees only).");
+        Span helpText = new Span("Click on a day to enter volunteer, holiday and/or absence; click on week number to access shift pattern (employees only).");
         helpText.getStyle().set("font-style", "italic");
 
         add(hl, calendar, helpText);
@@ -513,7 +514,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     @SuppressWarnings("deprecation")
     private void addAbstractDays(User user, LocalDate start, LocalDate end) {
-        Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTARY);
+        Set<DayType> dayTypes = user.isEmployee() ? Set.of(DayType.ABSENCE, DayType.HOLIDAY) : Set.of(DayType.VOLUNTEER);
 
         rotaService.getDays(user, dayTypes, start, end).forEach(day -> {
             String title = PartOfDay.getTitle(day);
@@ -570,7 +571,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
             LocalDate end = today.with(TemporalAdjusters.lastDayOfYear());
 
             boolean employee = user.isEmployee();
-            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
+            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTEER);
             List<AbstractDay> days = rotaService.getDays(user, dayTypes, start, end);
 
             dialog = new SummaryDialog(employee, days);
@@ -672,28 +673,34 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         CreateDialog createDialog = (CreateDialog) dialog;
 
         LocalDate date = createDialog.getDate();
-
         User dayUser = (createDialog.getUser() != null) ? createDialog.getUser() : optUser.get();
-        AbstractDay day = AbstractDay.createDay(createDialog.getDayType(), date, createDialog, dayUser.getUuid());
+
+        List<AbstractDay> days = new ArrayList<>();
+
+        days.add(AbstractDay.createDay(createDialog.getDayType(), date, (PartOfDay) createDialog, dayUser.getUuid()));
+
+        if (createDialog.getRepeater().repeatType() != RepeatType.NONE) {
+            days.addAll(AbstractDay.createVolunteerDays(date, createDialog.getRepeater(), (PartOfDay) createDialog, dayUser.getUuid()));
+        }
 
         User user = optUser.get();
 
         try {
-            if (rotaService.saveDay(day, user.getUuid())) {
+            LocalDate dateOfFirstConflict = rotaService.saveDays(days, user.getUuid());
+
+            if (dateOfFirstConflict == null) {
                 boolean otherUser = !user.equals(dayUser);
 
-                String title = PartOfDay.getTitle(createDialog);
-                if (user.isManager()) {
-                    title = dayUser.getDisplayName() + SEPARATOR + title;
-                } else if (user.isSupervisor()) {
-                    title = (otherUser ? (dayUser.getDisplayName() + SEPARATOR) : "") + title;
+                String title = (otherUser ? (dayUser.getDisplayName() + SEPARATOR) : "") + PartOfDay.getTitle(createDialog);
+
+                for (AbstractDay tempDay : days) {
+                    calendar.addEntry(createAbstractDayEntry(otherUser, tempDay, title));
+
+                    Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId(), tempDay.getDate()));
                 }
 
-                calendar.addEntry(createAbstractDayEntry(otherUser, day, title));
-
-                Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId(), date));
             } else {
-                EnhancedDialog conflictDialog = new ConflictDialog(day);
+                EnhancedDialog conflictDialog = new ConflictDialog(createDialog.getDayType(), dateOfFirstConflict);
                 conflictDialog.setHeader("Conflict");
                 conflictDialog.setFooter(getDialogFooter(conflictDialog));
                 conflictDialog.open();
@@ -705,7 +712,12 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private void refreshMissingCover() {
         removeAllEntries(RenderingMode.BACKGROUND);
-        addMissingCover(datesRenderedEvent.getStart(), datesRenderedEvent.getEnd());
+
+        optUser.ifPresent(user -> {
+            if (user.isManager() || user.isSupervisor()) {
+                addMissingCover(datesRenderedEvent.getStart(), datesRenderedEvent.getEnd());
+            }
+        });
     }
 
     @SuppressWarnings("deprecation")
@@ -715,7 +727,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         try {
             User user = optUser.get();
 
-            rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
+            rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());	// TODO process day delete with repeats
             calendar.removeEntry(entry);
 
             Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, UI.getCurrent().getUIId(), entry.getStartAsLocalDate()));

@@ -2,9 +2,10 @@ package org.pjp.rosta.ui.view.calendar;
 
 import java.time.LocalDate;
 
+import org.pjp.rosta.bean.Repeater;
+import org.pjp.rosta.bean.Repeater.RepeatType;
 import org.pjp.rosta.model.DayType;
 import org.pjp.rosta.model.PartOfDay;
-import org.pjp.rosta.model.Repeat;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.ui.component.CompactHorizontalLayout;
 import org.pjp.rosta.ui.component.CompactVerticalLayout;
@@ -22,6 +23,7 @@ import com.vaadin.flow.component.select.Select;
 import com.vaadin.flow.component.textfield.IntegerField;
 
 class CreateDialog extends EnhancedDialog implements PartOfDay {
+
     private static final long serialVersionUID = -6123213676333349968L;
 
     private final LocalDate date;
@@ -32,11 +34,12 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
     private final RadioButtonGroup<DayType> dayType = new RadioButtonGroup<>();
 
-    private Checkbox morning;
+    private final Checkbox morning = new Checkbox("Morning", true);
+    private final Checkbox afternoon = new Checkbox("Afternoon", true);
+    private final Checkbox evening = new Checkbox("Evening", false);
 
-    private Checkbox afternoon;
-
-    private Checkbox evening;
+    private final Select<RepeatType> repType = new Select<>();
+    private final IntegerField repCount = new IntegerField();
 
     public CreateDialog(LocalDate date, boolean employee, User user) {
         super();
@@ -97,9 +100,9 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     }
 
     private Component getContent() {
-        morning = new Checkbox("Morning", true);
-        afternoon = new Checkbox("Afternoon", true);
-        evening = new Checkbox("Evening", false);
+        morning.setValue(true);
+        afternoon.setValue(true);
+        evening.setValue(false);
 
         VerticalLayout subPanel = new CompactVerticalLayout(morning, afternoon);
         subPanel.setHorizontalComponentAlignment(Alignment.START, morning, afternoon);
@@ -121,37 +124,35 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
 
             Label label = new Label("Repeat:");
 
-            Select<Repeat> selector = new Select<>();
-            selector.setItems(Repeat.values());
-            selector.setValue(Repeat.NONE);
+            repType.setItems(RepeatType.values());
+            repType.setValue(RepeatType.NONE);
 
-            IntegerField count = new IntegerField();
-            count.setValue(0);
-            count.setHasControls(true);
-            count.setMin(0);
-            count.setEnabled(false);
+            repCount.setValue(0);
+            repCount.setHasControls(true);
+            repCount.setMin(0);
+            repCount.setEnabled(false);
 
-            selector.addValueChangeListener(l -> {
-                count.setValue(0);
+            repType.addValueChangeListener(l -> {
+                repCount.setValue(0);
 
                 switch (l.getValue()) {
                 case NONE:
-                    count.setMax(0);
-                    count.setEnabled(false);
+                    repCount.setMax(0);
+                    repCount.setEnabled(false);
                     break;
                 case WEEK:
-                    count.setMax(52);
-                    count.setEnabled(true);
+                    repCount.setMax(52);
+                    repCount.setEnabled(true);
                     break;
                 case MONTH:
-                    count.setMax(12);
-                    count.setEnabled(true);
+                    repCount.setMax(12);
+                    repCount.setEnabled(true);
                     break;
                 }
             });
 
-            HorizontalLayout repeatPanel = new CompactHorizontalLayout(label, selector, count);
-            repeatPanel.setVerticalComponentAlignment(Alignment.CENTER, label, selector, count);
+            HorizontalLayout repeatPanel = new CompactHorizontalLayout(label, repType, repCount);
+            repeatPanel.setVerticalComponentAlignment(Alignment.CENTER, label, repType, repCount);
             subPanel.add(repeatPanel);
 
             content = subPanel;
@@ -177,7 +178,11 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     }
 
     public DayType getDayType() {
-        return employee ? dayType.getValue() : DayType.VOLUNTARY;
+        return employee ? dayType.getValue() : DayType.VOLUNTEER;
+    }
+
+    public Repeater getRepeater() {
+        return new Repeater(repType.getValue(), repCount.getValue());
     }
 
     @Override

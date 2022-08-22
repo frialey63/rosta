@@ -8,10 +8,9 @@ import org.springframework.data.mongodb.core.mapping.Document;
 @Document
 public final class VolunteerDay extends AbstractDay {
 
-    private boolean evening;
-
-    @SuppressWarnings("unused")
     private String repeatUuid;
+
+    private boolean evening;
 
     public VolunteerDay() {
         super();
@@ -22,8 +21,17 @@ public final class VolunteerDay extends AbstractDay {
         this.evening = evening;
     }
 
-    public VolunteerDay(LocalDate date, PartOfDay partOfDay, String userUuid) {
+    public VolunteerDay(LocalDate date, String repeatUuid, PartOfDay partOfDay, String userUuid) {
         this(UUID.randomUUID().toString(), date, partOfDay.isMorning(), partOfDay.isAfternoon(), partOfDay.isEvening(), userUuid);
+        this.repeatUuid = repeatUuid;
+    }
+
+    public String getRepeatUuid() {
+        return repeatUuid;
+    }
+
+    public void setRepeatUuid(String repeatUuid) {
+        this.repeatUuid = repeatUuid;
     }
 
     @Override

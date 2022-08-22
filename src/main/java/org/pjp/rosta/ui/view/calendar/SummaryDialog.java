@@ -74,7 +74,7 @@ public class SummaryDialog extends EnhancedDialog {
         } else {
             dayCounter = 0;
 
-            text.append("Number of voluntary days is " + days.size());
+            text.append("Number of volunteer days is " + days.size());
             text.append('\n');
             days.forEach(day -> {
                 text.append('\t');

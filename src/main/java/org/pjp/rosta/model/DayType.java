@@ -1,7 +1,7 @@
 package org.pjp.rosta.model;
 
 public enum DayType {
-    HOLIDAY, ABSENCE, VOLUNTARY;
+    HOLIDAY, ABSENCE, VOLUNTEER;
 
 
     @Override

@@ -22,8 +22,6 @@ class DeleteDialog extends EnhancedDialog {
         setContent(getContent(question));
     }
 
-    // TODO deletion of volunteer days with repeat
-
     private Component getContent(String question) {
         return new Span(question);
     }

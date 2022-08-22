@@ -253,7 +253,7 @@ public class ManagementInformationView extends AbstractView implements AfterNavi
 
         for (User user : findUsersByCriteria()) {
             boolean employee = user.isEmployee();
-            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTARY);
+            Set<DayType> dayTypes = employee ? Set.of(DayType.HOLIDAY, DayType.ABSENCE) : Set.of(DayType.VOLUNTEER);
             List<AbstractDay> days = rotaService.getDays(user, dayTypes, start, end);
 
             float holiday = 0;

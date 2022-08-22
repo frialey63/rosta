@@ -2,7 +2,11 @@ package org.pjp.rosta.model;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
+import org.pjp.rosta.bean.Repeater;
 import org.springframework.data.annotation.Id;
 
 public abstract sealed class AbstractDay implements Comparable<AbstractDay>, PartOfDay permits AbsenceDay, Holiday, VolunteerDay {
@@ -11,8 +15,14 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
         return switch(dayType) {
         case ABSENCE -> new AbsenceDay(date, partOfDay, userUuid);
         case HOLIDAY -> new Holiday(date, partOfDay, userUuid);
-        case VOLUNTARY -> new VolunteerDay(date, partOfDay, userUuid);
+        case VOLUNTEER -> new VolunteerDay(date, null, partOfDay, userUuid);
         };
+    }
+
+    public static List<AbstractDay> createVolunteerDays(LocalDate date, Repeater repeater, PartOfDay partOfDay, String userUuid) {
+        String repeatUuid = UUID.randomUUID().toString();
+
+        return repeater.getSequence(date).stream().map(d -> new VolunteerDay(d, repeatUuid, partOfDay, userUuid)).collect(Collectors.toList());
     }
 
     public static DayType getDayType(String className) {
@@ -23,7 +33,7 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
         return switch(className) {
         case "org.pjp.rosta.model.AbsenceDay" -> DayType.ABSENCE;
         case "org.pjp.rosta.model.Holiday" -> DayType.HOLIDAY;
-        case "org.pjp.rosta.model.VolunteerDay" -> DayType.VOLUNTARY;
+        case "org.pjp.rosta.model.VolunteerDay" -> DayType.VOLUNTEER;
         default -> null;
         };
     }
