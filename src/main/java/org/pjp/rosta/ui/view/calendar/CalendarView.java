@@ -7,6 +7,7 @@ import java.time.temporal.TemporalAdjusters;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -94,6 +95,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
     private static final DateTimeFormatter FORMATTER = DateTimeFormatter.ofPattern("MMMM yyyy");
 
     static final String KEY_UUID = "uuid";
+    static final String KEY_REPEAT_UUID = "repeatUuid";
     static final String KEY_DAY_CLASS = "dayClass";
     static final String KEY_TOOLTIP = "tooltip";
     static final String KEY_DISPLAY_ORDER = "displayOrder";
@@ -153,6 +155,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         entry.setCustomProperty(KEY_DISPLAY_ORDER, displayOrder);
         entry.setCustomProperty(KEY_UUID, day.getUuid());
+        entry.setCustomProperty(KEY_REPEAT_UUID, day.getRepeatUuid());
         entry.setCustomProperty(KEY_DAY_CLASS, day.getClass().getCanonicalName());
         entry.setCustomProperty(KEY_TOOLTIP, title);
 
@@ -659,7 +662,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 if (dateFlag) {
                     String header = String.format("Add %s", (user.isEmployee() ? "Holiday or Absence" : "Volunteer Day"));
 
-                    dialog = new CreateDialog(startDate, user.isEmployee(), user);
+                    dialog = new CreateDialog(startDate, user);
                     dialog.setHeader(header);
                     dialog.setFooter(getDialogFooter(true, false));
                     dialog.open();
@@ -677,13 +680,14 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         List<AbstractDay> days = new ArrayList<>();
 
-        days.add(AbstractDay.createDay(createDialog.getDayType(), date, (PartOfDay) createDialog, dayUser.getUuid()));
-
-        if (createDialog.getRepeater().repeatType() != RepeatType.NONE) {
+        if (createDialog.getRepeater().repeatType() == RepeatType.NONE) {
+            days.add(AbstractDay.createDay(createDialog.getDayType(), date, (PartOfDay) createDialog, dayUser.getUuid()));
+        } else {
             days.addAll(AbstractDay.createVolunteerDays(date, createDialog.getRepeater(), (PartOfDay) createDialog, dayUser.getUuid()));
         }
 
         User user = optUser.get();
+        int uiId = UI.getCurrent().getUIId();
 
         try {
             LocalDate dateOfFirstConflict = rotaService.saveDays(days, user.getUuid());
@@ -695,8 +699,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
                 for (AbstractDay tempDay : days) {
                     calendar.addEntry(createAbstractDayEntry(otherUser, tempDay, title));
-
-                    Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, UI.getCurrent().getUIId(), tempDay.getDate()));
+                    Broadcaster.broadcast(new RostaMessage(MessageType.DAY_CREATE, uiId, tempDay.getDate()));
                 }
 
             } else {
@@ -726,11 +729,24 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
         try {
             User user = optUser.get();
+            int uiId = UI.getCurrent().getUIId();
 
-            rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());	// TODO process day delete with repeats
+            rotaService.removeDay(entry.getCustomProperty(KEY_UUID), user.getUuid());
+
             calendar.removeEntry(entry);
+            Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, uiId, entry.getStartAsLocalDate()));
 
-            Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, UI.getCurrent().getUIId(), entry.getStartAsLocalDate()));
+            if (((DeleteDialog) dialog).isRepeated()) {
+                String repeatUuid = entry.getCustomProperty(KEY_REPEAT_UUID);
+
+                rotaService.removeDays(repeatUuid, user.getUuid());
+
+                calendar.getEntries().stream().filter(e -> Objects.equals(repeatUuid, e.getCustomProperty(KEY_REPEAT_UUID))).forEach(tempEntry -> {
+                    calendar.removeEntry(tempEntry);
+                    Broadcaster.broadcast(new RostaMessage(MessageType.DAY_DELETE, uiId, tempEntry.getStartAsLocalDate()));
+                });
+            }
+
         } finally {
             dialog.close();
         }

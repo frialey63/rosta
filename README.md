@@ -22,8 +22,6 @@ Backup of the Mongo DB
 
 ## TODO
 
-create volunteer days with repeater
-
 ## Bugs
 
 ## Sprint 3 Stories
@@ -41,6 +39,8 @@ planning of events
 planning of tasks
 
 ## Done
+
+create volunteer days with repeat
 
 push notification of changes by other users to the calendar, https://vaadin.com/docs/latest/advanced/server-push
 

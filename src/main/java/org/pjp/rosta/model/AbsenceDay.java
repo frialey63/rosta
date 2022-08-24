@@ -1,8 +1,8 @@
 package org.pjp.rosta.model;
 
 import java.time.LocalDate;
-import java.util.UUID;
 
+import org.pjp.rosta.util.UuidStr;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -17,7 +17,7 @@ public final class AbsenceDay extends AbstractDay {
     }
 
     public AbsenceDay(LocalDate date, PartOfDay partOfDay, String userUuid) {
-        this(UUID.randomUUID().toString(), date, partOfDay.isMorning(), partOfDay.isAfternoon(), userUuid);
+        this(UuidStr.random(), date, partOfDay.isMorning(), partOfDay.isAfternoon(), userUuid);
     }
 
     @Override

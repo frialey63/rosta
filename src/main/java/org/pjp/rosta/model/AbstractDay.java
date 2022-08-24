@@ -3,10 +3,10 @@ package org.pjp.rosta.model;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.pjp.rosta.bean.Repeater;
+import org.pjp.rosta.util.UuidStr;
 import org.springframework.data.annotation.Id;
 
 public abstract sealed class AbstractDay implements Comparable<AbstractDay>, PartOfDay permits AbsenceDay, Holiday, VolunteerDay {
@@ -15,12 +15,12 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
         return switch(dayType) {
         case ABSENCE -> new AbsenceDay(date, partOfDay, userUuid);
         case HOLIDAY -> new Holiday(date, partOfDay, userUuid);
-        case VOLUNTEER -> new VolunteerDay(date, null, partOfDay, userUuid);
+        case VOLUNTEER -> new VolunteerDay(date, partOfDay, userUuid);
         };
     }
 
     public static List<AbstractDay> createVolunteerDays(LocalDate date, Repeater repeater, PartOfDay partOfDay, String userUuid) {
-        String repeatUuid = UUID.randomUUID().toString();
+        String repeatUuid = UuidStr.random();
 
         return repeater.getSequence(date).stream().map(d -> new VolunteerDay(d, repeatUuid, partOfDay, userUuid)).collect(Collectors.toList());
     }
@@ -42,6 +42,8 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
 
     @Id
     private String uuid;
+
+    private String repeatUuid;
 
     private LocalDate date;
 
@@ -70,6 +72,14 @@ public abstract sealed class AbstractDay implements Comparable<AbstractDay>, Par
 
     public LocalDate getDate() {
         return date;
+    }
+
+    public String getRepeatUuid() {
+        return repeatUuid;
+    }
+
+    public void setRepeatUuid(String repeatUuid) {
+        this.repeatUuid = repeatUuid;
     }
 
     @Override

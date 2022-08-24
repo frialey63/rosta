@@ -41,17 +41,17 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     private final Select<RepeatType> repType = new Select<>();
     private final IntegerField repCount = new IntegerField();
 
-    public CreateDialog(LocalDate date, boolean employee, User user) {
-        super();
-        this.date = date;
-        this.employee = employee;
+    public CreateDialog(LocalDate date, User user) {
+        this(date, user.isEmployee());
         this.user = user;
-
-        reconfigure(employee);
     }
 
     public CreateDialog(LocalDate date, boolean employee) {
-        this(date, employee, null);
+        super();
+        this.date = date;
+        this.employee = employee;
+
+        reconfigure(employee);
     }
 
     public void reconfigure(boolean employee) {
@@ -140,11 +140,15 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
                     repCount.setMax(0);
                     repCount.setEnabled(false);
                     break;
-                case WEEK:
-                    repCount.setMax(52);
+                case DAILY:
+                    repCount.setMax(14);
                     repCount.setEnabled(true);
                     break;
-                case MONTH:
+                case WEEKLY:
+                    repCount.setMax(26);
+                    repCount.setEnabled(true);
+                    break;
+                case MONTHLY:
                     repCount.setMax(12);
                     repCount.setEnabled(true);
                     break;
@@ -182,6 +186,10 @@ class CreateDialog extends EnhancedDialog implements PartOfDay {
     }
 
     public Repeater getRepeater() {
+        if (employee) {
+            return new Repeater(RepeatType.NONE, 0);
+        }
+
         return new Repeater(repType.getValue(), repCount.getValue());
     }
 

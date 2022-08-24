@@ -6,9 +6,9 @@ import java.time.LocalDate;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.TreeMap;
-import java.util.UUID;
 import java.util.stream.Stream;
 
+import org.pjp.rosta.util.UuidStr;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -62,7 +62,7 @@ public class Shift {
     }
 
     public Shift(LocalDate fromDate, String userUuid) {
-        this(UUID.randomUUID().toString(), fromDate, userUuid);
+        this(UuidStr.random(), fromDate, userUuid);
     }
 
     public String getUuid() {

@@ -18,7 +18,6 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import javax.annotation.PostConstruct;
@@ -47,6 +46,7 @@ import org.pjp.rosta.repository.HolidayRepository;
 import org.pjp.rosta.repository.ShiftRepository;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.repository.VolunteerDayRepository;
+import org.pjp.rosta.util.UuidStr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -181,7 +181,7 @@ public class RotaService {
         volunteerDayRepository.deleteAll();
 
         {
-            String id = UUID.randomUUID().toString();
+            String id = UuidStr.random();
             User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "manager@gmail.com", true, true, false);
             userRepo.save(user);
         }
@@ -189,58 +189,58 @@ public class RotaService {
         LocalDate date = LocalDate.of(2022, 5, 16);
 
         {
-            var id = UUID.randomUUID().toString();
+            var id = UuidStr.random();
             var user = new User(id, "fred", UserRole.SUPERVISOR, "Fred Bloggs", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "fred.bloggs@gmail.com", true, true, true);
             userRepo.save(user);
 
-            var shift = new Shift(UUID.randomUUID().toString(), date, id);
+            var shift = new Shift(UuidStr.random(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setMorning(false);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
+            shift = new Shift(UuidStr.random(), date.minusWeeks(1), id);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
+            shift = new Shift(UuidStr.random(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
-            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 18), true, true, id);
+            var holiday = new Holiday(UuidStr.random(), LocalDate.of(2022, 5, 18), true, true, id);
             holidayRepository.save(holiday);
         }
 
         {
-            var id = UUID.randomUUID().toString();
+            var id = UuidStr.random();
             var user = new User(id, "bill", UserRole.WORKER, "Bill Smith", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "bill.smith@gmail.com", true, true, false);
             userRepo.save(user);
 
-            var shift = new Shift(UUID.randomUUID().toString(), date, id);
+            var shift = new Shift(UuidStr.random(), date, id);
             shift.getShiftDay(DayOfWeek.MONDAY).setAfternoon(false);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), date.minusWeeks(1), id);
+            shift = new Shift(UuidStr.random(), date.minusWeeks(1), id);
             shiftRepo.save(shift);
 
-            shift = new Shift(UUID.randomUUID().toString(), date.plusWeeks(1), id);
+            shift = new Shift(UuidStr.random(), date.plusWeeks(1), id);
             shiftRepo.save(shift);
 
-            var holiday = new Holiday(UUID.randomUUID().toString(), LocalDate.of(2022, 5, 19), true, true, id);
+            var holiday = new Holiday(UuidStr.random(), LocalDate.of(2022, 5, 19), true, true, id);
             holidayRepository.save(holiday);
         }
 
         {
-            var id = UUID.randomUUID().toString();
+            var id = UuidStr.random();
             var user = new User(id, "anne", UserRole.WORKER, "Anne Boleyn", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "anne.boleyn@gmail.com", true, false, true);
             userRepo.save(user);
 
-            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
+            var VolunteerDay = new VolunteerDay(UuidStr.random(), date, true, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
 
         {
-            var id = UUID.randomUUID().toString();
+            var id = UuidStr.random();
             var user = new User(id, "jane", UserRole.WORKER, "Jane Seymour", ("{bcrypt}" + PASSWORD_ENCODER.encode("password")), true, "jane.seymour@gmail.com", true, false, false);
             userRepo.save(user);
 
-            var VolunteerDay = new VolunteerDay(UUID.randomUUID().toString(), date, true, true, true, id);
+            var VolunteerDay = new VolunteerDay(UuidStr.random(), date, true, true, true, id);
             volunteerDayRepository.save(VolunteerDay);
         }
     }
@@ -315,12 +315,10 @@ public class RotaService {
 
             String subject = "Shop Rota Sitrep (OK) - Week of " + date.format(FORMATTER);
 
-            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
-                if (user.isNotifications()) {
-                    String text = String.format(templateStr, firstName(user.getName()));
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
+                String text = String.format(templateStr, firstName(user.getName()));
 
-                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                }
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
             });
 
             for (String directorEmail : checkRotaDirectorEmail.split(",")) {
@@ -340,12 +338,10 @@ public class RotaService {
             String subject = "Shop Rota Sitrep - Week of " + date.format(FORMATTER);
             String notifiedStr = notified.stream().collect(Collectors.joining(", "));
 
-            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).forEach(user -> {
-                if (user.isNotifications()) {
-                    String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
+                String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
 
-                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                }
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
             });
 
             for (String directorEmail : checkRotaDirectorEmail.split(",")) {
@@ -364,14 +360,12 @@ public class RotaService {
 
             String subject = "Request for Shop Volunteers - Week of " + date.format(FORMATTER);
 
-            userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).forEach(user -> {
-                if (user.isNotifications()) {
-                    String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
+            userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).stream().filter(User::isNotifications).forEach(user -> {
+                String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
 
-                    emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                emailService.sendSimpleMessage(user.getEmail(), subject, text);
 
-                    notified.add(user.getName());
-                }
+                notified.add(user.getName());
             });
         } catch (IOException e) {
             LOGGER.error("failed to read email template from classpath resources", e);
@@ -643,6 +637,15 @@ public class RotaService {
         });
     }
 
+    public void removeDays(String repeatUuid, String bookerUuid) {
+        volunteerDayRepository.findAllByRepeatUuid(repeatUuid).forEach(day -> {
+            volunteerDayRepository.deleteById(day.getUuid());
+
+            // note this only sends for those days which fall in the current week
+            sendImmediateEmail("REMOVE", day, bookerUuid);
+        });
+    }
+
     private void sendImmediateEmail(String changeType, AbstractDay day, String bookerUuid) {
         if (Objects.equals(day.getUserUuid(), bookerUuid)) {
             LocalDate date = day.getDate();
@@ -665,13 +668,10 @@ public class RotaService {
 
                         String subject = "Shop Rota Change - Week of " + monday.format(FORMATTER);
 
-                        userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).forEach(user -> {
-                            if (user.isNotifications()) {
-                                String text = String.format(templateStr, firstName(user.getName()),
-                                        changeType, dayType, dayOfWeek, title, bookeeName);
+                        userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
+                            String text = String.format(templateStr, firstName(user.getName()), changeType, dayType, dayOfWeek, title, bookeeName);
 
-                                emailService.sendSimpleMessage(user.getEmail(), subject, text);
-                            }
+                            emailService.sendSimpleMessage(user.getEmail(), subject, text);
                         });
                     } catch (IOException e) {
                         LOGGER.error("failed to read email template from classpath resources", e);

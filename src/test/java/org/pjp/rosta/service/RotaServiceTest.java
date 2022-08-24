@@ -7,7 +7,6 @@ import static org.mockito.Mockito.when;
 import java.time.DayOfWeek;
 import java.time.LocalDate;
 import java.util.Optional;
-import java.util.UUID;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,6 +17,7 @@ import org.pjp.rosta.model.Shift;
 import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.ShiftRepository;
+import org.pjp.rosta.util.UuidStr;
 
 @ExtendWith(MockitoExtension.class)
 class RotaServiceTest {
@@ -41,7 +41,7 @@ class RotaServiceTest {
     void testCalculateShiftWorkJune() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UuidStr.random(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 6, 1);
         LocalDate end = LocalDate.of(2022, 6, 30);
@@ -68,7 +68,7 @@ class RotaServiceTest {
     void testCalculateShiftWorkJuly() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UuidStr.random(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 7, 1);
         LocalDate end = LocalDate.of(2022, 7, 31);
@@ -93,7 +93,7 @@ class RotaServiceTest {
     void testCalculateShiftWorkAugust() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UuidStr.random(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 8, 1);
         LocalDate end = LocalDate.of(2022, 8, 31);
@@ -127,7 +127,7 @@ class RotaServiceTest {
     void testCalculateShiftWorkJuneJulyAugust() {
         // GIVEN
 
-        User user = new User(UUID.randomUUID().toString(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
+        User user = new User(UuidStr.random(), "fred", UserRole.SUPERVISOR, "Fred Bloggs", null, true, "fred@gmail.com", true, true, true);
 
         LocalDate start = LocalDate.of(2022, 6, 1);
         LocalDate end = LocalDate.of(2022, 8, 31);

@@ -9,14 +9,15 @@ import java.util.stream.Stream;
 public record Repeater(RepeatType repeatType, int count) {
 
     public enum RepeatType {
-        NONE, WEEK, MONTH
+        NONE, DAILY, WEEKLY, MONTHLY
     }
 
     public List<LocalDate> getSequence(LocalDate start) {
         return switch (repeatType) {
             case NONE -> Collections.emptyList();
-            case WEEK -> Stream.iterate(start.plusWeeks(1), d -> d.plusWeeks(1)).limit(count).collect(Collectors.toList());
-            case MONTH -> Stream.iterate(start.plusMonths(1), d -> d.plusMonths(1)).limit(count).collect(Collectors.toList());
+            case DAILY -> Stream.iterate(start, d -> d.plusDays(1)).limit(1 + count).collect(Collectors.toList());
+            case WEEKLY -> Stream.iterate(start, d -> d.plusWeeks(1)).limit(1 + count).collect(Collectors.toList());
+            case MONTHLY -> Stream.iterate(start, d -> d.plusMonths(1)).limit(1 + count).collect(Collectors.toList());
         };
     }
 }

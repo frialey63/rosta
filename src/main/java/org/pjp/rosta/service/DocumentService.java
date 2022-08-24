@@ -2,12 +2,12 @@ package org.pjp.rosta.service;
 
 import java.io.File;
 import java.util.List;
-import java.util.UUID;
 
 import javax.annotation.PostConstruct;
 
 import org.pjp.rosta.model.ShopDocument;
 import org.pjp.rosta.repository.ShopDocumentRepository;
+import org.pjp.rosta.util.UuidStr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,7 +68,7 @@ public class DocumentService {
                 throw new ExistingDocument();
             });
 
-            document.setUuid(UUID.randomUUID().toString());
+            document.setUuid(UuidStr.random());
         } else {
             repository.findById(document.getUuid()).ifPresent(existingDocument -> {
                 String title = document.getTitle();

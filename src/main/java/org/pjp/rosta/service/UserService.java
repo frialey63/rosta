@@ -7,7 +7,6 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -18,6 +17,7 @@ import org.pjp.rosta.model.User;
 import org.pjp.rosta.model.UserRole;
 import org.pjp.rosta.repository.UserRepository;
 import org.pjp.rosta.security.CrunchifyRandomPasswordGenerator;
+import org.pjp.rosta.util.UuidStr;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -70,7 +70,7 @@ public class UserService {
 
             LOGGER.info("initialising data and creating the manager");
 
-            String id = UUID.randomUUID().toString();
+            String id = UuidStr.random();
             User user = new User(id, "manager", UserRole.MANAGER, "Manager", ("{bcrypt}" + passwordEncoder.encode(initialManagerPassword)), true, "manager@gmail.com", false, true, false);
             userRepository.save(user);
         }
@@ -109,7 +109,7 @@ public class UserService {
                 throw new ExistingUser();
             });
 
-            user.setUuid(UUID.randomUUID().toString());
+            user.setUuid(UuidStr.random());
 
             if (user.getPassword() == null) {
                 String newPassword = passwordGenerator.generatePassword(PASSWORD_LENGTH);
@@ -205,7 +205,7 @@ public class UserService {
         String password = "{bcrypt}" + passwordEncoder.encode(userBean.getPassword());
         Instant passwordExpiry = Instant.now().plus(FORGOT_PASSWORD_EXPIRY_HOURS, ChronoUnit.HOURS);
 
-        User user = new User(UUID.randomUUID().toString(), username, UserRole.WORKER, name, password, true, userBean.getEmail(), true, userBean.isEmployee(), false);
+        User user = new User(UuidStr.random(), username, UserRole.WORKER, name, password, true, userBean.getEmail(), true, userBean.isEmployee(), false);
         user.setPasswordChange(true);
         user.setPasswordExpiry(passwordExpiry);
 
