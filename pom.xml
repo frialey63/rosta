@@ -9,7 +9,7 @@
     </parent>
     <groupId>org.pjp</groupId>
     <artifactId>rosta</artifactId>
-    <version>0.3.0-SNAPSHOT</version>
+    <version>0.4.0-SNAPSHOT</version>
     <name>rosta</name>
     <description>Simple Rosta app for the museum</description>
 
