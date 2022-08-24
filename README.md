@@ -40,6 +40,8 @@ planning of tasks
 
 ## Done
 
+_Release 1.0.0 to be deployed to office server_
+
 create volunteer days with repeat
 
 push notification of changes by other users to the calendar, https://vaadin.com/docs/latest/advanced/server-push
@@ -73,6 +75,8 @@ new data attributes for user
 shop info docs for users
 
 session inactivity timeouts
+
+_Release 0.2.0 deployed to shop annex PC_
 
 management reports of periods worked, holidays, absences, etc.
 
