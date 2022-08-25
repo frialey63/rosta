@@ -596,13 +596,20 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
                 LocalDate dateSunday = date.with(TemporalAdjusters.next(DayOfWeek.SUNDAY));
 
                 if (date.isBefore(nowMonday)) {
+                    Span filler = new Span();
+                    CompactHorizontalLayout footer = new CompactHorizontalLayout(filler, new Button("OK", this::onOk));
+                    footer.setAlignItems(Alignment.STRETCH);
+                    footer.setFlexGrow(1, filler);
+
                     rotaService.getShiftForUser(user.getUuid(), dateSunday).ifPresentOrElse(shift -> {
                         dialog = new ShiftDialog(shift);
                         dialog.setHeader("View Shift");
+                        dialog.setFooter(footer);
                         dialog.open();
                     }, () -> {
                         dialog = new EnhancedDialog();
                         dialog.setHeader("No Shift");
+                        dialog.setFooter(footer);
                         dialog.open();
                     });
                 } else {
@@ -774,6 +781,10 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
         } finally {
             dialog.close();
         }
+    }
+
+    private void onOk(ClickEvent<Button> event) {
+        dialog.close();
     }
 
     private void onCancel(ClickEvent<Button> event) {

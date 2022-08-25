@@ -1,0 +1,9 @@
+Hello %s,
+
+This is the RAF Manston Museum Shop contacting you.
+
+There has been the following alteration to the shift pattern of %s for next week:
+
+%s
+
+Best regards.

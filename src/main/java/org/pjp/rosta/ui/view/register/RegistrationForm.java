@@ -50,7 +50,7 @@ class RegistrationForm extends FormLayout {
 
         email = new EmailField("Email");
 
-        employee = new Checkbox("Employee");
+        employee = new Checkbox("Employee (Leave unchecked if volunteer)");
         employee.getStyle().set("margin-top", "10px");
 
         password = new PasswordField("Password");
@@ -81,6 +81,7 @@ class RegistrationForm extends FormLayout {
         // or two (it just looks better that way)
         setColspan(title, 2);
         setColspan(email, 2);
+        setColspan(employee, 2);
         setColspan(errorMessageField, 2);
         setColspan(submitButton, 2);
     }

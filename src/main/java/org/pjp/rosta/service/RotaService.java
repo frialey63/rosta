@@ -80,6 +80,8 @@ public class RotaService {
 
     private static final String IMMEDIATE_TEMPLATE = "file:template/immediate-template.txt";
 
+    private static final String IMMEDIATE_SHIFT_TEMPLATE = "file:template/immediate-shift-template.txt";
+
     private static final String TEST_TEMPLATE = "file:template/test-template.txt";
 
     private static final Logger LOGGER = LoggerFactory.getLogger(RotaService.class);
@@ -315,10 +317,10 @@ public class RotaService {
 
             String subject = "Shop Rota Sitrep (OK) - Week of " + date.format(FORMATTER);
 
-            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
-                String text = String.format(templateStr, firstName(user.getName()));
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(mgr -> {
+                String text = String.format(templateStr, firstName(mgr.getName()));
 
-                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                emailService.sendSimpleMessage(mgr.getEmail(), subject, text);
             });
 
             for (String directorEmail : checkRotaDirectorEmail.split(",")) {
@@ -338,10 +340,10 @@ public class RotaService {
             String subject = "Shop Rota Sitrep - Week of " + date.format(FORMATTER);
             String notifiedStr = notified.stream().collect(Collectors.joining(", "));
 
-            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
-                String text = String.format(templateStr, firstName(user.getName()), notifiedStr) + missingCoverStr;
+            userRepo.findAllByUserRole(new UserRole[] { UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(mgr -> {
+                String text = String.format(templateStr, firstName(mgr.getName()), notifiedStr) + missingCoverStr;
 
-                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                emailService.sendSimpleMessage(mgr.getEmail(), subject, text);
             });
 
             for (String directorEmail : checkRotaDirectorEmail.split(",")) {
@@ -360,12 +362,12 @@ public class RotaService {
 
             String subject = "Request for Shop Volunteers - Week of " + date.format(FORMATTER);
 
-            userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).stream().filter(User::isNotifications).forEach(user -> {
-                String text = String.format(templateStr, firstName(user.getName())) + missingCoverStr;
+            userRepo.findAllByUserRoleAndEmployee(new UserRole[] { UserRole.SUPERVISOR, UserRole.WORKER }, false).stream().filter(User::isNotifications).forEach(supMgr -> {
+                String text = String.format(templateStr, firstName(supMgr.getName())) + missingCoverStr;
 
-                emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                emailService.sendSimpleMessage(supMgr.getEmail(), subject, text);
 
-                notified.add(user.getName());
+                notified.add(supMgr.getName());
             });
         } catch (IOException e) {
             LOGGER.error("failed to read email template from classpath resources", e);
@@ -668,10 +670,10 @@ public class RotaService {
 
                         String subject = "Shop Rota Change - Week of " + monday.format(FORMATTER);
 
-                        userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(user -> {
-                            String text = String.format(templateStr, firstName(user.getName()), changeType, dayType, dayOfWeek, title, bookeeName);
+                        userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(supMgr -> {
+                            String text = String.format(templateStr, firstName(supMgr.getName()), changeType, dayType, dayOfWeek, title, bookeeName);
 
-                            emailService.sendSimpleMessage(user.getEmail(), subject, text);
+                            emailService.sendSimpleMessage(supMgr.getEmail(), subject, text);
                         });
                     } catch (IOException e) {
                         LOGGER.error("failed to read email template from classpath resources", e);
@@ -683,6 +685,36 @@ public class RotaService {
 
     public void saveShift(Shift shift) {
         shiftRepo.save(shift);
+
+        sendImmediateShiftEmail(shift);
+    }
+
+    private void sendImmediateShiftEmail(Shift shift) {
+        LocalDate fromDate = shift.getFromDate();
+
+        LocalDate today = LocalDate.now();
+        LocalDate monday = today.with(TemporalAdjusters.previousOrSame(DayOfWeek.MONDAY));
+        LocalDate sunday = today.with(TemporalAdjusters.nextOrSame(DayOfWeek.SUNDAY));
+
+        if (!fromDate.isAfter(sunday)) {
+            LOGGER.info("sending immediate (shift) notification email for {}", fromDate);
+
+            userRepo.findById(shift.getUserUuid()).ifPresent(user -> {
+                try (InputStream inputStream = resourceLoader.getResource(IMMEDIATE_SHIFT_TEMPLATE).getInputStream()) {
+                    String templateStr = new String(FileCopyUtils.copyToByteArray(inputStream), StandardCharsets.UTF_8);
+
+                    String subject = "Shop Rota (Shift) Change - Week of " + monday.format(FORMATTER);
+
+                    userRepo.findAllByUserRole(new UserRole[] { UserRole.SUPERVISOR, UserRole.MANAGER }).stream().filter(User::isNotifications).forEach(supMgr -> {
+                        String text = String.format(templateStr, firstName(supMgr.getName()), user, shift.toString());
+
+                        emailService.sendSimpleMessage(supMgr.getEmail(), subject, text);
+                    });
+                } catch (IOException e) {
+                    LOGGER.error("failed to read email template from classpath resources", e);
+                }
+            });
+        }
     }
 
     public void deleteUser(User user) {

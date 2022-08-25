@@ -4,6 +4,10 @@ import java.time.DayOfWeek;
 
 public class ShiftDay implements PartOfDay {
 
+    private static String toString(boolean bool) {
+        return bool ? " ON" : "OFF";
+    }
+
     private DayOfWeek dayOfWeek;
 
     private boolean morning;
@@ -81,13 +85,7 @@ public class ShiftDay implements PartOfDay {
 
     @Override
     public String toString() {
-        StringBuilder builder = new StringBuilder();
-        builder.append("ShiftDay [morning=");
-        builder.append(morning);
-        builder.append(", afternoon=");
-        builder.append(afternoon);
-        builder.append("]");
-        return builder.toString();
+        return "Mrng = " + toString(morning) + ", Aftn = " + toString(afternoon);
     }
 
     public String getColour() {

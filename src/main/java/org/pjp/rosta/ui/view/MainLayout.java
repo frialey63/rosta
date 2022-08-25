@@ -11,7 +11,7 @@ import org.pjp.rosta.ui.view.document.ShopDocumentView;
 import org.pjp.rosta.ui.view.maninfo.ManagementInformationView;
 import org.pjp.rosta.ui.view.profile.PasswordChangeView;
 import org.pjp.rosta.ui.view.profile.ProfileView;
-import org.pjp.rosta.ui.view.rosta.ShopRotaView;
+import org.pjp.rosta.ui.view.rota.ShopRotaView;
 import org.pjp.rosta.ui.view.settings.SettingsView;
 import org.pjp.rosta.ui.view.user.UserManagementView;
 import org.slf4j.Logger;

@@ -48,8 +48,6 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
 
     private final TextField emergencyTelephone = new TextField("Emergency Telephone");
 
-    private final Checkbox employee = new Checkbox("Employee (Leave unchecked for volunteer)");
-
     private final Checkbox notifications = new Checkbox("Notifications for missing cover");
 
     private final Binder<User> binder = new BeanValidationBinder<>(User.class);
@@ -69,7 +67,7 @@ public class ProfileView extends AbstractView implements AfterNavigationObserver
         binder.bindInstanceFields(this);
 
         FormLayout formLayout = new FormLayout();
-        formLayout.add(username, name, email, telephone, emergencyName, emergencyTelephone, employee, notifications);
+        formLayout.add(username, name, email, telephone, emergencyName, emergencyTelephone, notifications);
         formLayout.setResponsiveSteps(
                 // Use one column by default
                 new ResponsiveStep("0", 1),

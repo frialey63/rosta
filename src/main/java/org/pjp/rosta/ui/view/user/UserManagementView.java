@@ -24,7 +24,7 @@ import com.vaadin.flow.router.AfterNavigationObserver;
 import com.vaadin.flow.router.PageTitle;
 import com.vaadin.flow.router.Route;
 
-@RolesAllowed("ROLE_MANAGER")
+@RolesAllowed("MANAGER")
 @PageTitle("User Management")
 @Route(value = "user", layout = MainLayout.class)
 public class UserManagementView extends AbstractView implements AfterNavigationObserver {

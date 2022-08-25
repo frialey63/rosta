@@ -96,27 +96,19 @@ public class Shift {
     @Override
     public String toString() {
         StringBuilder builder = new StringBuilder();
-        builder.append("Shift [uuid=");
-        builder.append(uuid);
-        builder.append(", fromDate=");
-        builder.append(fromDate);
-        builder.append(", userUuid=");
-        builder.append(userUuid);
-        builder.append(", monday=");
-        builder.append(monday);
-        builder.append(", tuesday=");
-        builder.append(tuesday);
-        builder.append(", wednesday=");
-        builder.append(wednesday);
-        builder.append(", thursday=");
-        builder.append(thursday);
-        builder.append(", friday=");
-        builder.append(friday);
-        builder.append(", saturday=");
-        builder.append(saturday);
-        builder.append(", sunday=");
-        builder.append(sunday);
-        builder.append("]");
+        builder.append("Monday:    " + monday);
+        builder.append('\n');
+        builder.append("Tuesday:   " + tuesday);
+        builder.append('\n');
+        builder.append("Wednesday: " + wednesday);
+        builder.append('\n');
+        builder.append("Thursday:  " + thursday);
+        builder.append('\n');
+        builder.append("Friday:    " + friday);
+        builder.append('\n');
+        builder.append("Saturday:  " + saturday);
+        builder.append('\n');
+        builder.append("Sunday  :  " + sunday);
         return builder.toString();
     }
 

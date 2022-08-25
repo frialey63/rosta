@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.view.rosta;
+package org.pjp.rosta.ui.view.rota;
 
 import java.io.File;
 import java.io.FileInputStream;
