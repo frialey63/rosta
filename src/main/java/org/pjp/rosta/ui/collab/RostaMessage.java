@@ -1,4 +1,4 @@
-package org.pjp.rosta.ui.util;
+package org.pjp.rosta.ui.collab;
 
 import java.time.LocalDate;
 
