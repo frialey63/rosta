@@ -9,7 +9,6 @@ import org.springframework.boot.ApplicationRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 import org.springframework.boot.web.servlet.support.SpringBootServletInitializer;
-import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 import org.springframework.scheduling.annotation.EnableScheduling;
 import org.springframework.scheduling.annotation.Scheduled;
 
@@ -24,7 +23,6 @@ import com.vaadin.flow.theme.Theme;
 @PWA(name = "RAF Manston History Museum Shop Rota", shortName = "Rota", offlineResources = {})
 @NpmPackage(value = "line-awesome", version = "1.3.0")
 @EnableScheduling
-@EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
 @SpringBootApplication
 public class RostaApplication extends SpringBootServletInitializer implements AppShellConfigurator, ApplicationRunner {
 

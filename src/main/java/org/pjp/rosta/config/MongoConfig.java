@@ -6,6 +6,7 @@ import java.util.Collections;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.context.annotation.Profile;
 import org.springframework.data.mongodb.config.AbstractMongoClientConfiguration;
+import org.springframework.data.mongodb.repository.config.EnableMongoRepositories;
 
 import com.mongodb.ConnectionString;
 import com.mongodb.MongoClientSettings;
@@ -13,6 +14,7 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
 @Profile("docker")
+@EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {
 
