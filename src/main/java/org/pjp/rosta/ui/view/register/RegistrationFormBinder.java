@@ -121,7 +121,7 @@ class RegistrationFormBinder {
      * We call this method when form submission has succeeded
      */
     private void showSuccess(UserBean userBean, String username) {
-        Notification notification = Notification.show("Data saved, welcome " + userBean.getFirstName() + ". You may now login using the username of " + username, 60_000, Position.BOTTOM_START);
+        Notification notification = Notification.show("Data saved, welcome " + userBean.getFirstName() + ". You may now login using the username of '" + username + "' and complete your profile.", 60_000, Position.BOTTOM_START);
 
         notification.addThemeVariants(NotificationVariant.LUMO_SUCCESS);
     }

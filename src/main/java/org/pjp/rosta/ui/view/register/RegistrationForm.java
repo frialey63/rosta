@@ -1,17 +1,17 @@
 package org.pjp.rosta.ui.view.register;
 
+import java.util.stream.Stream;
+
 import com.vaadin.flow.component.HasValueAndElement;
 import com.vaadin.flow.component.button.Button;
 import com.vaadin.flow.component.button.ButtonVariant;
-import com.vaadin.flow.component.checkbox.Checkbox;
 import com.vaadin.flow.component.formlayout.FormLayout;
+import com.vaadin.flow.component.html.Emphasis;
 import com.vaadin.flow.component.html.H3;
 import com.vaadin.flow.component.html.Span;
 import com.vaadin.flow.component.textfield.EmailField;
 import com.vaadin.flow.component.textfield.PasswordField;
 import com.vaadin.flow.component.textfield.TextField;
-
-import java.util.stream.Stream;
 
 /**
  * Create a FormLayout with all our components. The FormLayout
@@ -36,7 +36,7 @@ class RegistrationForm extends FormLayout {
     private PasswordField password;
     private PasswordField passwordConfirm;
 
-    private Checkbox employee;
+    private Span infoField;
 
     private Span errorMessageField;
 
@@ -50,21 +50,20 @@ class RegistrationForm extends FormLayout {
 
         email = new EmailField("Email");
 
-        employee = new Checkbox("Employee (Leave unchecked if volunteer)");
-        employee.getStyle().set("margin-top", "10px");
-
         password = new PasswordField("Password");
         passwordConfirm = new PasswordField("Confirm password");
 
         setRequiredIndicatorVisible(firstName, lastName, email, password,
                 passwordConfirm);
 
+        infoField = new Span(new Emphasis("If employee and/or keyholder then inform the manager."));
+
         errorMessageField = new Span();
 
         submitButton = new Button("Join the Rota");
         submitButton.addThemeVariants(ButtonVariant.LUMO_PRIMARY);
 
-        add(title, firstName, lastName, email, password, passwordConfirm, employee, errorMessageField, submitButton);
+        add(title, firstName, lastName, email, password, passwordConfirm, infoField, errorMessageField, submitButton);
 
         // Max width of the Form
         setMaxWidth("500px");
@@ -81,7 +80,7 @@ class RegistrationForm extends FormLayout {
         // or two (it just looks better that way)
         setColspan(title, 2);
         setColspan(email, 2);
-        setColspan(employee, 2);
+        setColspan(infoField, 2);
         setColspan(errorMessageField, 2);
         setColspan(submitButton, 2);
     }
