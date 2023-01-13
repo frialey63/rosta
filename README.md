@@ -1,6 +1,15 @@
 # rosta
 Application for managing the museum's rota of volunteers and employees.
 
+## Eclipse
+
+The Eclipse Maven dependencies need to reference the installed (fat) jar for uk-bank-holiday NOT a reference to the latter's Eclipse project in order to avoid runtime error
+
+    Exception in thread "main" java.lang.NoClassDefFoundError:
+      javax/ws/rs/client/ClientBuilder
+
+due to incorrect version of jersey-client (2.35 instead of 3.04) on the Maven classpath.
+
 ## Deployment
 
 run as a windows service
@@ -21,6 +30,8 @@ Backup of the Mongo DB
     https://www.mongodb.com/docs/manual/tutorial/backup-and-restore-tools/
 
 ## TODO
+
+preferred volunteering days for volunteers
 
 ## Bugs
 

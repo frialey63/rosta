@@ -587,7 +587,7 @@ public class CalendarView extends AbstractView implements AfterNavigationObserve
 
     private void onWeekNumberClickedEvent(WeekNumberClickedEvent event) {
         optUser.ifPresent(user -> {
-            if (!user.isManager()) {
+            if (!user.isManager() && user.isEmployee()) {
                 LocalDate date = event.getDate();
 
                 assert date.getDayOfWeek() == DayOfWeek.MONDAY;
