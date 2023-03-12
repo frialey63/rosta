@@ -15,6 +15,7 @@ import java.util.Map;
 
 import javax.annotation.security.PermitAll;
 
+import org.pjp.rosta.Env;
 import org.pjp.rosta.bean.PartOfDay;
 import org.pjp.rosta.bean.Rota;
 import org.pjp.rosta.bean.RotaDay;
@@ -57,6 +58,8 @@ import com.vaadin.flow.shared.Registration;
 @Route(value = "rota", layout = MainLayout.class)
 @RouteAlias(value = "", layout = MainLayout.class)
 public class ShopRotaView extends AbstractView implements AfterNavigationObserver, ValueChangeListener<ValueChangeEvent<LocalDate>> {
+
+    public static final File TMP = new File(Env.ROSTA_DATA,  "tmp");
 
     private static final String ROTA_S_DOCX = "rota_%s.docx";
 
@@ -261,7 +264,7 @@ public class ShopRotaView extends AbstractView implements AfterNavigationObserve
             InputStream result = null;
 
             try {
-                File tempFile = File.createTempFile("tmp-", ".tmp");
+                File tempFile = File.createTempFile("tmp-", ".tmp", TMP);
                 tempFile.deleteOnExit();
 
                 rotaService.writeRota(rota, tempFile);

@@ -43,7 +43,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if ("docker".equals(activeProfile)) {
+        if ("dev".equals(activeProfile)) {
             rotaService.testData();
             documentService.testData();
             return;
