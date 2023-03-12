@@ -13,7 +13,7 @@ import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 
-@Profile("docker")
+@Profile("dev")
 @EnableMongoRepositories(basePackages = "org.pjp.rosta.repository")
 @Configuration
 public class MongoConfig extends AbstractMongoClientConfiguration {

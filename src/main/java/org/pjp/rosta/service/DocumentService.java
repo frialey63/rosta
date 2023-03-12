@@ -5,6 +5,7 @@ import java.util.List;
 
 import javax.annotation.PostConstruct;
 
+import org.pjp.rosta.Env;
 import org.pjp.rosta.model.ShopDocument;
 import org.pjp.rosta.repository.ShopDocumentRepository;
 import org.pjp.rosta.util.UuidStr;
@@ -19,7 +20,7 @@ public class DocumentService {
 
     private static final Logger LOGGER = LoggerFactory.getLogger(DocumentService.class);
 
-    public static final File FOLDER = new File("docs");
+    public static final File FOLDER = new File(Env.ROSTA_DATA,  "docs");
 
     public static class ExistingDocument extends RuntimeException {
         private static final long serialVersionUID = -1080429253717683067L;
