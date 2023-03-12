@@ -1,5 +1,6 @@
 package org.pjp.rosta;
 
+import org.apache.commons.compress.utils.Sets;
 import org.pjp.rosta.service.DocumentService;
 import org.pjp.rosta.service.RotaService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -29,7 +30,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
     private static final long serialVersionUID = 4107623244717405998L;
 
     @Value("${spring.profiles.active:default}")
-    private String activeProfile;
+    private String[] springProfilesActive;
 
     @Autowired
     private RotaService rotaService;
@@ -43,7 +44,7 @@ public class RostaApplication extends SpringBootServletInitializer implements Ap
 
     @Override
     public void run(ApplicationArguments args) throws Exception {
-        if ("dev".equals(activeProfile)) {
+        if (Sets.newHashSet(springProfilesActive).contains("test")) {
             rotaService.testData();
             documentService.testData();
             return;

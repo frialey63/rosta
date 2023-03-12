@@ -130,6 +130,7 @@
     </dependencyManagement>
 
     <build>
+        <defaultGoal>spring-boot:run</defaultGoal>
         <plugins>
             <plugin>
                 <artifactId>jib-maven-plugin</artifactId>
@@ -143,6 +144,9 @@
                         <image>${docker.image.prefix}/${project.artifactId}</image>
                     </to>
                     <container>
+                        <jvmFlags>
+                            <jvmFlag>-Dspring.profiles.active=cosmos,test</jvmFlag>
+                        </jvmFlags>
                         <mainClass>org.pjp.rosta.RostaApplication</mainClass>
                     </container>
                 </configuration>
