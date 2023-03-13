@@ -10,6 +10,7 @@ import java.util.stream.Stream;
 
 import org.pjp.rosta.util.UuidStr;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 @Document
@@ -18,6 +19,7 @@ public class Shift {
     @Id
     private String uuid;
 
+    @Indexed
     private LocalDate fromDate;
 
     private String userUuid;
