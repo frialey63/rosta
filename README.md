@@ -29,6 +29,14 @@ Backup of the Mongo DB
 
     https://www.mongodb.com/docs/manual/tutorial/backup-and-restore-tools/
 
+## Azure
+
+Note need to create a manual index on `Shift.fromDate` in CosmosDb
+
+    az login
+    ac acr login -n rafmanstoncontainerregistry
+    mvn -Pproduction compile jib:build
+
 ## TODO
 
 preferred volunteering days for volunteers
