@@ -34,7 +34,7 @@ Backup of the Mongo DB
 Note need to create a manual index on `Shift.fromDate` in CosmosDb
 
     az login
-    ac acr login -n rafmanstoncontainerregistry
+    az acr login -n rafmanstoncontainerregistry
     mvn -Pproduction compile jib:build
 
 ## TODO
